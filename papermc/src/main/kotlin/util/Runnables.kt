@@ -35,6 +35,17 @@ fun runLater(delay: Long, function: (res: BukkitTask) -> Unit) {
         override fun run() {
             function(task!!)
         }
+    }.runTaskLater(ShulkerboxPaper.instance, delay)
+
+}
+
+fun runLaterAsync(delay: Long, function: (res: BukkitTask) -> Unit) {
+    var task: BukkitTask? = null
+
+    task = object : BukkitRunnable() {
+        override fun run() {
+            function(task!!)
+        }
     }.runTaskLaterAsynchronously(ShulkerboxPaper.instance, delay)
 
 }

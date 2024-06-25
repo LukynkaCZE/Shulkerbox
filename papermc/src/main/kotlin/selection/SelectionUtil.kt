@@ -9,7 +9,7 @@ import toMiniMessage
 object SelectionUtil {
 
     val selectionItem = ItemStack(Material.LEAD, 1)
-    val prefix = "<#884dff>Shulkerbox <dark_gray>| <gray>"
+    val prefix = "<#884dff>Shulkerbox <dark_gray>|<gray>"
 
     init {
         selectionItem.editMeta {
