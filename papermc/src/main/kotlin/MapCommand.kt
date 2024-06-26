@@ -1,5 +1,5 @@
 import org.bukkit.entity.Player
-import selection.SelectionUtil
+import selection.SelectionManager
 
 class MapCommand() {
 
@@ -20,7 +20,7 @@ class MapCommand() {
             .permission("shulkerbox.map")
             .handler { ctx ->
                 val player = ctx.sender() as Player
-                player.inventory.setItemInMainHand(SelectionUtil.selectionItem)
+                player.inventory.setItemInMainHand(SelectionManager.selectionItem)
             }
         )
     }

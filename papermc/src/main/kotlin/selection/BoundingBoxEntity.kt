@@ -1,20 +1,23 @@
 package selection
 
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.TextDisplay
+import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Transformation
 import org.bukkit.util.Vector
 import org.joml.AxisAngle4f
 import org.joml.Vector3f
+import toMiniMessage
 
 
-
-class BoundingBoxEntity(initialLocation: Location, initialSize: Vector) {
+class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) {
 
     private var location = initialLocation
     private var color = BoundingBoxColor.WHITE
@@ -57,15 +60,25 @@ class BoundingBoxEntity(initialLocation: Location, initialSize: Vector) {
         return size
     }
 
-
-    private val entity: BlockDisplay = location.world.spawnEntity(location, EntityType.BLOCK_DISPLAY) as BlockDisplay
-    private val flipped: BlockDisplay = location.world.spawnEntity(location, EntityType.BLOCK_DISPLAY) as BlockDisplay
-
-    init {
-
-    }
+    private val entity: ItemDisplay = location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay
+    private val flipped: ItemDisplay = location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay
+    private val nametag: TextDisplay = location.world.spawnEntity(location, EntityType.TEXT_DISPLAY) as TextDisplay
 
     fun update() {
+
+        nametag.text(name.toMiniMessage().style { it.color(color.textColor) })
+        nametag.isShadowed = false
+        nametag.isSeeThrough = true
+        nametag.billboard = Display.Billboard.CENTER
+
+        val centerOffset = size.clone().divide(Vector(2f, 2f, 2f))
+        val textLocation = location.clone().add(centerOffset)
+
+        if(textLocation.y < location.y) {
+            textLocation.y += 1
+        }
+
+        nametag.teleport(textLocation)
 
         val translation = Vector3f()
         val scale = size.toVector3f()
@@ -88,30 +101,53 @@ class BoundingBoxEntity(initialLocation: Location, initialSize: Vector) {
             scale.z -= 1f
         }
 
-        scale.add(0.01f, 0.01f, 0.01f)
+        val item = ItemStack(Material.STICK)
+        item.editMeta { it.setCustomModelData(color.customModelData) }
+
+        entity.interpolationDelay = 0
+        entity.interpolationDuration = 5
+        flipped.interpolationDelay = 0
+        flipped.interpolationDuration = 5
 
         entity.brightness = Display.Brightness(15, 15)
-        entity.transformation = Transformation(translation, AxisAngle4f(), scale, AxisAngle4f())
+        entity.transformation = Transformation(translation.copy(), AxisAngle4f(), scale.copy(), AxisAngle4f())
         entity.isGlowing = true
-        entity.block = Material.RED_STAINED_GLASS.createBlockData()
-//        entity.block = color.block.createBlockData()
-
+        entity.setItemStack(item)
+        entity.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.HEAD
+        entity.isGlowing = false
+        entity.isGlowing = true
+        entity.glowColorOverride = color.color
 
 
         flipped.brightness = Display.Brightness(15, 15)
-        flipped.transformation = Transformation(translation, AxisAngle4f(), scale.mul(-1f), AxisAngle4f())
-        flipped.isGlowing = true
-        flipped.block = Material.LIGHT_BLUE_STAINED_GLASS.createBlockData()
+        flipped.transformation = Transformation(scale.copy().add(translation), AxisAngle4f(), scale.copy().mul(-1f), AxisAngle4f())
+        flipped.setItemStack(item)
+        flipped.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.HEAD
+    }
+
+    fun remove() {
+        entity.remove()
+        flipped.remove()
+        nametag.remove()
     }
 }
 
-enum class BoundingBoxColor(val block: Material, val color: Color) {
-    RED(Material.RED_STAINED_GLASS, Color.RED),
-    ORANGE(Material.ORANGE_STAINED_GLASS, Color.ORANGE),
-    YELLOW(Material.YELLOW_STAINED_GLASS, Color.YELLOW),
-    LIME(Material.LIME_STAINED_GLASS, Color.LIME),
-    AQUA(Material.YELLOW_STAINED_GLASS, Color.YELLOW),
-    PINK(Material.PINK_STAINED_GLASS, Color.FUCHSIA),
-    PURPLE(Material.PURPLE_STAINED_GLASS, Color.PURPLE),
-    WHITE(Material.WHITE_STAINED_GLASS, Color.WHITE),
+enum class BoundingBoxColor(val customModelData: Int, val color: Color, val textColor: TextColor) {
+    RED(1, Color.BLUE, NamedTextColor.RED),
+    ORANGE(2, Color.TEAL, NamedTextColor.GOLD),
+    YELLOW(3, Color.AQUA, NamedTextColor.YELLOW),
+    LIME(4, Color.LIME, NamedTextColor.GREEN),
+    AQUA(5, Color.YELLOW, NamedTextColor.AQUA),
+    PINK(8, Color.FUCHSIA, NamedTextColor.LIGHT_PURPLE),
+    PURPLE(6, Color.PURPLE, NamedTextColor.DARK_PURPLE),
+    WHITE(8, Color.WHITE, NamedTextColor.WHITE),
 }
+
+fun Vector3f.copy(): Vector3f {
+    return Vector(this.x.toDouble(), this.y.toDouble(), this.z.toDouble()).toVector3f()
+}
+
+fun Vector3f.toVector(): Vector {
+    return Vector(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
+}
+

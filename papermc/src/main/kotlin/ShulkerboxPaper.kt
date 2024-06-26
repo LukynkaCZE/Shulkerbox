@@ -7,6 +7,7 @@ import org.incendo.cloud.SenderMapper
 import org.incendo.cloud.bukkit.CloudBukkitCapabilities
 import org.incendo.cloud.execution.ExecutionCoordinator
 import org.incendo.cloud.paper.LegacyPaperCommandManager
+import selection.SelectionCommands
 import selection.SelectionListener
 
 class ShulkerboxPaper: JavaPlugin() {
@@ -30,7 +31,8 @@ class ShulkerboxPaper: JavaPlugin() {
 
         MapCommand()
         GamemodeCommands()
-        SelectionListener()
+        SelectionListener
+        SelectionCommands()
 
     }
 
