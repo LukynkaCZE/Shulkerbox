@@ -1,15 +1,18 @@
 package selection
 
+import ShulkerboxPaper
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Display
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.TextDisplay
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Transformation
 import org.bukkit.util.Vector
 import org.joml.AxisAngle4f
@@ -123,6 +126,10 @@ class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) 
         flipped.transformation = Transformation(scale.copy().add(translation), AxisAngle4f(), scale.copy().mul(-1f), AxisAngle4f())
         flipped.setItemStack(item)
         flipped.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.HEAD
+
+        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
+        flipped.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
+        nametag.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
     }
 
     fun remove() {
@@ -138,7 +145,7 @@ enum class BoundingBoxColor(val customModelData: Int, val color: Color, val text
     YELLOW(3, Color.AQUA, NamedTextColor.YELLOW),
     LIME(4, Color.LIME, NamedTextColor.GREEN),
     AQUA(5, Color.YELLOW, NamedTextColor.AQUA),
-    PINK(8, Color.FUCHSIA, NamedTextColor.LIGHT_PURPLE),
+    PINK(7, Color.FUCHSIA, NamedTextColor.LIGHT_PURPLE),
     PURPLE(6, Color.PURPLE, NamedTextColor.DARK_PURPLE),
     WHITE(8, Color.WHITE, NamedTextColor.WHITE),
 }
@@ -150,4 +157,3 @@ fun Vector3f.copy(): Vector3f {
 fun Vector3f.toVector(): Vector {
     return Vector(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
 }
-

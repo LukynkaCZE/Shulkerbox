@@ -20,10 +20,13 @@ object SelectionManager {
             it.displayName("<green><underlined>Shulkerbox Selection Tool".toMiniMessage())
             it.lore(mutableListOf(
                 " ".toMiniMessage(),
-                "<reset><gray>Select two positions by <aqua>Right-Clicking <gray> and".toMiniMessage(),
-                "<reset><aqua>Left-Clicking".toMiniMessage(),
+                "<gray>Select two positions by <aqua>Right-Clicking <gray>and".toMiniMessage(),
+                "<aqua>Left-Clicking".toMiniMessage(),
                 " ".toMiniMessage(),
+                "<dark_gray>Shulkerbox Map Manager Item".toMiniMessage()
             ))
+            it.setEnchantmentGlintOverride(true)
+            it.setMaxStackSize(1)
             it.persistentDataContainer.set(ShulkerboxPaper.namespacedKey, PersistentDataType.BOOLEAN, true)
         }
     }

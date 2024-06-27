@@ -3,6 +3,7 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import selection.SelectionManager
 
 private var miniMessage = MiniMessage.miniMessage()
 
@@ -24,6 +25,10 @@ fun Player.send(message: String) {
     this.sendMessage(translatedMessage(message))
 }
 
+fun Player.sendPrefixed(message: String) {
+    this.sendMessage(translatedMessage("${SelectionManager.prefix} <gray>$message"))
+}
+
 fun Player.sendDebugMessage(message: String) {
     this.send("${debugColor}Debug <dark_gray>| <gray>$message")
 }
@@ -33,11 +38,8 @@ fun Player.sendSystemMessage(message: String) {
 }
 
 fun String.toMiniMessage(): Component {
+    val rootComp = Component.text().decoration(TextDecoration.ITALIC, false).build()
     val comp = miniMessage.deserialize(this)
 
-    comp.style {
-        it.decoration(TextDecoration.ITALIC, false)
-    }
-
-    return comp
+    return rootComp.append(comp)
 }

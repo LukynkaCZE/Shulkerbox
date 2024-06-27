@@ -1,6 +1,7 @@
 package selection
 
 import ShulkerboxPaper
+import clearEntitiesTemp
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Sound
@@ -36,6 +37,7 @@ object SelectionListener: Listener {
             if(selection != null) SelectionManager.remove(event.player)
             selection = SelectionManager.create(event.player, location)
             selection.setFirstPoint(location)
+            selection.boundingBoxEntity.setColor(BoundingBoxColor.LIME)
             selection.boundingBoxEntity.setName("${event.player.name}'s Selection")
             event.isCancelled = true
         }
@@ -53,10 +55,9 @@ object SelectionListener: Listener {
                 event.player.send("${SelectionManager.prefix} <green>Second point selected!")
             } else {
                 event.player.playSound(event.player.location, Sound.ITEM_BUNDLE_INSERT, 1.3f, 1f)
-                event.player.send("${SelectionManager.prefix} <yellow>Second point updated!")
+                event.player.send("${SelectionManager.prefix} <gray>Second point updated!")
             }
             selection.setSecondPoint(location)
-            event.player.send("${SelectionManager.prefix} <gray>Selection is now <yellow>TODO blocks<gray>")
             event.isCancelled = true
         }
     }
@@ -68,6 +69,7 @@ object SelectionListener: Listener {
             player.gameMode = GameMode.CREATIVE
             player.inventory.clear()
             player.inventory.setItemInMainHand(SelectionManager.selectionItem)
+            clearEntitiesTemp()
         }
     }
 
