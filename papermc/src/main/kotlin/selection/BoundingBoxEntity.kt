@@ -6,7 +6,6 @@ import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.entity.Display
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemDisplay
@@ -121,7 +120,6 @@ class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) 
         entity.isGlowing = true
         entity.glowColorOverride = color.color
 
-
         flipped.brightness = Display.Brightness(15, 15)
         flipped.transformation = Transformation(scale.copy().add(translation), AxisAngle4f(), scale.copy().mul(-1f), AxisAngle4f())
         flipped.setItemStack(item)
@@ -132,22 +130,22 @@ class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) 
         nametag.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
     }
 
-    fun remove() {
+    fun dispose() {
         entity.remove()
         flipped.remove()
         nametag.remove()
     }
 }
 
-enum class BoundingBoxColor(val customModelData: Int, val color: Color, val textColor: TextColor) {
-    RED(1, Color.BLUE, NamedTextColor.RED),
-    ORANGE(2, Color.TEAL, NamedTextColor.GOLD),
-    YELLOW(3, Color.AQUA, NamedTextColor.YELLOW),
-    LIME(4, Color.LIME, NamedTextColor.GREEN),
-    AQUA(5, Color.YELLOW, NamedTextColor.AQUA),
-    PINK(7, Color.FUCHSIA, NamedTextColor.LIGHT_PURPLE),
-    PURPLE(6, Color.PURPLE, NamedTextColor.DARK_PURPLE),
-    WHITE(8, Color.WHITE, NamedTextColor.WHITE),
+enum class BoundingBoxColor(val customModelData: Int, val color: Color, val textColor: TextColor, val banner: Material) {
+    RED(1, Color.BLUE, NamedTextColor.RED, Material.RED_BANNER),
+    ORANGE(2, Color.TEAL, NamedTextColor.GOLD, Material.ORANGE_BANNER),
+    YELLOW(3, Color.AQUA, NamedTextColor.YELLOW, Material.YELLOW_BANNER),
+    LIME(4, Color.LIME, NamedTextColor.GREEN, Material.LIME_BANNER),
+    AQUA(5, Color.YELLOW, NamedTextColor.AQUA, Material.LIGHT_BLUE_BANNER),
+    PINK(7, Color.FUCHSIA, NamedTextColor.LIGHT_PURPLE, Material.PINK_BANNER),
+    PURPLE(6, Color.PURPLE, NamedTextColor.DARK_PURPLE, Material.PURPLE_BANNER),
+    WHITE(8, Color.WHITE, NamedTextColor.WHITE, Material.WHITE_BANNER),
 }
 
 fun Vector3f.copy(): Vector3f {

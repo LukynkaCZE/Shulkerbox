@@ -3,7 +3,6 @@ package map
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import sendPrefixed
-import kotlin.math.acos
 
 object MapManager {
     val maps = mutableMapOf<String, ShulkerboxMap>()
@@ -32,6 +31,3 @@ object MapManager {
         return mapSelections[player]?.map
     }
 }
-
-
-

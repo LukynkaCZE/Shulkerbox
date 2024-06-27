@@ -1,11 +1,10 @@
 package map
 
-import org.bukkit.Sound
 import org.bukkit.entity.Player
-import org.bukkit.entity.Shulker
+import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import org.incendo.cloud.parser.standard.StringParser.stringParser
 import selection.SelectionManager
-import send
+import sendPrefixed
 import util.error
 
 class MapCommand {
@@ -13,10 +12,11 @@ class MapCommand {
     val cm = ShulkerboxPaper.instance.commandManager
 
     init {
-        val commandBase = cm.commandBuilder("map")
+        val mapCommandBase = cm.commandBuilder("map")
         val boundCommandBase = cm.commandBuilder("bound")
+        val pointCommandBase = cm.commandBuilder("point")
 
-        cm.command(commandBase.literal("select")
+        cm.command(mapCommandBase.literal("select")
             .required("map_id", stringParser())
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
@@ -30,7 +30,7 @@ class MapCommand {
                 MapManager.select(player, map)
             })
 
-        cm.command(commandBase.literal("create")
+        cm.command(mapCommandBase.literal("create")
             .required("map_id", stringParser())
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
@@ -51,7 +51,7 @@ class MapCommand {
                 MapManager.select(player, map)
             })
 
-        cm.command(commandBase.literal("unselect")
+        cm.command(mapCommandBase.literal("unselect")
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
                 if(!MapManager.hasMapSelected(player)) {
@@ -68,19 +68,20 @@ class MapCommand {
                 val player = (ctx.sender() as Player)
                 val id = ctx.get<String>("id")
                 val map = MapManager.selectedShulkerboxMap(player)
+
                 if(map == null) {
                     error(player, "You don't have any map selected!")
                     return@handler
                 }
 
-                val selection = SelectionManager.selectionMap[player]
-                if(selection == null) {
-                    error(player, "<red>You do not have any selection! Make a selection containing the map first")
+                if(map.bounds.containsKey(id)) {
+                    error(player, "Bound with id <dark_red>$id <red>already exists! If you want to redefine the bound use <yellow>/bound redefine <id>")
                     return@handler
                 }
 
-                if(map.bounds.containsKey(id)) {
-                    error(player, "Bound with id <dark_red>$id <red>already exists in this map!")
+                val selection = SelectionManager.selectionMap[player]
+                if(selection == null) {
+                    error(player, "<red>You do not have any selection! Make a selection first!")
                     return@handler
                 }
 
@@ -89,9 +90,82 @@ class MapCommand {
             }
         )
 
+        cm.command(boundCommandBase.literal("redefine")
+            .required("id", stringParser())
+            .handler { ctx ->
+                val player = (ctx.sender() as Player)
+                val map = MapManager.selectedShulkerboxMap(player)
+                val id = ctx.get<String>("id")
+
+                if(map == null) {
+                    error(player, "You don't have any map selected!")
+                    return@handler
+                }
+
+                if(map.bounds[id] == null) {
+                    error(player, "Bound with id <dark_red>$id <red>does not exist!")
+                    return@handler
+                }
+
+                val selection = SelectionManager.selectionMap[player]
+                if(selection == null) {
+                    error(player, "<red>You do not have any selection! Make a selection first!")
+                    return@handler
+                }
+
+                val activeMap = MapManager.mapSelections[player]!!
+                val bound = map.bounds[id]!!
+                bound.origin = selection.basePoint
+                bound.size = selection.getBoundingBoxSize()
+                activeMap.updateDrawables()
+                player.sendPrefixed("<green>Successfully redefined bound with id <dark_green>$id")
+            }
+        )
+
+        cm.command(boundCommandBase.literal("remove")
+            .required("id", stringParser())
+            .handler { ctx ->
+                val player = (ctx.sender() as Player)
+                val map = MapManager.selectedShulkerboxMap(player)
+                val id = ctx.get<String>("id")
+
+                if(map == null) {
+                    error(player, "You don't have any map selected!")
+                    return@handler
+                }
+
+                if(map.bounds[id] == null) {
+                    error(player, "Bound with id <dark_red>$id <red>does not exist!")
+                    return@handler
+                }
+
+                val activeMap = MapManager.mapSelections[player]!!
+                activeMap.removeBound(id)
+                player.sendPrefixed("<red>Successfully removed bound with id <dark_red>$id")
+            }
+        )
+
+        cm.command(pointCommandBase.literal("create")
+            .required("id", stringParser())
+            .required("type", enumParser(PointType::class.java))
+
+            .handler { ctx ->
+                val player = (ctx.sender() as Player)
+                val id = ctx.get<String>("id")
+                val type = ctx.get<PointType>("type")
+                val map = MapManager.selectedShulkerboxMap(player)
+
+                if(map == null) {
+                    error(player, "You don't have any map selected!")
+                    return@handler
+                }
+
+                val activeMap = MapManager.mapSelections[player]!!
+                val point = Point(id, player.location.clone().apply { yaw = player.yaw; pitch = 0f }, player.location.yaw, 0f, type)
+                activeMap.addPoint(point)
+            }
+        )
         cm.command(boundCommandBase)
-        cm.command(commandBase)
+        cm.command(mapCommandBase)
     }
-
-
 }

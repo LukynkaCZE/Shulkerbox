@@ -34,7 +34,7 @@ object SelectionManager {
     fun remove(player: Player) {
         val selection = selectionMap[player]
         if(selection != null) {
-            selection.boundingBoxEntity.remove()
+            selection.boundingBoxEntity.dispose()
             selectionMap.remove(player)
         }
     }

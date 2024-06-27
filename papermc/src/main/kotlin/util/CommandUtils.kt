@@ -7,5 +7,5 @@ import send
 
 fun error(player: Player, error: String) {
     player.send("${SelectionManager.prefix} <red>$error!")
-    player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BASS, 0.3f, 1f)
+    player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 1f)
 }

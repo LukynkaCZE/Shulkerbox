@@ -78,7 +78,7 @@ object SelectionListener: Listener {
         val player = playerQuitEvent.player
         val selection = selectionMap[player]
         if(selection != null) {
-            selection.boundingBoxEntity.remove()
+            selection.boundingBoxEntity.dispose()
             selectionMap.remove(player)
         }
     }
