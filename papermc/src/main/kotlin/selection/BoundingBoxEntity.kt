@@ -72,6 +72,7 @@ class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) 
         nametag.isShadowed = false
         nametag.isSeeThrough = true
         nametag.billboard = Display.Billboard.CENTER
+        nametag.alignment = TextDisplay.TextAlignment.CENTER
 
         val centerOffset = size.clone().divide(Vector(2f, 2f, 2f))
         val textLocation = location.clone().add(centerOffset)

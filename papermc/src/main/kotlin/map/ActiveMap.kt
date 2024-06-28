@@ -7,13 +7,11 @@ import selection.Selection
 
 class ActiveMap(var player: Player, var map: ShulkerboxMap) {
 
-    val mapBoundingBox = BoundingBoxEntity(map.origin, map.size)
+    var mapBoundingBox = BoundingBoxEntity(map.origin, map.size)
     val drawableBounds = mutableMapOf<String, BoundingBoxEntity>()
     val drawablePoints = mutableListOf<MarkerPointEntity>()
 
     init {
-        mapBoundingBox.setName(map.id)
-        mapBoundingBox.setColor(BoundingBoxColor.WHITE)
         updateDrawables()
     }
 
@@ -21,6 +19,8 @@ class ActiveMap(var player: Player, var map: ShulkerboxMap) {
         mapBoundingBox.dispose()
         drawableBounds.forEach { it.value.dispose() }
         drawableBounds.clear()
+        drawablePoints.forEach { it.dispose() }
+        drawablePoints.clear()
     }
 
     fun addBound(id: String, selection: Selection) {
@@ -34,11 +34,22 @@ class ActiveMap(var player: Player, var map: ShulkerboxMap) {
     }
 
     fun addPoint(point: Point) {
-        map.points.add(point)
+        map.points[point.uid] = point
         updateDrawables()
     }
 
     fun updateDrawables() {
+
+        mapBoundingBox.dispose()
+        mapBoundingBox = BoundingBoxEntity(map.origin, map.size)
+        val name = buildString {
+            append("${map.name} (${map.id})")
+            map.meta.forEach { append("\n<green>${it.key} <gray>= <aqua>${it.value}") }
+        }
+
+        mapBoundingBox.setName(name)
+        mapBoundingBox.setColor(BoundingBoxColor.WHITE)
+
         drawableBounds.forEach { it.value.dispose() }
         drawableBounds.clear()
         map.bounds.forEach {
@@ -46,7 +57,11 @@ class ActiveMap(var player: Player, var map: ShulkerboxMap) {
             val boundingBoxEntity = BoundingBoxEntity(it.value.origin, it.value.size)
             val color = BoundingBoxColor.YELLOW
             boundingBoxEntity.setColor(color)
-            boundingBoxEntity.setName("${map.id}/${it.value.id}")
+            val boundName = buildString {
+                append("${map.id}/${it.value.id}")
+                it.value.meta.forEach { append("\n<green>${it.key} <gray>= <aqua>${it.value}") }
+            }
+            boundingBoxEntity.setName(boundName)
 
             drawableBounds[it.value.id] = boundingBoxEntity
         }
@@ -54,10 +69,14 @@ class ActiveMap(var player: Player, var map: ShulkerboxMap) {
         drawablePoints.forEach { it.dispose() }
         drawablePoints.clear()
         map.points.forEach {
-            if(it.type != PointType.SPAWN) {
-                drawablePoints.add(MarkerPointEntity(it.location, BoundingBoxColor.WHITE, it))
+            val color = when(it.value.type) {
+                PointType.UNIQUE -> BoundingBoxColor.AQUA
+                PointType.MARKER -> BoundingBoxColor.WHITE
+                PointType.SPAWN -> BoundingBoxColor.PINK
             }
-        }
+            val entity = MarkerPointEntity(it.value.location, color, it.value)
 
+            drawablePoints.add(entity)
+        }
     }
 }

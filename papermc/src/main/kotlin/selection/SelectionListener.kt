@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import selection.SelectionManager.selectionMap
 import send
+import sendPrefixed
 import util.runLater
 
 object SelectionListener: Listener {
@@ -32,7 +33,7 @@ object SelectionListener: Listener {
         var selection: Selection? = selectionMap[event.player]
 
         if(event.action == Action.RIGHT_CLICK_BLOCK) {
-            event.player.send("${SelectionManager.prefix} <green>First point selected!")
+            event.player.sendPrefixed("First point has been selected! <yellow>(1/2)")
             event.player.playSound(event.player.location, Sound.BLOCK_NOTE_BLOCK_FLUTE, 0.3f, 1f)
             if(selection != null) SelectionManager.remove(event.player)
             selection = SelectionManager.create(event.player, location)
@@ -52,10 +53,10 @@ object SelectionListener: Listener {
         if(event.action == Action.LEFT_CLICK_BLOCK) {
             if(selection!!.getSecondPoint() == selection.basePoint) {
                 event.player.playSound(event.player.location, Sound.BLOCK_NOTE_BLOCK_FLUTE, 0.3f, 1.6f)
-                event.player.send("${SelectionManager.prefix} <green>Second point selected!")
+                event.player.sendPrefixed("Second point has been selected! <yellow>(2/2)")
             } else {
                 event.player.playSound(event.player.location, Sound.ITEM_BUNDLE_INSERT, 1.3f, 1f)
-                event.player.send("${SelectionManager.prefix} <gray>Second point updated!")
+                event.player.send("${SelectionManager.prefix} <gray>Second point updated! <yellow>(2/2)")
             }
             selection.setSecondPoint(location)
             event.isCancelled = true

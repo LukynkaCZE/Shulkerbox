@@ -11,13 +11,13 @@ object MapManager {
     fun select(player: Player, map: ShulkerboxMap) {
         if(hasMapSelected(player)) unselect(player, true)
         player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, 1.5f)
-        player.sendPrefixed("<green>Selected map <yellow>${map.name}<green>!")
+        player.sendPrefixed("<gray>Selected map <yellow>${map.name}<gray>!")
         mapSelections[player] = ActiveMap(player, map)
     }
 
     fun unselect(player: Player, silent: Boolean = false) {
         val activeMap = mapSelections[player]!!
-        player.sendPrefixed("<red>Unselected map <yellow>${activeMap.map.name}<red>!")
+        player.sendPrefixed("<gray>Unselected map <red>${activeMap.map.name}<gray>!")
         activeMap.dispose()
         mapSelections.remove(player)
         if(!silent) player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, 0.5f)

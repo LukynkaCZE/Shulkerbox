@@ -7,7 +7,9 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.incendo.cloud.SenderMapper
 import org.incendo.cloud.execution.ExecutionCoordinator
 import org.incendo.cloud.paper.LegacyPaperCommandManager
-import map.MapCommand
+import map.commands.MapCommand
+import map.commands.BoundCommands
+import map.commands.PointCommands
 import selection.SelectionCommands
 import selection.SelectionListener
 
@@ -18,6 +20,7 @@ class ShulkerboxPaper: JavaPlugin() {
         lateinit var instance: ShulkerboxPaper
         lateinit var namespacedKey: NamespacedKey
         lateinit var shulkerboxBoundingBoxEntityTag: NamespacedKey
+        lateinit var shulkerboxPointInteractionTag: NamespacedKey
     }
 
     override fun onEnable() {
@@ -25,6 +28,7 @@ class ShulkerboxPaper: JavaPlugin() {
         instance = this
         namespacedKey = NamespacedKey(instance, "shulkerbox")
         shulkerboxBoundingBoxEntityTag = NamespacedKey(instance, "is_bounding_box_entity")
+        shulkerboxPointInteractionTag = NamespacedKey(instance, "point_interaction_owner")
 
         this.commandManager = LegacyPaperCommandManager(
             this,
@@ -32,12 +36,14 @@ class ShulkerboxPaper: JavaPlugin() {
             SenderMapper.identity(),
         )
 
-        MapCommand()
         GamemodeCommands()
         SelectionListener
         SelectionCommands()
 
 
+        MapCommand()
+        BoundCommands()
+        PointCommands()
     }
 
     override fun onDisable() {
