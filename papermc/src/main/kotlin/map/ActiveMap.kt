@@ -4,10 +4,11 @@ import org.bukkit.entity.Player
 import selection.BoundingBoxColor
 import selection.BoundingBoxEntity
 import selection.Selection
+import send
 
 class ActiveMap(var player: Player, var map: ShulkerboxMap) {
 
-    var mapBoundingBox = BoundingBoxEntity(map.origin, map.size)
+    var mapBoundingBox = BoundingBoxEntity(map.origin!!, map.size.toBukkitVector())
     val drawableBounds = mutableMapOf<String, BoundingBoxEntity>()
     val drawablePoints = mutableListOf<MarkerPointEntity>()
 
@@ -24,7 +25,7 @@ class ActiveMap(var player: Player, var map: ShulkerboxMap) {
     }
 
     fun addBound(id: String, selection: Selection) {
-        map.bounds[id] = BoundingBox(id, selection.basePoint, selection.getBoundingBoxSize())
+        map.bounds[id] = BoundingBox(id, selection.basePoint.toShulkerboxOffset(map).toShulkerboxVector(), selection.getBoundingBoxSize().toShulkerboxVector())
         updateDrawables()
     }
 
@@ -41,7 +42,7 @@ class ActiveMap(var player: Player, var map: ShulkerboxMap) {
     fun updateDrawables() {
 
         mapBoundingBox.dispose()
-        mapBoundingBox = BoundingBoxEntity(map.origin, map.size)
+        mapBoundingBox = BoundingBoxEntity(map.origin!!, map.size.toBukkitVector())
         val name = buildString {
             append("${map.name} (${map.id})")
             map.meta.forEach { append("\n<green>${it.key} <gray>= <aqua>${it.value}") }
@@ -54,7 +55,7 @@ class ActiveMap(var player: Player, var map: ShulkerboxMap) {
         drawableBounds.clear()
         map.bounds.forEach {
             if(drawableBounds.containsKey(it.value.id)) return@forEach
-            val boundingBoxEntity = BoundingBoxEntity(it.value.origin, it.value.size)
+            val boundingBoxEntity = BoundingBoxEntity(it.value.origin.fromShulkerboxOffset(map.origin!!), it.value.size.toBukkitVector())
             val color = BoundingBoxColor.YELLOW
             boundingBoxEntity.setColor(color)
             val boundName = buildString {
@@ -74,7 +75,7 @@ class ActiveMap(var player: Player, var map: ShulkerboxMap) {
                 PointType.MARKER -> BoundingBoxColor.WHITE
                 PointType.SPAWN -> BoundingBoxColor.PINK
             }
-            val entity = MarkerPointEntity(it.value.location, color, it.value)
+            val entity = MarkerPointEntity(it.value.location.fromShulkerboxOffset(map.origin!!), color, it.value)
 
             drawablePoints.add(entity)
         }

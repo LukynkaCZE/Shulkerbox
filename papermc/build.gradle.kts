@@ -3,7 +3,7 @@ plugins {
     id("io.papermc.paperweight.userdev") version "1.7.1"
     id("xyz.jpenilla.run-paper") version "2.0.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    kotlin("plugin.serialization") version "1.8.21"
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 group = "cz.lukynka.shulkerbox.papermc"

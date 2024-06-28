@@ -1,6 +1,8 @@
 package map.commands
 
 import map.MapManager
+import map.toShulkerboxOffset
+import map.toShulkerboxVector
 import org.bukkit.entity.Player
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import org.incendo.cloud.parser.standard.StringParser.stringParser
@@ -76,8 +78,8 @@ class BoundCommands {
 
                 val activeMap = MapManager.mapSelections[player]!!
                 val bound = map.bounds[id]!!
-                bound.origin = selection.basePoint
-                bound.size = selection.getBoundingBoxSize()
+                bound.origin = selection.basePoint.toShulkerboxOffset(map).toShulkerboxVector()
+                bound.size = selection.getBoundingBoxSize().toShulkerboxVector()
                 activeMap.updateDrawables()
                 player.sendPrefixed("<green>Successfully redefined the size of bound with id <yellow>$id<green>!")
                 player.playEditSound()

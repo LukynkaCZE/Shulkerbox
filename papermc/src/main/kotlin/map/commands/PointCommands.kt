@@ -1,8 +1,6 @@
 package map.commands
 
-import map.MapManager
-import map.Point
-import map.PointType
+import map.*
 import org.bukkit.entity.Player
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import org.incendo.cloud.parser.standard.StringParser.stringParser
@@ -39,7 +37,15 @@ class PointCommands {
 
                 val activeMap = MapManager.mapSelections[player]!!
                 val uid: String = generateUid(map)
-                val point = Point(id, player.location.clone().apply { yaw = player.yaw; pitch = 0f }, player.location.yaw, 0f, type, mutableMapOf(), uid)
+                val point = Point(
+                    id = id,
+                    location = player.location.clone().apply { yaw = player.yaw; pitch = 0f }.toShulkerboxOffset(map).toShulkerboxVector(),
+                    yaw = player.location.yaw,
+                    pitch = 0f,
+                    type = type,
+                    meta = mutableMapOf(),
+                    uid = uid
+                )
                 activeMap.addPoint(point)
             }
         )
@@ -94,7 +100,7 @@ class PointCommands {
                     return@handler
                 }
 
-                point.location = player.location.clone().apply { yaw = player.yaw; pitch = 0f }
+                point.location = player.location.clone().apply { yaw = player.yaw; pitch = 0f }.toShulkerboxOffset(map).toShulkerboxVector()
                 point.pitch = player.pitch
                 point.yaw = 0f
 

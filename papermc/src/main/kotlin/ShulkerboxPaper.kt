@@ -1,4 +1,5 @@
 import essentials.commands.GamemodeCommands
+import map.MapManager
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.command.CommandSender
@@ -21,6 +22,7 @@ class ShulkerboxPaper: JavaPlugin() {
         lateinit var namespacedKey: NamespacedKey
         lateinit var shulkerboxBoundingBoxEntityTag: NamespacedKey
         lateinit var shulkerboxPointInteractionTag: NamespacedKey
+        var isBuildServer: Boolean = false
     }
 
     override fun onEnable() {
@@ -29,6 +31,8 @@ class ShulkerboxPaper: JavaPlugin() {
         namespacedKey = NamespacedKey(instance, "shulkerbox")
         shulkerboxBoundingBoxEntityTag = NamespacedKey(instance, "is_bounding_box_entity")
         shulkerboxPointInteractionTag = NamespacedKey(instance, "point_interaction_owner")
+
+        isBuildServer = true
 
         this.commandManager = LegacyPaperCommandManager(
             this,
@@ -44,6 +48,16 @@ class ShulkerboxPaper: JavaPlugin() {
         MapCommand()
         BoundCommands()
         PointCommands()
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this, Runnable {
+            if(isBuildServer) {
+                try {
+                    MapManager.loadMapsFromBuildServerRegistry()
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
+            }
+        })
     }
 
     override fun onDisable() {

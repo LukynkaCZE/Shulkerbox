@@ -28,8 +28,7 @@ class MarkerPointEntity(var location: Location, var color: BoundingBoxColor, var
         entity.transformation = Transformation(Vector3f(), AxisAngle4f(), Vector3f(0.5f, 0.5f, 0.5f), AxisAngle4f())
         nametag.isShadowed = false
         nametag.alignment = TextDisplay.TextAlignment.CENTER
-//        nametag.text("${point.id} <gray>(${point.uid})".toMiniMessage().style { it.color(color.textColor) })
-        nametag.text("${point.id})".toMiniMessage().style { it.color(color.textColor) })
+        nametag.text("${point.id}\n<gray>(${point.uid})".toMiniMessage().style { it.color(color.textColor) })
         nametag.teleport(entity.location.clone().apply { y += 0.85f })
         nametag.billboard = Display.Billboard.CENTER
 

@@ -2,6 +2,7 @@ package map.commands
 
 import map.MapManager
 import map.ShulkerboxMap
+import map.toShulkerboxVector
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
@@ -12,6 +13,7 @@ import selection.SelectionManager
 import send
 import sendPrefixed
 import util.error
+import util.simpleSuggestion
 
 class MapCommand {
 
@@ -51,7 +53,7 @@ class MapCommand {
                     return@handler
                 }
 
-                val map = ShulkerboxMap(mapId, origin = selection.basePoint, size = selection.getBoundingBoxSize())
+                val map = ShulkerboxMap(mapId, origin = selection.basePoint, size = selection.getBoundingBoxSize().toShulkerboxVector())
                 MapManager.maps[mapId] = map
                 MapManager.select(player, map)
 
@@ -88,7 +90,7 @@ class MapCommand {
 
                 val activeMap = MapManager.mapSelections[player]!!
                 map.origin = selection.basePoint
-                map.size = selection.getBoundingBoxSize()
+                map.size = selection.getBoundingBoxSize().toShulkerboxVector()
                 activeMap.updateDrawables()
 
                 player.sendPrefixed("<green>Successfully redefined size of map <yellow>${map.id}<green>!")
@@ -199,6 +201,30 @@ class MapCommand {
                 MapManager.maps.remove(map.id)
             })
 
+        cm.command(mapCommandBase.literal("save")
+            .optional("push", stringParser(), simpleSuggestion("push"))
+            .handler { ctx ->
+                val player = (ctx.sender() as Player)
+                val map = MapManager.selectedShulkerboxMap(player)
+                val push = ctx.getOrDefault<String>("push", null)
+
+                if(map == null) {
+                    error(player, "You don't have any map selected!")
+                    return@handler
+                }
+
+                player.sendPrefixed("<yellow>Saving map.. this could lag the server!")
+                try {
+                    MapManager.save(map)
+                } catch (ex: Exception) {
+                    error(player, "Map saving failed: $ex")
+                    ex.printStackTrace()
+                    return@handler
+                }
+
+                player.sendPrefixed("<green>Successfully saved map <yellow>${map.id}<green> to <aqua>Shulkerbox/${map.id}/map.shulker<green>!")
+                player.playEditSound()
+            })
         cm.command(mapCommandBase)
     }
 }
