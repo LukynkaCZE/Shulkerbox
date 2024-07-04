@@ -3,6 +3,7 @@ package map.commands
 import map.MapManager
 import map.toShulkerboxOffset
 import map.toShulkerboxVector
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import org.incendo.cloud.parser.standard.StringParser.stringParser
@@ -132,6 +133,7 @@ class BoundCommands {
                 }
 
                 val bound = map.bounds[id]
+                Bukkit.broadcastMessage("${map.bounds}")
                 if(bound == null) {
                     util.error(player, "There is no bound with the id <dark_red>$id")
                     return@handler

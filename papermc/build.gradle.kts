@@ -12,6 +12,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://maven.enginehub.org/repo")
 }
 
 dependencies {
@@ -22,6 +23,8 @@ dependencies {
     implementation("org.incendo:cloud-kotlin-extensions:2.0.0-rc.2")
     implementation("org.incendo:cloud-paper:2.0.0-beta.8")
     implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.8")
+    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.9")
+    compileOnly("com.sk89q.worldedit:worldedit-core:7.2.9")
 //    implementation(project(":common"))
 }
 

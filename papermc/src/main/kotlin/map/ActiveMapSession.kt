@@ -4,9 +4,8 @@ import org.bukkit.entity.Player
 import selection.BoundingBoxColor
 import selection.BoundingBoxEntity
 import selection.Selection
-import send
 
-class ActiveMap(var player: Player, var map: ShulkerboxMap) {
+class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
 
     var mapBoundingBox = BoundingBoxEntity(map.origin!!, map.size.toBukkitVector())
     val drawableBounds = mutableMapOf<String, BoundingBoxEntity>()
@@ -75,7 +74,10 @@ class ActiveMap(var player: Player, var map: ShulkerboxMap) {
                 PointType.MARKER -> BoundingBoxColor.WHITE
                 PointType.SPAWN -> BoundingBoxColor.PINK
             }
-            val entity = MarkerPointEntity(it.value.location.fromShulkerboxOffset(map.origin!!), color, it.value)
+            val location = it.value.location.fromShulkerboxOffset(map.origin!!)
+            location.yaw = it.value.yaw
+            location.pitch = it.value.pitch
+            val entity = MarkerPointEntity(location, color, it.value)
 
             drawablePoints.add(entity)
         }
