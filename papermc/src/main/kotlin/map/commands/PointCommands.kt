@@ -1,9 +1,11 @@
 package map.commands
 
 import map.*
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import org.incendo.cloud.parser.standard.StringParser.stringParser
+import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 import sendPrefixed
 import util.error
 import util.generateUid
@@ -11,9 +13,13 @@ import util.simpleSuggestion
 
 class PointCommands {
 
-    val cm = ShulkerboxPaper.instance.commandManager
+
+    private fun getPointUidSuggestions(): BlockingSuggestionProvider.Strings<CommandSender> {
+        return BlockingSuggestionProvider.Strings { commandContext, input -> MapManager.selectedShulkerboxMap(commandContext.sender() as Player)?.points!!.keys }
+    }
 
     init {
+        val cm = ShulkerboxPaper.instance.commandManager
         val pointCommandBase = cm.commandBuilder("point")
         cm.command(pointCommandBase.literal("create")
             .required("id", stringParser(), simpleSuggestion("<id>"))
@@ -51,7 +57,7 @@ class PointCommands {
         )
 
         cm.command(pointCommandBase.literal("remove")
-            .required("uid", stringParser(), simpleSuggestion("<uid>"))
+            .required("uid", stringParser(), getPointUidSuggestions())
 
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
@@ -80,7 +86,7 @@ class PointCommands {
         )
 
         cm.command(pointCommandBase.literal("redefine")
-            .required("uid", stringParser(), simpleSuggestion("<uid>"))
+            .required("uid", stringParser(), getPointUidSuggestions())
             .optional("type", enumParser(PointType::class.java))
 
             .handler { ctx ->

@@ -21,7 +21,6 @@ import sendPrefixed
 import java.io.File
 import java.io.FileOutputStream
 
-
 object MapManager {
     val maps = mutableMapOf<String, ShulkerboxMap>()
     val mapSelections = mutableMapOf<Player, ActiveMapSession>()

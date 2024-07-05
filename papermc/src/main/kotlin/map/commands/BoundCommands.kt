@@ -4,9 +4,11 @@ import map.MapManager
 import map.toShulkerboxOffset
 import map.toShulkerboxVector
 import org.bukkit.Bukkit
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import org.incendo.cloud.parser.standard.StringParser.stringParser
+import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 import org.incendo.cloud.suggestion.Suggestion
 import org.incendo.cloud.suggestion.SuggestionProvider
 import selection.SelectionManager
@@ -16,12 +18,16 @@ import util.simpleSuggestion
 
 class BoundCommands {
 
+    private fun getBoundIdSuggestions(): BlockingSuggestionProvider.Strings<CommandSender> {
+        return BlockingSuggestionProvider.Strings { commandContext, input -> MapManager.selectedShulkerboxMap(commandContext.sender() as Player)?.bounds!!.keys }
+    }
+
     init {
         val cm = ShulkerboxPaper.instance.commandManager
         val boundCommandBase = cm.commandBuilder("bound")
 
         cm.command(boundCommandBase.literal("create")
-            .required("id", stringParser())
+            .required("id", stringParser(), simpleSuggestion("<id>"))
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
                 val id = ctx.get<String>("id")
@@ -55,7 +61,7 @@ class BoundCommands {
         )
 
         cm.command(boundCommandBase.literal("redefine")
-            .required("id", stringParser())
+            .required("id", stringParser(), getBoundIdSuggestions())
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
                 val map = MapManager.selectedShulkerboxMap(player)
@@ -88,7 +94,7 @@ class BoundCommands {
         )
 
         cm.command(boundCommandBase.literal("remove")
-            .required("id", stringParser())
+            .required("id", stringParser(), getBoundIdSuggestions())
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
                 val map = MapManager.selectedShulkerboxMap(player)
@@ -113,7 +119,7 @@ class BoundCommands {
         )
 
         cm.command(boundCommandBase.literal("meta")
-            .required("id", stringParser(), simpleSuggestion("<id>"))
+            .required("id", stringParser(), getBoundIdSuggestions())
             .required("action", enumParser(ShulkerboxMetaAction::class.java))
             .optional("key", stringParser(), SuggestionProvider.suggesting(Suggestion.suggestion("<key>")))
             .optional("value", stringParser(), SuggestionProvider.suggesting(Suggestion.suggestion("<value>")))

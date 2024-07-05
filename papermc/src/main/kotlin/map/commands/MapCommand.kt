@@ -4,9 +4,11 @@ import map.MapManager
 import map.ShulkerboxMap
 import map.toShulkerboxVector
 import org.bukkit.Sound
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import org.incendo.cloud.parser.standard.StringParser.stringParser
+import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 import org.incendo.cloud.suggestion.Suggestion
 import org.incendo.cloud.suggestion.SuggestionProvider
 import selection.SelectionManager
@@ -17,14 +19,17 @@ import util.simpleSuggestion
 
 class MapCommand {
 
-    val cm = ShulkerboxPaper.instance.commandManager
-    val suggestions = MapManager.maps.keys.map { Suggestion.suggestion(it) }.toMutableList()
+
+    private fun getMapIdSuggestions(): BlockingSuggestionProvider.Strings<CommandSender> {
+        return BlockingSuggestionProvider.Strings { commandContext, input -> MapManager.maps.keys }
+    }
 
     init {
+        val cm = ShulkerboxPaper.instance.commandManager
         val mapCommandBase = cm.commandBuilder("map")
 
         cm.command(mapCommandBase.literal("select")
-            .required("map_id", stringParser(), SuggestionProvider.suggesting(suggestions))
+            .required("map_id", stringParser(), getMapIdSuggestions())
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
                 val mapId = ctx.get<String>("map_id")
@@ -38,7 +43,7 @@ class MapCommand {
             })
 
         cm.command(mapCommandBase.literal("create")
-            .required("map_id", stringParser(), SuggestionProvider.suggesting(Suggestion.suggestion("<map id>")))
+            .required("map_id", stringParser(), getMapIdSuggestions())
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
                 val mapId = ctx.get<String>("map_id")
