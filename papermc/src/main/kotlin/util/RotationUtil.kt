@@ -3,10 +3,11 @@ package util
 import org.bukkit.util.EulerAngle
 import org.joml.AxisAngle4d
 import org.joml.AxisAngle4f
+import org.joml.Quaternionf
 import org.joml.Vector4f
 import kotlin.math.*
 
-fun quaternionToEuler(q: Vector4f): EulerAngle {
+fun quaternionToEuler(q: Quaternionf): EulerAngle {
     val ysqr = q.y * q.y
     val t0 = 2.0 * (q.w * q.x + q.y * q.z)
     val t1 = 1.0 - 2.0 * (q.x * q.x + ysqr)

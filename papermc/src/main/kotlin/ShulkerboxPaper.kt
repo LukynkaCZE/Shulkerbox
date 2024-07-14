@@ -11,6 +11,8 @@ import org.incendo.cloud.paper.LegacyPaperCommandManager
 import map.commands.MapCommand
 import map.commands.BoundCommands
 import map.commands.PointCommands
+import props.PropCommands
+import props.PropListener
 import selection.SelectionCommands
 import selection.SelectionListener
 
@@ -22,6 +24,7 @@ class ShulkerboxPaper: JavaPlugin() {
         lateinit var namespacedKey: NamespacedKey
         lateinit var shulkerboxBoundingBoxEntityTag: NamespacedKey
         lateinit var shulkerboxPointInteractionTag: NamespacedKey
+        lateinit var shulkerboxPropEntityTag: NamespacedKey
         var isBuildServer: Boolean = false
     }
 
@@ -30,7 +33,8 @@ class ShulkerboxPaper: JavaPlugin() {
         instance = this
         namespacedKey = NamespacedKey(instance, "shulkerbox")
         shulkerboxBoundingBoxEntityTag = NamespacedKey(instance, "is_bounding_box_entity")
-        shulkerboxPointInteractionTag = NamespacedKey(instance, "point_interaction_owner")
+        shulkerboxBoundingBoxEntityTag = NamespacedKey(instance, "is_bounding_box_entity")
+        shulkerboxPropEntityTag = NamespacedKey(instance, "is_prop")
 
         isBuildServer = true
 
@@ -40,14 +44,15 @@ class ShulkerboxPaper: JavaPlugin() {
             SenderMapper.identity(),
         )
 
-        GamemodeCommands()
-        SelectionListener
-        SelectionCommands()
-
+        SelectionListener()
+        PropListener()
 
         MapCommand()
         BoundCommands()
         PointCommands()
+        PropCommands()
+        SelectionCommands()
+        GamemodeCommands()
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(this, Runnable {
             if(isBuildServer) {

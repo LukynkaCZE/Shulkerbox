@@ -245,3 +245,16 @@ enum class ShulkerboxMetaAction {
 fun Player.playEditSound() {
     this.playSound(this.location, Sound.UI_LOOM_TAKE_RESULT, 1f, 1f)
 }
+
+fun Player.giveItemSound() {
+    this.playSound(this.location, Sound.ENTITY_ITEM_PICKUP, 1f, 1.5f)
+}
+
+fun Player.valueChangeSound() {
+    this.playSound(this.location, Sound.UI_BUTTON_CLICK, 1f, 2f)
+}
+
+
+fun Player.successSound(pitch: Float = 1f) {
+    this.playSound(this.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, pitch)
+}

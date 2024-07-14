@@ -11,6 +11,9 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
     val drawableBounds = mutableMapOf<String, BoundingBoxEntity>()
     val drawablePoints = mutableListOf<MarkerPointEntity>()
 
+    //TODO
+    val editors: MutableList<Player> = mutableListOf()
+
     init {
         updateDrawables()
     }

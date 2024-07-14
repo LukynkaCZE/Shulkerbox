@@ -16,7 +16,7 @@ import send
 import sendPrefixed
 import util.runLater
 
-object SelectionListener: Listener {
+class SelectionListener: Listener {
 
     init {
         Bukkit.getPluginManager().registerEvents(this, ShulkerboxPaper.instance)
@@ -68,8 +68,8 @@ object SelectionListener: Listener {
         val player = playerJoinEvent.player
         runLater(5) {
             player.gameMode = GameMode.CREATIVE
-            player.inventory.clear()
-            player.inventory.setItemInMainHand(SelectionManager.selectionItem)
+//            player.inventory.clear()
+//            player.inventory.setItemInMainHand(SelectionManager.selectionItem)
             clearEntitiesTemp()
         }
     }
