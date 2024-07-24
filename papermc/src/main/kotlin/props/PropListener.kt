@@ -12,6 +12,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.util.Transformation
 import org.joml.Quaternionf
 import selection.SelectionManager.prefix
@@ -88,7 +89,7 @@ class PropListener: Listener {
         prop.itemDisplay.interpolationDelay = 0
         prop.itemDisplay.interpolationDuration = 2
         val current = prop.itemDisplay.transformation
-        val realValue = if(player.isSneaking) 0.1f else 0.3f
+        val realValue = if(player.isSneaking) 0.05f else 0.3f
         val value = if(action.isLeftClick) realValue else realValue * -1
         val trans = when(dir) {
             VectorDir.X -> current.translation.apply { x += value } // omg trans rights :3
@@ -104,7 +105,7 @@ class PropListener: Listener {
         prop.itemDisplay.interpolationDelay = 0
         prop.itemDisplay.interpolationDuration = 2
         val current = prop.itemDisplay.transformation
-        val realValue = if(player.isSneaking) 0.1f else 0.3f
+        val realValue = if(player.isSneaking) 0.05f else 0.3f
         val value = if(action.isLeftClick) realValue else realValue * -1
 
         val rotationDelta = when(dir) {
@@ -119,6 +120,13 @@ class PropListener: Listener {
         prop.itemDisplay.interpolationDuration = 2
         prop.itemDisplay.transformation = Transformation(current.translation, current.leftRotation, current.scale, newRotation)
         return
+    }
+
+    @EventHandler
+    fun onPlayerLeave(event: PlayerQuitEvent) {
+        if(PropManager.propSelections[event.player] != null) {
+            PropManager.unselect(event.player, false)
+        }
     }
 }
 

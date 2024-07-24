@@ -5,7 +5,6 @@ import org.bukkit.entity.Player
 
 class SelectedProp(var itemDisplay: ItemDisplay, var player: Player) {
     var dragOperation = PropDragOperation.FREE_MOVE
-
 }
 
 enum class PropDragOperation {

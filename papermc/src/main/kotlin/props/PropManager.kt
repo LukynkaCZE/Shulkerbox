@@ -32,7 +32,6 @@ object PropManager {
         }
     }
 
-
     fun select(player: Player, prop: SelectedProp) {
         if(propSelections[player] != null) unselect(player, false)
         prop.itemDisplay.isGlowing = true

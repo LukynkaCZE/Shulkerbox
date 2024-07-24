@@ -3,10 +3,8 @@ package props
 import ShulkerboxPaper
 import map.commands.giveItemSound
 import map.commands.playEditSound
-import net.minecraft.nbt.CompoundTag
 import org.bukkit.Material
 import org.bukkit.command.CommandSender
-import org.bukkit.craftbukkit.entity.CraftEntity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.Player
@@ -63,9 +61,17 @@ class PropCommands {
                 }
                 PropManager.unselect(player)
                 val newPropEntity = player.world.spawnEntity(prop.itemDisplay.location, EntityType.ITEM_DISPLAY) as ItemDisplay
-                val nbt = CompoundTag()
-                (prop.itemDisplay as CraftEntity).handle.save(nbt)
-                (newPropEntity as CraftEntity).handle.load(nbt)
+
+                newPropEntity.itemDisplayTransform = prop.itemDisplay.itemDisplayTransform
+                newPropEntity.setItemStack(prop.itemDisplay.itemStack)
+                newPropEntity.brightness = prop.itemDisplay.brightness
+                newPropEntity.isCustomNameVisible = prop.itemDisplay.isCustomNameVisible
+                newPropEntity.teleportDuration = prop.itemDisplay.teleportDuration
+                newPropEntity.interpolationDelay = prop.itemDisplay.interpolationDelay
+                newPropEntity.interpolationDuration = prop.itemDisplay.interpolationDuration
+                newPropEntity.transformation = prop.itemDisplay.transformation
+                newPropEntity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxPropEntityTag, PersistentDataType.BOOLEAN, true)
+
                 PropManager.select(player, SelectedProp(newPropEntity, player))
                 player.sendPrefixed("<yellow>Cloned a prop!")
             }
@@ -142,7 +148,6 @@ class PropCommands {
                 player.sendPrefixed("You have been given the <aqua>1x Prop Move Tool<gray>!")
                 player.giveItemSound()
             })
-
 
 
         cm.command(propCommandBase.literal("tp")
