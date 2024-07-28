@@ -13,6 +13,10 @@ repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://maven.enginehub.org/repo")
+    maven {
+        name = "devOS"
+        url = uri("https://mvn.devos.one/releases")
+    }
 }
 
 dependencies {
@@ -23,8 +27,10 @@ dependencies {
     implementation("org.incendo:cloud-kotlin-extensions:2.0.0-rc.2")
     implementation("org.incendo:cloud-paper:2.0.0-beta.8")
     implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.8")
+    implementation("cz.lukynka:lkws:1.2")
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.9")
     compileOnly("com.sk89q.worldedit:worldedit-core:7.2.9")
+
 //    implementation(project(":common"))
 }
 

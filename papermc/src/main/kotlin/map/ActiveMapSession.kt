@@ -1,6 +1,7 @@
 package map
 
 import org.bukkit.entity.Player
+import props.PropEntity
 import selection.BoundingBoxColor
 import selection.BoundingBoxEntity
 import selection.Selection
@@ -10,6 +11,7 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
     var mapBoundingBox = BoundingBoxEntity(map.origin!!, map.size.toBukkitVector())
     val drawableBounds = mutableMapOf<String, BoundingBoxEntity>()
     val drawablePoints = mutableListOf<MarkerPointEntity>()
+    val drawableProps = mutableListOf<PropEntity>()
 
     //TODO
     val editors: MutableList<Player> = mutableListOf()
@@ -22,6 +24,8 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
         mapBoundingBox.dispose()
         drawableBounds.forEach { it.value.dispose() }
         drawableBounds.clear()
+        drawablePoints.forEach { it.dispose() }
+        drawablePoints.clear()
         drawablePoints.forEach { it.dispose() }
         drawablePoints.clear()
     }
@@ -38,6 +42,11 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
 
     fun addPoint(point: Point) {
         map.points[point.uid] = point
+        updateDrawables()
+    }
+
+    fun addProp(prop: Prop) {
+        map.props[prop.uid] = prop
         updateDrawables()
     }
 
@@ -83,6 +92,17 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
             val entity = MarkerPointEntity(location, color, it.value)
 
             drawablePoints.add(entity)
+        }
+
+        drawableProps.forEach { it.dispose() }
+        drawableProps.clear()
+        map.props.forEach {
+            val location = it.value.location.fromShulkerboxOffset(map.origin!!)
+            location.yaw = it.value.yaw
+            location.pitch = it.value.pitch
+
+            val entity = PropEntity(location, it.value)
+            drawableProps.add(entity)
         }
     }
 }

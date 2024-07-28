@@ -15,6 +15,7 @@ import props.PropCommands
 import props.PropListener
 import selection.SelectionCommands
 import selection.SelectionListener
+import youkai.YoukaiIntegration
 
 class ShulkerboxPaper: JavaPlugin() {
 
@@ -25,7 +26,8 @@ class ShulkerboxPaper: JavaPlugin() {
         lateinit var shulkerboxBoundingBoxEntityTag: NamespacedKey
         lateinit var shulkerboxPointInteractionTag: NamespacedKey
         lateinit var shulkerboxPropEntityTag: NamespacedKey
-        var isBuildServer: Boolean = false
+        var isBuildServer: Boolean = true
+        var youkaiSupport: Boolean = true
     }
 
     override fun onEnable() {
@@ -37,6 +39,9 @@ class ShulkerboxPaper: JavaPlugin() {
         shulkerboxPropEntityTag = NamespacedKey(instance, "is_prop")
 
         isBuildServer = true
+        if(youkaiSupport) {
+            YoukaiIntegration().start()
+        }
 
         this.commandManager = LegacyPaperCommandManager(
             this,
