@@ -46,7 +46,8 @@ data class Prop(
     var meta: MutableMap<String, String> = mutableMapOf(),
     var transformation: ShulkerboxTranform,
     var brightness: Int?,
-    var itemStack: PropItemStack
+    var itemStack: PropItemStack,
+    var youkaiModelId: String? = null
 )
 
 fun PropItemStack.toBukkitItemStack(): ItemStack {

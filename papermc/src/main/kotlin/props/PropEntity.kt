@@ -1,5 +1,6 @@
 package props
 
+import ShulkerboxPaper
 import map.Prop
 import map.toBukkitItemStack
 import map.toTransformation
@@ -8,6 +9,7 @@ import org.bukkit.entity.Display
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemDisplay
 import org.bukkit.persistence.PersistentDataType
+import youkai.YoukaiIntegration
 
 class PropEntity(var location: Location, var prop: Prop) {
     var dragOperation = PropDragOperation.FREE_MOVE
@@ -19,6 +21,9 @@ class PropEntity(var location: Location, var prop: Prop) {
 
     fun update() {
         entity.setItemStack(prop.itemStack.toBukkitItemStack())
+        if(prop.youkaiModelId != null && ShulkerboxPaper.youkaiSupport) {
+            entity.setItemStack(YoukaiIntegration.getModel(prop.youkaiModelId!!))
+        }
         if(prop.brightness != null) {
             entity.brightness = Display.Brightness(prop.brightness!!, prop.brightness!!)
         }

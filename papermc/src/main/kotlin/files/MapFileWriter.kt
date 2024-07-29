@@ -1,6 +1,8 @@
 package files
 
+import ShulkerboxPaper
 import map.ShulkerboxMap
+import youkai.YoukaiIntegration
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -35,5 +37,6 @@ object MapFileWriter {
                 }
             }
         }
+        if(ShulkerboxPaper.youkaiSupport) YoukaiIntegration.saveCache()
     }
 }

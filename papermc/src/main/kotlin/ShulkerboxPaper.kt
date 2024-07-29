@@ -40,7 +40,7 @@ class ShulkerboxPaper: JavaPlugin() {
 
         isBuildServer = true
         if(youkaiSupport) {
-            YoukaiIntegration().start()
+            YoukaiIntegration.start()
         }
 
         this.commandManager = LegacyPaperCommandManager(
@@ -68,10 +68,16 @@ class ShulkerboxPaper: JavaPlugin() {
                 }
             }
         }
+        if(youkaiSupport) {
+            YoukaiIntegration.loadCache()
+        }
     }
 
     override fun onDisable() {
         Bukkit.broadcastMessage("bai :3")
+        if(youkaiSupport) {
+            YoukaiIntegration.saveCache()
+        }
     }
 }
 

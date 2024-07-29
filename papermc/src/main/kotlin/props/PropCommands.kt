@@ -4,7 +4,6 @@ import ShulkerboxPaper
 import map.*
 import map.commands.giveItemSound
 import map.commands.playEditSound
-import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.Material
 import org.bukkit.command.CommandSender
@@ -19,8 +18,14 @@ import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 import org.joml.Vector3f
 import sendPrefixed
 import util.*
+import youkai.YoukaiIntegration
 
 class PropCommands {
+
+
+    private fun getYoukaiModelSuggestions(): BlockingSuggestionProvider.Strings<CommandSender> {
+        return BlockingSuggestionProvider.Strings { commandContext, input -> YoukaiIntegration.models.keys }
+    }
 
     init {
         val cm = ShulkerboxPaper.instance.commandManager
@@ -227,12 +232,38 @@ class PropCommands {
                 }
                 val activeMap = MapManager.mapSelections[player]!!
 
-                Bukkit.broadcastMessage("${item.toPropItemStack()}")
                 prop.itemStack = item.toPropItemStack()
                 player.sendPrefixed("Set the item of the prop to <green>${item.type.name}<gray>!")
                 player.playEditSound()
                 activeMap.updateDrawables()
             })
+
+        if(ShulkerboxPaper.youkaiSupport) {
+            cm.command(propCommandBase.literal("youkai")
+                .required("id", stringParser(), getYoukaiModelSuggestions())
+                .handler {ctx ->
+                    val player = ctx.sender() as Player
+                    val prop = PropManager.propSelections[player]
+                    val id = ctx.get<String>("id")
+                    val item = YoukaiIntegration.getModel(id)
+                    if(prop == null) {
+                        error(player, "You do not have any prop selected")
+                        return@handler
+                    }
+                    val map = MapManager.selectedShulkerboxMap(player)
+                    if(map == null) {
+                        error(player, "You don't have any map selected!")
+                        return@handler
+                    }
+                    val activeMap = MapManager.mapSelections[player]!!
+
+                    prop.itemStack = item.toPropItemStack()
+                    prop.youkaiModelId = id
+                    player.sendPrefixed("Set the item of the prop to <green>${item.type.name}<gray>!")
+                    player.playEditSound()
+                    activeMap.updateDrawables()
+                })
+        }
 
         cm.command(propCommandBase.literal("drag")
             .handler {ctx ->
