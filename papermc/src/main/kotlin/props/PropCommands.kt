@@ -231,6 +231,7 @@ class PropCommands {
                     return@handler
                 }
                 val activeMap = MapManager.mapSelections[player]!!
+                prop.youkaiModelId = null
 
                 prop.itemStack = item.toPropItemStack()
                 player.sendPrefixed("Set the item of the prop to <green>${item.type.name}<gray>!")
