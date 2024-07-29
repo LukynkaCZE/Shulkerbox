@@ -1,6 +1,8 @@
 package props
 
+import map.ActiveMapSession
 import map.Prop
+import map.ShulkerboxMap
 import map.commands.successSound
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -13,6 +15,10 @@ object PropManager {
 
     val propSelections: MutableMap<Player, Prop> = mutableMapOf()
     val moveItem = ItemStack(Material.SPECTRAL_ARROW, 1)
+
+    fun getPropEntityFromProp(prop: Prop, map: ActiveMapSession): PropEntity? {
+        return map.drawableProps.firstOrNull { it.prop.uid == prop.uid }
+    }
 
     init {
         moveItem.editMeta {

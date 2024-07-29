@@ -5,20 +5,20 @@ import map.*
 import map.commands.giveItemSound
 import map.commands.playEditSound
 import org.bukkit.Bukkit
+import org.bukkit.Color
 import org.bukkit.Material
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Transformation
+import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import org.incendo.cloud.parser.standard.FloatParser.floatParser
+import org.incendo.cloud.parser.standard.IntegerParser.integerParser
 import org.incendo.cloud.parser.standard.StringParser.stringParser
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 import org.joml.Vector3f
 import sendPrefixed
-import util.error
-import util.generateUid
-import util.simpleSuggestion
-import util.toXYZString
+import util.*
 
 class PropCommands {
 
@@ -30,11 +30,11 @@ class PropCommands {
             .handler { ctx ->
                 val player = ctx.sender() as Player
                 val map = MapManager.selectedShulkerboxMap(player)
-                val activeMap = MapManager.mapSelections[player]!!
                 if(map == null) {
                     error(player, "You don't have any map selected!")
                     return@handler
                 }
+                val activeMap = MapManager.mapSelections[player]!!
 
                 val location = player.location.apply { pitch = 0f; yaw = 0f }.add(0.0, 0.5, 0.0)
                 val prop = Prop(
@@ -44,7 +44,7 @@ class PropCommands {
                     pitch = 0f,
                     meta = mutableMapOf(),
                     transformation = ShulkerboxTranform(),
-                    brightness = 1,
+                    brightness = 0,
                     itemStack = ItemStack(Material.GLASS).toPropItemStack()
                 )
 
@@ -55,11 +55,14 @@ class PropCommands {
             }
         )
 
-        cm.command(propCommandBase.literal("remove")
-            .handler { ctx ->
+        cm.command(propCommandBase.literal("brightness")
+            .required("type", enumParser(PropBrightnessCommandType::class.java))
+            .optional("brightness", integerParser(), simpleSuggestion("<brightness>"))
+            .handler{ ctx ->
                 val player = ctx.sender() as Player
+                val type = ctx.get<PropBrightnessCommandType>("type")
+                var brightness = ctx.getOrDefault<Int>("brightness", null)
                 val map = MapManager.selectedShulkerboxMap(player)
-                val activeMap = MapManager.mapSelections[player]!!
                 val prop = PropManager.propSelections[player]
                 if(prop == null) {
                     error(player, "You do not have any prop selected")
@@ -69,6 +72,45 @@ class PropCommands {
                     error(player, "You don't have any map selected!")
                     return@handler
                 }
+                val activeMap = MapManager.mapSelections[player]!!
+                when(type) {
+                    PropBrightnessCommandType.SET -> {
+                        if(brightness == null) {
+                            error(player, "Field brightness must be set!")
+                            return@handler
+                        }
+
+                        if(brightness > 15) brightness = 15
+                        if(brightness < 0) brightness = 0
+                        prop.brightness = brightness
+                        player.sendPrefixed("Set brightness of prop to <yellow>$brightness")
+                        player.playEditSound()
+                    }
+                    PropBrightnessCommandType.RESET -> {
+                        prop.brightness = null
+                        player.sendPrefixed("Reset brightness of prop!")
+                        player.playEditSound()
+                    }
+                }
+                activeMap.updateDrawables()
+            }
+        )
+
+        cm.command(propCommandBase.literal("remove")
+            .handler { ctx ->
+                val player = ctx.sender() as Player
+                val map = MapManager.selectedShulkerboxMap(player)
+                val prop = PropManager.propSelections[player]
+                if(prop == null) {
+                    error(player, "You do not have any prop selected")
+                    return@handler
+                }
+                if(map == null) {
+                    error(player, "You don't have any map selected!")
+                    return@handler
+                }
+                val activeMap = MapManager.mapSelections[player]!!
+
                 PropManager.unselect(player)
                 map.props.remove(prop.uid)
                 player.sendPrefixed("<red>Removed a prop!")
@@ -85,11 +127,12 @@ class PropCommands {
                     return@handler
                 }
                 val map = MapManager.selectedShulkerboxMap(player)
-                val activeMap = MapManager.mapSelections[player]!!
                 if(map == null) {
                     error(player, "You don't have any map selected!")
                     return@handler
                 }
+                val activeMap = MapManager.mapSelections[player]!!
+
                 val newProp = prop.copy().apply { uid = generateUid(map) }
                 PropManager.unselect(player)
                 activeMap.addProp(newProp)
@@ -112,41 +155,51 @@ class PropCommands {
             }
         )
 
-//        cm.command(propCommandBase.literal("select")
-//            .handler { ctx ->
-//                val player = ctx.sender() as Player
-//                val entities = player.location.getNearbyEntities(1.5, 3.0, 1.5).toMutableList().sortedBy { it.location.distance(player.location) }
-//                entities.forEach {
-//                    if(it.type != EntityType.ITEM_DISPLAY) return@forEach
-//                    if(it.persistentDataContainer.get(ShulkerboxPaper.shulkerboxPropEntityTag, PersistentDataType.BOOLEAN) != true) return@forEach
-//                    val itemDisplay = it as ItemDisplay
-//                    if(PropManager.propSelections[player] != null && PropManager.propSelections[player]!!.itemDisplay == itemDisplay) return@forEach
-//                    PropManager.select(player, PropEntity(itemDisplay, player))
-//                    player.sendPrefixed("<green>Selected a prop!")
-//                }
-//            }
-//        )
+        cm.command(propCommandBase.literal("select")
+            .handler { ctx ->
+                val player = ctx.sender() as Player
+                val map = MapManager.selectedShulkerboxMap(player)
+                if(map == null) {
+                    error(player, "You don't have any map selected!")
+                    return@handler
+                }
+                val activeMap = MapManager.mapSelections[player]!!
+
+                val props = activeMap.drawableProps.sortedBy { it.location.distance(player.location) }
+                props.forEach { prop ->
+                    if(PropManager.propSelections[player] != null && PropManager.propSelections[player]!!.uid == prop.prop.uid) return@forEach
+                    PropManager.select(player, prop.prop)
+                    player.sendPrefixed("<green>Selected a prop <aqua>${prop.prop.uid}<green>!")
+                    prop.entity.isGlowing = true
+                    prop.entity.glowColorOverride = Color.YELLOW
+                    runLaterAsync(20) {
+                        prop.entity.isGlowing = false
+                    }
+                    return@handler
+                }
+            }
+        )
 
         cm.command(propCommandBase.literal("size")
             .required("x", floatParser(), getCurrentPropSizeSuggestion("x"))
-            .required("y", floatParser(), getCurrentPropSizeSuggestion("y"))
-            .required("z", floatParser(), getCurrentPropSizeSuggestion("z"))
+            .optional("y", floatParser(), getCurrentPropSizeSuggestion("y"))
+            .optional("z", floatParser(), getCurrentPropSizeSuggestion("z"))
             .handler {ctx ->
                 val player = ctx.sender() as Player
                 val prop = PropManager.propSelections[player]
                 val x = ctx.get<Float>("x")
-                val y = ctx.get<Float>("y")
-                val z = ctx.get<Float>("z")
+                val y = ctx.getOrDefault<Float>("y", x)
+                val z = ctx.getOrDefault<Float>("z", x)
                 if(prop == null) {
                     error(player, "You do not have any prop selected")
                     return@handler
                 }
                 val map = MapManager.selectedShulkerboxMap(player)
-                val activeMap = MapManager.mapSelections[player]!!
                 if(map == null) {
                     error(player, "You don't have any map selected!")
                     return@handler
                 }
+                val activeMap = MapManager.mapSelections[player]!!
 
                 val current = prop.transformation.toTransformation()
                 val newTransformation = Transformation(current.translation, current.leftRotation, Vector3f(x, y, z), current.rightRotation)
@@ -168,11 +221,11 @@ class PropCommands {
                     return@handler
                 }
                 val map = MapManager.selectedShulkerboxMap(player)
-                val activeMap = MapManager.mapSelections[player]!!
                 if(map == null) {
                     error(player, "You don't have any map selected!")
                     return@handler
                 }
+                val activeMap = MapManager.mapSelections[player]!!
 
                 Bukkit.broadcastMessage("${item.toPropItemStack()}")
                 prop.itemStack = item.toPropItemStack()
@@ -201,11 +254,11 @@ class PropCommands {
                     return@handler
                 }
                 val map = MapManager.selectedShulkerboxMap(player)
-                val activeMap = MapManager.mapSelections[player]!!
                 if(map == null) {
                     error(player, "You don't have any map selected!")
                     return@handler
                 }
+                val activeMap = MapManager.mapSelections[player]!!
 
                 if(arg == "-keepRot") {
                     location.pitch = prop.pitch
@@ -229,6 +282,11 @@ class PropCommands {
                 player.playEditSound()
             })
 
+    }
+
+    enum class PropBrightnessCommandType {
+        SET,
+        RESET
     }
 
     private fun getCurrentPropSizeSuggestion(face: String): BlockingSuggestionProvider.Strings<CommandSender> {

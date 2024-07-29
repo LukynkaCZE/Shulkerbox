@@ -3,15 +3,15 @@ package props
 import map.Prop
 import map.toBukkitItemStack
 import map.toTransformation
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.Display
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemDisplay
+import org.bukkit.persistence.PersistentDataType
 
 class PropEntity(var location: Location, var prop: Prop) {
     var dragOperation = PropDragOperation.FREE_MOVE
-    private var entity: ItemDisplay = location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay
+    val entity: ItemDisplay = location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay
 
     init {
         update()
@@ -19,12 +19,16 @@ class PropEntity(var location: Location, var prop: Prop) {
 
     fun update() {
         entity.setItemStack(prop.itemStack.toBukkitItemStack())
-        entity.brightness = Display.Brightness(prop.brightness, prop.brightness)
+        if(prop.brightness != null) {
+            entity.brightness = Display.Brightness(prop.brightness!!, prop.brightness!!)
+        }
         entity.teleportDuration = 2
         entity.interpolationDelay = 2
         entity.interpolationDuration = 2
         entity.transformation = prop.transformation.toTransformation()
         entity.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.HEAD
+        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
+        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxPropEntityTag, PersistentDataType.STRING, prop.uid)
     }
 
     fun dispose() {

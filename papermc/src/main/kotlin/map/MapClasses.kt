@@ -45,7 +45,7 @@ data class Prop(
     var pitch: Float,
     var meta: MutableMap<String, String> = mutableMapOf(),
     var transformation: ShulkerboxTranform,
-    var brightness: Int,
+    var brightness: Int?,
     var itemStack: PropItemStack
 )
 

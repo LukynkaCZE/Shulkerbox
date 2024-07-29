@@ -17,6 +17,7 @@ import kotlinx.serialization.json.Json
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import props.PropManager
 import sendPrefixed
 import java.io.File
 import java.io.FileOutputStream
@@ -27,6 +28,7 @@ object MapManager {
 
     fun select(player: Player, map: ShulkerboxMap) {
         if(hasMapSelected(player)) unselect(player, true)
+        PropManager.unselect(player)
         player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, 1.5f)
         player.sendPrefixed("<gray>Selected map <yellow>${map.name}<gray>!")
         mapSelections[player] = ActiveMapSession(player, map)
@@ -34,6 +36,7 @@ object MapManager {
 
     fun unselect(player: Player, silent: Boolean = false) {
         val activeMap = mapSelections[player]!!
+        PropManager.unselect(player)
         player.sendPrefixed("<gray>Unselected map <red>${activeMap.map.name}<gray>!")
         activeMap.dispose()
         mapSelections.remove(player)

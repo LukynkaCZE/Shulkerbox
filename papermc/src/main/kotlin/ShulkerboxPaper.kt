@@ -36,7 +36,7 @@ class ShulkerboxPaper: JavaPlugin() {
         namespacedKey = NamespacedKey(instance, "shulkerbox")
         shulkerboxBoundingBoxEntityTag = NamespacedKey(instance, "is_bounding_box_entity")
         shulkerboxBoundingBoxEntityTag = NamespacedKey(instance, "is_bounding_box_entity")
-        shulkerboxPropEntityTag = NamespacedKey(instance, "is_prop")
+        shulkerboxPropEntityTag = NamespacedKey(instance, "prop_id")
 
         isBuildServer = true
         if(youkaiSupport) {
