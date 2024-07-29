@@ -26,8 +26,8 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
         drawableBounds.clear()
         drawablePoints.forEach { it.dispose() }
         drawablePoints.clear()
-        drawablePoints.forEach { it.dispose() }
-        drawablePoints.clear()
+        drawableProps.forEach { it.dispose() }
+        drawableProps.clear()
     }
 
     fun addBound(id: String, selection: Selection) {

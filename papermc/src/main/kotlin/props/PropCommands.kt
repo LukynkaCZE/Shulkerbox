@@ -4,6 +4,7 @@ import ShulkerboxPaper
 import map.*
 import map.commands.giveItemSound
 import map.commands.playEditSound
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -173,9 +174,11 @@ class PropCommands {
                     return@handler
                 }
 
+                Bukkit.broadcastMessage("${item.toPropItemStack()}")
                 prop.itemStack = item.toPropItemStack()
                 player.sendPrefixed("Set the item of the prop to <green>${item.type.name}<gray>!")
                 player.playEditSound()
+                activeMap.updateDrawables()
             })
 
         cm.command(propCommandBase.literal("drag")

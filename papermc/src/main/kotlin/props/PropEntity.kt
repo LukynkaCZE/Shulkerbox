@@ -23,9 +23,8 @@ class PropEntity(var location: Location, var prop: Prop) {
         entity.teleportDuration = 2
         entity.interpolationDelay = 2
         entity.interpolationDuration = 2
-        Bukkit.broadcastMessage("${entity.transformation}")
         entity.transformation = prop.transformation.toTransformation()
-        Bukkit.broadcastMessage("${prop.transformation.toTransformation()}")
+        entity.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.HEAD
     }
 
     fun dispose() {

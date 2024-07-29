@@ -13,7 +13,6 @@ import util.simpleSuggestion
 
 class PointCommands {
 
-
     private fun getPointUidSuggestions(): BlockingSuggestionProvider.Strings<CommandSender> {
         return BlockingSuggestionProvider.Strings { commandContext, input -> MapManager.selectedShulkerboxMap(commandContext.sender() as Player)?.points!!.keys }
     }
@@ -32,7 +31,7 @@ class PointCommands {
                 val map = MapManager.selectedShulkerboxMap(player)
 
                 if(map == null) {
-                    util.error(player, "You don't have any map selected!")
+                    error(player, "You don't have any map selected!")
                     return@handler
                 }
 
@@ -65,13 +64,13 @@ class PointCommands {
                 val map = MapManager.selectedShulkerboxMap(player)
 
                 if(map == null) {
-                    util.error(player, "You don't have any map selected!")
+                    error(player, "You don't have any map selected!")
                     return@handler
                 }
 
                 val point = map.points[uid]
                 if(point == null) {
-                    util.error(player, "There are no points with the uid <dark_red>$uid")
+                    error(player, "There are no points with the uid <dark_red>$uid")
                     return@handler
                 }
 
@@ -96,13 +95,13 @@ class PointCommands {
                 val map = MapManager.selectedShulkerboxMap(player)
 
                 if(map == null) {
-                    util.error(player, "You don't have any map selected!")
+                    error(player, "You don't have any map selected!")
                     return@handler
                 }
 
                 val point = map.points[uid]
                 if(point == null) {
-                    util.error(player, "There are no points with the uid <dark_red>$uid")
+                    error(player, "There are no points with the uid <dark_red>$uid")
                     return@handler
                 }
 

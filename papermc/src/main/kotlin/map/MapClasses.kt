@@ -51,8 +51,10 @@ data class Prop(
 
 fun PropItemStack.toBukkitItemStack(): ItemStack {
     val stack = ItemStack(Material.valueOf(this.material), 1)
-    stack.itemMeta.setEnchantmentGlintOverride(enchanted)
-    stack.itemMeta.setCustomModelData(customModelData)
+    stack.editMeta {
+        it.setCustomModelData(this.customModelData)
+        it.setEnchantmentGlintOverride(this.enchanted)
+    }
     return stack
 }
 
