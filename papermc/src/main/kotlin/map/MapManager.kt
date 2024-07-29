@@ -17,10 +17,12 @@ import kotlinx.serialization.json.Json
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import org.bukkit.persistence.PersistentDataType
 import props.PropManager
 import sendPrefixed
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.abs
 
 object MapManager {
     val maps = mutableMapOf<String, ShulkerboxMap>()
@@ -125,7 +127,37 @@ object MapManager {
                 throw Exception("uhh this should not be null: ${map.id} (${entry.location.world} | ${Bukkit.getWorlds().map { it.name }})")
             }
             maps[map.id] = map
+            cleanupEntities()
             println("Loaded map ${map.id}")
+        }
+    }
+
+    fun cleanupEntities() {
+        maps.forEach {
+            val mapLocation = it.value.origin!!
+
+            val centerChunk = mapLocation.chunk
+            val centerX = centerChunk.x
+            val centerZ = centerChunk.z
+            val loadRadius = 5
+
+            for (x in centerX - loadRadius..centerX + loadRadius) {
+                for (z in centerZ - loadRadius..centerZ + loadRadius) {
+                    val distanceSquared = abs(x - centerX) * abs(x - centerX) + abs(z - centerZ) * abs(z - centerZ)
+                    if (distanceSquared <= loadRadius * loadRadius) {
+                        val chunk = mapLocation.world.getChunkAt(x, z)
+                        if (!chunk.isLoaded) {
+                            chunk.load()
+                        }
+                    }
+                }
+            }
+            val entities = mapLocation.getNearbyEntities(30.0, 30.0, 30.0)
+            entities.forEach { entity ->
+                if(entity.persistentDataContainer.get(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN) == true) {
+                    entity.remove()
+                }
+            }
         }
     }
 }

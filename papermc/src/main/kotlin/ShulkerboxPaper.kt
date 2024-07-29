@@ -59,15 +59,15 @@ class ShulkerboxPaper: JavaPlugin() {
         SelectionCommands()
         GamemodeCommands()
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this, Runnable {
-            if(isBuildServer) {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this) {
+            if (isBuildServer) {
                 try {
                     MapManager.loadMapsFromBuildServerRegistry()
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                 }
             }
-        })
+        }
     }
 
     override fun onDisable() {
