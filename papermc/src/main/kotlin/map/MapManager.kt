@@ -33,7 +33,9 @@ object MapManager {
         PropManager.unselect(player)
         player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, 1.5f)
         player.sendPrefixed("<gray>Selected map <yellow>${map.name}<gray>!")
-        mapSelections[player] = ActiveMapSession(player, map)
+        val activeSession = ActiveMapSession(player, map)
+        mapSelections[player] = activeSession
+        activeSession.addViewer(player)
     }
 
     fun unselect(player: Player, silent: Boolean = false) {
@@ -41,6 +43,7 @@ object MapManager {
         PropManager.unselect(player)
         player.sendPrefixed("<gray>Unselected map <red>${activeMap.map.name}<gray>!")
         activeMap.dispose()
+        activeMap.removeViewer(player)
         mapSelections.remove(player)
         if(!silent) player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, 0.5f)
     }

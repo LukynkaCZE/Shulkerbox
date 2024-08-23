@@ -49,7 +49,7 @@ class PropListener: Listener {
         val direction = player.location.direction
         location.add(direction.multiply(2).apply { y = 0.0 })
         location.apply { pitch = 0f; yaw = 0f; y = location.y }
-        propEntity.entity.teleportDuration = 2
+//        propEntity.entity.teleportDuration = 2
         propEntity.entity.teleport(location)
         prop.location = location.toShulkerboxOffset(map.map).toShulkerboxVector()
     }
@@ -94,9 +94,9 @@ class PropListener: Listener {
         runLater(delay) { dontRunPlayers.remove(player) }
     }
     fun translateProp(prop: PropEntity, action: Action, player: Player, dir: VectorDir) {
-        prop.entity.interpolationDelay = 0
-        prop.entity.interpolationDuration = 2
-        val current = prop.entity.transformation
+//        prop.entity.interpolationDelay = 0
+//        prop.entity.interpolationDuration = 2
+        val current = prop.entity.getTransformation()
         val realValue = if(player.isSneaking) 0.05f else 0.3f
         val value = if(action.isLeftClick) realValue else realValue * -1
         val trans = when(dir) {
@@ -106,16 +106,16 @@ class PropListener: Listener {
         }
         player.valueChangeSound()
         val transform = Transformation(trans, current.leftRotation, current.scale, current.rightRotation)
-        prop.entity.transformation = transform
+        prop.entity.setTransformation(transform)
         prop.prop.transformation = transform.toShulkerboxTranform()
         return
     }
 
     fun rotateProp(prop: PropEntity, action: Action, player: Player, dir: VectorDir) {
-        prop.entity.interpolationDelay = 0
-        prop.entity.interpolationDuration = 2
-        val current = prop.entity.transformation
-        val realValue = if(player.isSneaking) 0.05f else 0.3f
+//        prop.entity.interpolationDelay = 0
+//        prop.entity.interpolationDuration = 2
+        val current = prop.entity.getTransformation()
+        val realValue = if(player.isSneaking) 0.05f else 0.25f
         val value = if(action.isLeftClick) realValue else realValue * -1
 
         val rotationDelta = when(dir) {
@@ -126,10 +126,10 @@ class PropListener: Listener {
         val newRotation = rotationDelta.mul(current.rightRotation)
 
         player.valueChangeSound()
-        prop.entity.interpolationDelay = 0
-        prop.entity.interpolationDuration = 2
+//        prop.entity.interpolationDelay = 0
+//        prop.entity.interpolationDuration = 2
         val transform = Transformation(current.translation, current.leftRotation, current.scale, newRotation)
-        prop.entity.transformation = transform
+        prop.entity.setTransformation(transform)
         prop.prop.transformation = transform.toShulkerboxTranform()
         return
     }

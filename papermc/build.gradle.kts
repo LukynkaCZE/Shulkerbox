@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    paperDevBundle("1.21-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
     implementation("net.kyori:adventure-text-minimessage:4.14.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("org.incendo:cloud-core:2.0.0-rc.2")
@@ -30,8 +30,6 @@ dependencies {
     implementation("cz.lukynka:lkws:1.2")
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.9")
     compileOnly("com.sk89q.worldedit:worldedit-core:7.2.9")
-
-//    implementation(project(":common"))
 }
 
 tasks {

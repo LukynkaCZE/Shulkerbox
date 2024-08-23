@@ -77,6 +77,7 @@ object YoukaiIntegration {
         webServer.post("/youkai-sync", ::youkaiAuth) {
             val json = Json { ignoreUnknownKeys = true }
             val sync = json.decodeFromString<YoukaiSync>(it.requestBody)
+            it.respond("ok")
             cache = sync
             models.clear()
             saveCache()
@@ -84,6 +85,7 @@ object YoukaiIntegration {
             Bukkit.broadcast("$prefix <gold>Received sync request from youkai.. Updating models!".toMiniMessage())
             runLater(0) {
                 MapManager.mapSelections.values.forEach { map ->
+                    map.dispose()
                     map.updateDrawables()
                     map.drawableProps.filter { prop -> prop.prop.youkaiModelId != null }.forEach { prop ->
                         Bukkit.broadcast("$prefix <gold>Updating prop <yellow>${prop.prop.uid}<gray> with youkai id <aqua>${prop.prop.youkaiModelId!!}..".toMiniMessage())

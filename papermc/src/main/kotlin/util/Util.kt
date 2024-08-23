@@ -5,6 +5,8 @@ import org.bukkit.Location
 import org.bukkit.command.CommandSender
 import org.incendo.cloud.suggestion.Suggestion
 import org.incendo.cloud.suggestion.SuggestionProvider
+import org.joml.Quaternionf
+import org.joml.Vector3f
 
 fun generateRandomString(length: Int = 3): String {
     val characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -22,6 +24,49 @@ fun generateUid(map: ShulkerboxMap): String {
     }
 }
 
+fun snapRotationToAxis(rotation: Quaternionf, snap: Double = 25.0): Quaternionf {
+    val angles = rotation.getEulerAnglesXYZ(Vector3f())
+    val pitch = angles.x
+    val yaw = angles.y
+    val roll = angles.z
+
+    val snapIncrement = Math.toRadians(snap).toFloat()
+    val snappedPitch = Math.round(pitch / snapIncrement) * snapIncrement
+    val snappedYaw = Math.round(yaw / snapIncrement) * snapIncrement
+    val snappedRoll = Math.round(roll / snapIncrement) * snapIncrement
+
+    return Quaternionf().rotationXYZ(snappedPitch, snappedYaw, snappedRoll)
+}
+
+fun snapRotationX(rotation: Quaternionf): Quaternionf {
+    val angles = rotation.getEulerAnglesXYZ(Vector3f())
+    val pitch = angles.x
+
+    val snapIncrement = Math.toRadians(25.0).toFloat()
+    val snappedPitch = Math.round(pitch / snapIncrement) * snapIncrement
+
+    return Quaternionf().rotationXYZ(snappedPitch, angles.y, angles.z)
+}
+
+fun snapRotationY(rotation: Quaternionf): Quaternionf {
+    val angles = rotation.getEulerAnglesXYZ(Vector3f())
+    val yaw = angles.y
+
+    val snapIncrement = Math.toRadians(25.0).toFloat()
+    val snappedYaw = Math.round(yaw / snapIncrement) * snapIncrement
+
+    return Quaternionf().rotationXYZ(angles.x, snappedYaw, angles.z)
+}
+
+fun snapRotationZ(rotation: Quaternionf): Quaternionf {
+    val angles = rotation.getEulerAnglesXYZ(Vector3f())
+    val roll = angles.z
+
+    val snapIncrement = Math.toRadians(25.0).toFloat()
+    val snappedRoll = Math.round(roll / snapIncrement) * snapIncrement
+
+    return Quaternionf().rotationXYZ(angles.x, angles.y, snappedRoll)
+}
 
 fun simpleSuggestion(vararg string: String): SuggestionProvider<CommandSender> {
     return SuggestionProvider.suggesting(string.map { Suggestion.suggestion(it) })

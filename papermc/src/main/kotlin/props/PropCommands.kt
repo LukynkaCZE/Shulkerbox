@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Transformation
+import org.incendo.cloud.parser.standard.DoubleParser.doubleParser
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import org.incendo.cloud.parser.standard.FloatParser.floatParser
 import org.incendo.cloud.parser.standard.IntegerParser.integerParser
@@ -49,7 +50,7 @@ class PropCommands {
                     pitch = 0f,
                     meta = mutableMapOf(),
                     transformation = ShulkerboxTranform(),
-                    brightness = 0,
+                    brightness = null,
                     itemStack = ItemStack(Material.GLASS).toPropItemStack()
                 )
 
@@ -175,10 +176,10 @@ class PropCommands {
                     if(PropManager.propSelections[player] != null && PropManager.propSelections[player]!!.uid == prop.prop.uid) return@forEach
                     PropManager.select(player, prop.prop)
                     player.sendPrefixed("<green>Selected a prop <aqua>${prop.prop.uid}<green>!")
-                    prop.entity.isGlowing = true
-                    prop.entity.glowColorOverride = Color.YELLOW
+                    prop.entity.setGlowing(true)
+                    prop.entity.setGlowColor(Color.YELLOW)
                     runLaterAsync(20) {
-                        prop.entity.isGlowing = false
+                        prop.entity.setGlowing(false)
                     }
                     return@handler
                 }
@@ -212,6 +213,31 @@ class PropCommands {
                 activeMap.updateDrawables()
 
                 player.sendPrefixed("Set scale transform to <green>${prop.transformation.scale}<yellow>!")
+                player.playEditSound()
+            })
+
+        cm.command(propCommandBase.literal("snap_rotation")
+            .optional("increment", doubleParser(), simpleSuggestion("<snap increment>"))
+            .handler {ctx ->
+                val player = ctx.sender() as Player
+                val prop = PropManager.propSelections[player]
+                val snapIncrement = ctx.getOrDefault<Double>("increment", 25.0)
+                if(prop == null) {
+                    error(player, "You do not have any prop selected")
+                    return@handler
+                }
+                val map = MapManager.selectedShulkerboxMap(player)
+                if(map == null) {
+                    error(player, "You don't have any map selected!")
+                    return@handler
+                }
+                val activeMap = MapManager.mapSelections[player]!!
+
+                val tranform = prop.transformation.toTransformation()
+                val newRightRotation = snapRotationToAxis(tranform.rightRotation, snapIncrement)
+                val newTranform = Transformation(tranform.translation, tranform.leftRotation, tranform.scale, newRightRotation)
+                prop.transformation = newTranform.toShulkerboxTranform()
+                activeMap.updateDrawables()
                 player.playEditSound()
             })
 

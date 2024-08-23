@@ -1,6 +1,7 @@
 package selection
 
 import ShulkerboxPaper
+import fakes.FakeItemDisplay
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Color
@@ -9,6 +10,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Display
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemDisplay
+import org.bukkit.entity.Player
 import org.bukkit.entity.TextDisplay
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
@@ -25,6 +27,20 @@ class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) 
     private var color = BoundingBoxColor.WHITE
     private var name = "Selection"
     private var size = initialSize
+
+    val viewerPlayers: MutableSet<Player> = mutableSetOf()
+
+    fun addViewer(player: Player) {
+        viewerPlayers.add(player)
+        entity.addViewer(player)
+        flipped.addViewer(player)
+    }
+
+    fun removeViewer(player: Player) {
+        viewerPlayers.remove(player)
+        entity.removeViewer(player)
+        flipped.removeViewer(player)
+    }
 
     fun setLocation(location: Location) {
         this.location = location
@@ -62,8 +78,11 @@ class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) 
         return size
     }
 
-    private val entity: ItemDisplay = location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay
-    private val flipped: ItemDisplay = location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay
+//    private val entity: ItemDisplay = location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay
+//    private val flipped: ItemDisplay = location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay
+
+    private val entity: FakeItemDisplay = FakeItemDisplay(location)
+    private val flipped: FakeItemDisplay = FakeItemDisplay(location)
     private val nametag: TextDisplay = location.world.spawnEntity(location, EntityType.TEXT_DISPLAY) as TextDisplay
 
     fun update() {
@@ -107,43 +126,41 @@ class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) 
         val item = ItemStack(Material.STICK)
         item.editMeta { it.setCustomModelData(color.customModelData) }
 
-        entity.interpolationDelay = 0
-        entity.interpolationDuration = 5
-        flipped.interpolationDelay = 0
-        flipped.interpolationDuration = 5
+//        entity.interpolationDelay = 0
+//        entity.interpolationDuration = 5
+//        flipped.interpolationDelay = 0
+//        flipped.interpolationDuration = 5
 
-        entity.brightness = Display.Brightness(15, 15)
-        entity.transformation = Transformation(translation.copy(), AxisAngle4f(), scale.copy(), AxisAngle4f())
-        entity.isGlowing = true
-        entity.setItemStack(item)
-        entity.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.HEAD
-        entity.isGlowing = false
-        entity.isGlowing = true
-        entity.glowColorOverride = color.color
+        entity.setBrightness(Display.Brightness(15, 15))
+        entity.setTransformation(Transformation(translation.copy(), AxisAngle4f(), scale.copy(), AxisAngle4f()))
+        entity.setGlowing(true)
+        entity.setItem(item)
+        entity.setTransform(ItemDisplay.ItemDisplayTransform.HEAD)
+        entity.setGlowColor(color.color)
 
-        flipped.brightness = Display.Brightness(15, 15)
-        flipped.transformation = Transformation(scale.copy().add(translation), AxisAngle4f(), scale.copy().mul(-1f), AxisAngle4f())
-        flipped.setItemStack(item)
-        flipped.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.HEAD
+        flipped.setBrightness(Display.Brightness(15, 15))
+        flipped.setTransformation(Transformation(scale.copy().add(translation), AxisAngle4f(), scale.copy().mul(-1f), AxisAngle4f()))
+        flipped.setItem(item)
+        flipped.setTransform(ItemDisplay.ItemDisplayTransform.HEAD)
 
-        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
-        flipped.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
+//        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
+//        flipped.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
         nametag.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
     }
 
     fun dispose() {
-        entity.remove()
-        flipped.remove()
+        entity.despawn()
+        flipped.despawn()
         nametag.remove()
     }
 }
 
 enum class BoundingBoxColor(val customModelData: Int, val color: Color, val textColor: TextColor, val banner: Material) {
-    RED(1, Color.BLUE, NamedTextColor.RED, Material.RED_BANNER),
-    ORANGE(2, Color.TEAL, NamedTextColor.GOLD, Material.ORANGE_BANNER),
-    YELLOW(3, Color.AQUA, NamedTextColor.YELLOW, Material.YELLOW_BANNER),
+    RED(1, Color.RED, NamedTextColor.RED, Material.RED_BANNER),
+    ORANGE(2, Color.ORANGE, NamedTextColor.GOLD, Material.ORANGE_BANNER),
+    YELLOW(3, Color.YELLOW, NamedTextColor.YELLOW, Material.YELLOW_BANNER),
     LIME(4, Color.LIME, NamedTextColor.GREEN, Material.LIME_BANNER),
-    AQUA(5, Color.YELLOW, NamedTextColor.AQUA, Material.LIGHT_BLUE_BANNER),
+    AQUA(5, Color.AQUA, NamedTextColor.AQUA, Material.LIGHT_BLUE_BANNER),
     PINK(7, Color.FUCHSIA, NamedTextColor.LIGHT_PURPLE, Material.PINK_BANNER),
     PURPLE(6, Color.PURPLE, NamedTextColor.DARK_PURPLE, Material.PURPLE_BANNER),
     WHITE(8, Color.WHITE, NamedTextColor.WHITE, Material.WHITE_BANNER),

@@ -13,8 +13,21 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
     val drawablePoints = mutableListOf<MarkerPointEntity>()
     val drawableProps = mutableListOf<PropEntity>()
 
-    //TODO
-    val editors: MutableList<Player> = mutableListOf()
+    val viewers: MutableList<Player> = mutableListOf()
+
+    fun addViewer(player: Player) {
+        viewers.add(player)
+        mapBoundingBox.addViewer(player)
+        drawableBounds.forEach { it.value.addViewer(player) }
+        drawablePoints.forEach { it.addViewer(player) }
+    }
+
+    fun removeViewer(player: Player) {
+        viewers.remove(player)
+        mapBoundingBox.removeViewer(player)
+        drawableBounds.forEach { it.value.removeViewer(player) }
+        drawablePoints.forEach { it.removeViewer(player) }
+    }
 
     init {
         updateDrawables()
@@ -54,6 +67,7 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
 
         mapBoundingBox.dispose()
         mapBoundingBox = BoundingBoxEntity(map.origin!!, map.size.toBukkitVector())
+        viewers.forEach { viewer -> mapBoundingBox.addViewer(viewer) }
         val name = buildString {
             append("${map.name} (${map.id})")
             map.meta.forEach { append("\n<green>${it.key} <gray>= <aqua>${it.value}") }
@@ -76,6 +90,7 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
             boundingBoxEntity.setName(boundName)
 
             drawableBounds[it.value.id] = boundingBoxEntity
+            viewers.forEach { viewer -> boundingBoxEntity.addViewer(viewer) }
         }
 
         drawablePoints.forEach { it.dispose() }
@@ -89,9 +104,10 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
             val location = it.value.location.fromShulkerboxOffset(map.origin!!)
             location.yaw = it.value.yaw
             location.pitch = it.value.pitch
-            val entity = MarkerPointEntity(location, color, it.value)
+            val markerEntity = MarkerPointEntity(location, color, it.value)
 
-            drawablePoints.add(entity)
+            drawablePoints.add(markerEntity)
+            viewers.forEach { viewer -> markerEntity.addViewer(viewer) }
         }
 
         drawableProps.forEach { it.dispose() }

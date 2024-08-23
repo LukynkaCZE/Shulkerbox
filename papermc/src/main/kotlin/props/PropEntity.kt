@@ -1,43 +1,50 @@
 package props
 
 import ShulkerboxPaper
+import fakes.FakeItemDisplay
 import map.Prop
 import map.toBukkitItemStack
 import map.toTransformation
 import org.bukkit.Location
 import org.bukkit.entity.Display
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemDisplay
-import org.bukkit.persistence.PersistentDataType
+import org.bukkit.entity.Player
 import youkai.YoukaiIntegration
 
 class PropEntity(var location: Location, var prop: Prop) {
     var dragOperation = PropDragOperation.FREE_MOVE
-    val entity: ItemDisplay = location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay
+    val entity: FakeItemDisplay = FakeItemDisplay(location)
+    val viewerPlayers: MutableSet<Player> = mutableSetOf()
+
+    fun addViewer(player: Player) {
+        viewerPlayers.add(player)
+        entity.addViewer(player)
+    }
+
+    fun removeViewer(player: Player) {
+        entity.removeViewer(player)
+    }
 
     init {
         update()
     }
 
     fun update() {
-        entity.setItemStack(prop.itemStack.toBukkitItemStack())
+        entity.setItem(prop.itemStack.toBukkitItemStack())
         if(prop.youkaiModelId != null && ShulkerboxPaper.youkaiSupport) {
-            entity.setItemStack(YoukaiIntegration.getModel(prop.youkaiModelId!!))
+            entity.setItem(YoukaiIntegration.getModel(prop.youkaiModelId!!))
         }
         if(prop.brightness != null) {
-            entity.brightness = Display.Brightness(prop.brightness!!, prop.brightness!!)
+            entity.setBrightness(Display.Brightness(prop.brightness!!, prop.brightness!!))
         }
-        entity.teleportDuration = 2
-        entity.interpolationDelay = 2
-        entity.interpolationDuration = 2
-        entity.transformation = prop.transformation.toTransformation()
-        entity.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.HEAD
-        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
-        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxPropEntityTag, PersistentDataType.STRING, prop.uid)
+        entity.setTransformation(prop.transformation.toTransformation())
+        entity.setTransform(ItemDisplay.ItemDisplayTransform.HEAD)
+//        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
+//        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxPropEntityTag, PersistentDataType.STRING, prop.uid)
     }
 
     fun dispose() {
-        entity.remove()
+        entity.despawn()
     }
 }
 

@@ -1,3 +1,4 @@
+import essentials.commands.DisplayTest
 import essentials.commands.GamemodeCommands
 import map.MapManager
 import org.bukkit.Bukkit
@@ -24,7 +25,6 @@ class ShulkerboxPaper: JavaPlugin() {
         lateinit var instance: ShulkerboxPaper
         lateinit var namespacedKey: NamespacedKey
         lateinit var shulkerboxBoundingBoxEntityTag: NamespacedKey
-        lateinit var shulkerboxPointInteractionTag: NamespacedKey
         lateinit var shulkerboxPropEntityTag: NamespacedKey
         var isBuildServer: Boolean = true
         var youkaiSupport: Boolean = true
@@ -58,6 +58,8 @@ class ShulkerboxPaper: JavaPlugin() {
         PropCommands()
         SelectionCommands()
         GamemodeCommands()
+
+        DisplayTest()
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(this) {
             if (isBuildServer) {
