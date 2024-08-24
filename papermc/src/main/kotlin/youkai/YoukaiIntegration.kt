@@ -1,6 +1,5 @@
 package youkai
 
-import ShulkerboxPaper
 import cz.lukynka.lkws.LightweightWebServer
 import cz.lukynka.lkws.responses.Response
 import kotlinx.serialization.Serializable
@@ -20,8 +19,8 @@ object YoukaiIntegration {
 
     val models = mutableMapOf<String, YoukaiServerModel>()
 
-    private val webServer = LightweightWebServer(6969)
-    private val youkaiToken = "qDSIerBkcfXCudkjDd296esWfAEBFB7sZtyKaBaHvqta2RfTP5b3S5GuddbRbofC"
+    lateinit var webServer: LightweightWebServer
+    var youkaiToken = ""
 
     var cache: YoukaiSync? = null
 
@@ -31,7 +30,7 @@ object YoukaiIntegration {
 
     fun saveCache() {
         if(cache == null) return
-        val path = "Shulkerbox/youkai.json"
+        val path = "plugins/Shulkerbox/youkai.json"
         val outFile = File(path)
         outFile.mkdirs()
         outFile.delete()
@@ -43,7 +42,7 @@ object YoukaiIntegration {
     }
 
     fun loadCache() {
-        val path = "Shulkerbox/youkai.json"
+        val path = "plugins/Shulkerbox/youkai.json"
         val outFile = File(path)
         if(!outFile.exists()) return
         val json = Json { ignoreUnknownKeys = true }
@@ -68,7 +67,9 @@ object YoukaiIntegration {
         return item
     }
 
-    fun start() {
+    fun start(port: Int) {
+
+        webServer = LightweightWebServer(port)
 
         webServer.get("/") {
             it.respond("Shulkerbox Server; Youkai Enabled")

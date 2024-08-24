@@ -1,7 +1,6 @@
 package selection
 
 import ShulkerboxPaper
-import clearEntitiesTemp
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Sound
@@ -16,6 +15,7 @@ import send
 import sendPrefixed
 import util.runLater
 
+@Suppress("UnstableApiUsage")
 class SelectionListener: Listener {
 
     init {
@@ -68,9 +68,6 @@ class SelectionListener: Listener {
         val player = playerJoinEvent.player
         runLater(5) {
             player.gameMode = GameMode.CREATIVE
-//            player.inventory.clear()
-//            player.inventory.setItemInMainHand(SelectionManager.selectionItem)
-            clearEntitiesTemp()
         }
     }
 

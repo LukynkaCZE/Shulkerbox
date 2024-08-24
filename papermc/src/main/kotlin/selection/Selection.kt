@@ -1,11 +1,17 @@
 package selection
 
 import org.bukkit.Location
+import org.bukkit.entity.Player
 import org.bukkit.util.Vector
 
-class Selection(var basePoint: Location) {
+class Selection(var basePoint: Location, val player: Player) {
 
     private var secondPoint: Location? = null
+    var boundingBoxEntity = BoundingBoxEntity(basePoint, Vector(1, 1, 1))
+
+    init {
+        boundingBoxEntity.addViewer(player)
+    }
 
     fun setSecondPoint(location: Location) {
         this.secondPoint = location
@@ -22,10 +28,6 @@ class Selection(var basePoint: Location) {
         return secondPoint
     }
 
-    var boundingBoxEntity = BoundingBoxEntity(basePoint, Vector(1, 1, 1))
-
-
-
     fun getBoundingBoxSize(): Vector {
         if(secondPoint == null) return Vector(1, 1, 1)
 
@@ -40,5 +42,9 @@ class Selection(var basePoint: Location) {
         if(secondPoint!!.x > basePoint.x) x += 1.0
 
         return Vector(x, y, z)
+    }
+
+    fun dispose() {
+        boundingBoxEntity.dispose()
     }
 }

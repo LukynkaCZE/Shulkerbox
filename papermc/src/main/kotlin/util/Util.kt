@@ -38,36 +38,6 @@ fun snapRotationToAxis(rotation: Quaternionf, snap: Double = 25.0): Quaternionf 
     return Quaternionf().rotationXYZ(snappedPitch, snappedYaw, snappedRoll)
 }
 
-fun snapRotationX(rotation: Quaternionf): Quaternionf {
-    val angles = rotation.getEulerAnglesXYZ(Vector3f())
-    val pitch = angles.x
-
-    val snapIncrement = Math.toRadians(25.0).toFloat()
-    val snappedPitch = Math.round(pitch / snapIncrement) * snapIncrement
-
-    return Quaternionf().rotationXYZ(snappedPitch, angles.y, angles.z)
-}
-
-fun snapRotationY(rotation: Quaternionf): Quaternionf {
-    val angles = rotation.getEulerAnglesXYZ(Vector3f())
-    val yaw = angles.y
-
-    val snapIncrement = Math.toRadians(25.0).toFloat()
-    val snappedYaw = Math.round(yaw / snapIncrement) * snapIncrement
-
-    return Quaternionf().rotationXYZ(angles.x, snappedYaw, angles.z)
-}
-
-fun snapRotationZ(rotation: Quaternionf): Quaternionf {
-    val angles = rotation.getEulerAnglesXYZ(Vector3f())
-    val roll = angles.z
-
-    val snapIncrement = Math.toRadians(25.0).toFloat()
-    val snappedRoll = Math.round(roll / snapIncrement) * snapIncrement
-
-    return Quaternionf().rotationXYZ(angles.x, angles.y, snappedRoll)
-}
-
 fun simpleSuggestion(vararg string: String): SuggestionProvider<CommandSender> {
     return SuggestionProvider.suggesting(string.map { Suggestion.suggestion(it) })
 }

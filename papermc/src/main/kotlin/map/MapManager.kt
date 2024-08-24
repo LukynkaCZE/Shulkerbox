@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package map
 
 import ShulkerboxPaper
@@ -9,6 +11,7 @@ import com.sk89q.worldedit.function.operation.ForwardExtentCopy
 import com.sk89q.worldedit.function.operation.Operations
 import com.sk89q.worldedit.math.BlockVector3
 import com.sk89q.worldedit.regions.CuboidRegion
+import config.ConfigManager
 import files.MapFileReader
 import files.MapFileWriter
 import kotlinx.serialization.decodeFromString
@@ -17,35 +20,83 @@ import kotlinx.serialization.json.Json
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
-import org.bukkit.persistence.PersistentDataType
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import props.PropManager
 import sendPrefixed
 import java.io.File
 import java.io.FileOutputStream
-import kotlin.math.abs
+import java.util.UUID
+import java.util.logging.Level
 
-object MapManager {
+object MapManager: Listener {
     val maps = mutableMapOf<String, ShulkerboxMap>()
+    val mapSessions = mutableMapOf<String, ActiveMapSession>()
     val mapSelections = mutableMapOf<Player, ActiveMapSession>()
 
-    fun select(player: Player, map: ShulkerboxMap) {
+    // to store what last map player had selected when they logged out
+    val selectionCache = mutableMapOf<UUID, String>()
+
+    init {
+        Bukkit.getPluginManager().registerEvents(this, ShulkerboxPaper.instance)
+    }
+
+    @EventHandler
+    fun onPlayerLeave(event: PlayerQuitEvent) {
+        val map = mapSelections[event.player]
+        if(map != null) {
+            selectionCache[event.player.uniqueId] = map.map.id
+            unselect(event.player, true)
+        }
+    }
+
+    @EventHandler
+    fun onPlayerJoin(event: PlayerJoinEvent) {
+        if(!ConfigManager.currentConfig.general.autoReselectMapAfterJoining) return
+        val cachedMap = selectionCache[event.player.uniqueId] ?: return
+        val map = maps[cachedMap] ?: return
+        select(event.player, map, true)
+    }
+
+    private fun getOrCreateMapSession(map: ShulkerboxMap): ActiveMapSession {
+        val existingSession = mapSessions[map.id]
+        if(existingSession != null) return existingSession
+
+        val newSession = ActiveMapSession(map)
+        mapSessions[map.id] = newSession
+        return newSession
+    }
+
+    fun select(player: Player, map: ShulkerboxMap, wasAutomatic: Boolean = false) {
         if(hasMapSelected(player)) unselect(player, true)
-        PropManager.unselect(player)
+
         player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, 1.5f)
-        player.sendPrefixed("<gray>Selected map <yellow>${map.name}<gray>!")
-        val activeSession = ActiveMapSession(player, map)
+        val activeSession = getOrCreateMapSession(map)
+
         mapSelections[player] = activeSession
         activeSession.addViewer(player)
+
+        val message = if(wasAutomatic) "Automatically selected your selected map (<yellow>${map.name}<gray>)" else "<gray>Selected map <yellow>${map.name}<gray>!"
+        player.sendPrefixed(message)
     }
 
     fun unselect(player: Player, silent: Boolean = false) {
         val activeMap = mapSelections[player]!!
-        PropManager.unselect(player)
-        player.sendPrefixed("<gray>Unselected map <red>${activeMap.map.name}<gray>!")
-        activeMap.dispose()
+
+        if(PropManager.propSelections[player] != null) PropManager.unselect(player, false)
+
         activeMap.removeViewer(player)
         mapSelections.remove(player)
+
+        if(activeMap.viewers.isEmpty()) {
+            activeMap.dispose()
+            mapSessions.remove(activeMap.map.id)
+        }
+
         if(!silent) player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, 0.5f)
+        player.sendPrefixed("<gray>Unselected map <red>${activeMap.map.name}<gray>!")
     }
 
     fun hasMapSelected(player: Player): Boolean {
@@ -56,15 +107,15 @@ object MapManager {
         return mapSelections[player]?.map
     }
 
-    fun fromJson(input: String): ShulkerboxMap {
+    private fun fromJson(input: String): ShulkerboxMap {
         val json = Json { ignoreUnknownKeys = true; prettyPrint = true }
         val map = json.decodeFromString<ShulkerboxMap>(input)
         return map
     }
 
-    fun generateRegistryFileJson(): String {
+    private fun generateRegistryFileJson(): String {
         val entries = mutableListOf<ShulkerboxBuildServerRegistryEntry>()
-        MapManager.maps.forEach { map ->
+        maps.forEach { map ->
             entries.add(ShulkerboxBuildServerRegistryEntry(map.key, map.value.origin!!.toShulkerboxLocation()))
         }
         val registry = ShulkerboxBuildServerRegistry(entries)
@@ -74,30 +125,27 @@ object MapManager {
     }
 
     fun save(map: ShulkerboxMap) {
-        val folder = File("Shulkerbox/temp/${map.id}/")
+        val folder = File("plugins/Shulkerbox/temp/${map.id}/")
         folder.mkdirs()
-        val file = File("Shulkerbox/temp/${map.id}/map.json")
+        val file = File("plugins/Shulkerbox/temp/${map.id}/map.json")
         file.delete()
         file.createNewFile()
         file.writeText(map.toJson())
         if(ShulkerboxPaper.isBuildServer) {
-            val registryFolder = File("Shulkerbox/")
+            val registryFolder = File("plugins/Shulkerbox/")
             registryFolder.mkdirs()
-            val registryFile = File("Shulkerbox/build_server_registry.json")
+            val registryFile = File("plugins/Shulkerbox/build_server_registry.json")
             registryFile.delete()
             registryFile.createNewFile()
             registryFile.writeText(generateRegistryFileJson())
         }
 
-        // schem
         val pos1 = BlockVector3.at(map.origin!!.x, map.origin!!.y, map.origin!!.z)
         val origin2 = map.origin!!.clone().add(map.size.toBukkitVector())
         val pos2 = BlockVector3.at(origin2.x, origin2.y, origin2.z)
         val region = CuboidRegion(pos1, pos2)
-        println(map.origin.toString())
         region.world = BukkitAdapter.asBukkitWorld(BukkitWorld(map.origin!!.world))
 
-        // get it,save to file
         val clipboard = BlockArrayClipboard(region)
 
         val forwardExtentCopy = ForwardExtentCopy(
@@ -106,7 +154,7 @@ object MapManager {
         forwardExtentCopy.isCopyingEntities = false
         Operations.complete(forwardExtentCopy)
 
-        val schematicFile = File("Shulkerbox/temp/${map.id}/map.schem")
+        val schematicFile = File("plugins/Shulkerbox/temp/${map.id}/map.schem")
         BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(FileOutputStream(schematicFile)).use { writer ->
             writer.write(clipboard)
         }
@@ -114,11 +162,17 @@ object MapManager {
         MapFileWriter.writeMap(map)
     }
 
+    @Suppress("UnstableApiUsage")
     fun loadMapsFromBuildServerRegistry() {
-        val registryFile = File("Shulkerbox/build_server_registry.json")
+        val registryFile = File("plugins/Shulkerbox/build_server_registry.json")
+        if(!registryFile.exists()) {
+            File("plugins/Shulkerbox").mkdirs()
+            registryFile.createNewFile()
+            registryFile.writeText(generateRegistryFileJson())
+        }
         val registry = Json.decodeFromString<ShulkerboxBuildServerRegistry>(registryFile.readText())
         registry.entries.forEach { entry ->
-            val file = File("Shulkerbox/maps/${entry.mapId}.shulker")
+            val file = File("plugins/Shulkerbox/maps/${entry.mapId}.shulker")
             if(!file.exists()) {
                 println("Error while loading ${entry.mapId}: Map file is not present in maps folder!")
                 return@forEach
@@ -130,37 +184,7 @@ object MapManager {
                 throw Exception("uhh this should not be null: ${map.id} (${entry.location.world} | ${Bukkit.getWorlds().map { it.name }})")
             }
             maps[map.id] = map
-            cleanupEntities()
-            println("Loaded map ${map.id}")
-        }
-    }
-
-    fun cleanupEntities() {
-        maps.forEach {
-            val mapLocation = it.value.origin!!
-
-            val centerChunk = mapLocation.chunk
-            val centerX = centerChunk.x
-            val centerZ = centerChunk.z
-            val loadRadius = 5
-
-            for (x in centerX - loadRadius..centerX + loadRadius) {
-                for (z in centerZ - loadRadius..centerZ + loadRadius) {
-                    val distanceSquared = abs(x - centerX) * abs(x - centerX) + abs(z - centerZ) * abs(z - centerZ)
-                    if (distanceSquared <= loadRadius * loadRadius) {
-                        val chunk = mapLocation.world.getChunkAt(x, z)
-                        if (!chunk.isLoaded) {
-                            chunk.load()
-                        }
-                    }
-                }
-            }
-            val entities = mapLocation.getNearbyEntities(30.0, 30.0, 30.0)
-            entities.forEach { entity ->
-                if(entity.persistentDataContainer.get(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN) == true) {
-                    entity.remove()
-                }
-            }
+            Bukkit.getLogger().log(Level.INFO, "Loaded map ${map.id}!")
         }
     }
 }

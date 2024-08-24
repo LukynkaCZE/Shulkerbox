@@ -1,19 +1,16 @@
 package selection
 
-import ShulkerboxPaper
 import fakes.FakeItemDisplay
+import fakes.FakeTextDisplay
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Display
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.Player
-import org.bukkit.entity.TextDisplay
 import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Transformation
 import org.bukkit.util.Vector
 import org.joml.AxisAngle4f
@@ -21,7 +18,7 @@ import org.joml.Vector3f
 import toMiniMessage
 
 
-class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) {
+class BoundingBoxEntity(initialLocation: Location, initialSize: Vector) {
 
     private var location = initialLocation
     private var color = BoundingBoxColor.WHITE
@@ -34,12 +31,14 @@ class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) 
         viewerPlayers.add(player)
         entity.addViewer(player)
         flipped.addViewer(player)
+        nametag.addViewer(player)
     }
 
     fun removeViewer(player: Player) {
         viewerPlayers.remove(player)
         entity.removeViewer(player)
         flipped.removeViewer(player)
+        nametag.removeViewer(player)
     }
 
     fun setLocation(location: Location) {
@@ -78,20 +77,15 @@ class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) 
         return size
     }
 
-//    private val entity: ItemDisplay = location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay
-//    private val flipped: ItemDisplay = location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay
-
     private val entity: FakeItemDisplay = FakeItemDisplay(location)
     private val flipped: FakeItemDisplay = FakeItemDisplay(location)
-    private val nametag: TextDisplay = location.world.spawnEntity(location, EntityType.TEXT_DISPLAY) as TextDisplay
+    private val nametag: FakeTextDisplay = FakeTextDisplay(location)
 
     fun update() {
 
-        nametag.text(name.toMiniMessage().style { it.color(color.textColor) })
-        nametag.isShadowed = false
-        nametag.isSeeThrough = true
-        nametag.billboard = Display.Billboard.CENTER
-        nametag.alignment = TextDisplay.TextAlignment.CENTER
+        nametag.setText(name.toMiniMessage().style { it.color(color.textColor) })
+        nametag.setBillboard(Display.Billboard.CENTER)
+        nametag.setSeeThrough(true)
 
         val centerOffset = size.clone().divide(Vector(2f, 2f, 2f))
         val textLocation = location.clone().add(centerOffset)
@@ -126,11 +120,6 @@ class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) 
         val item = ItemStack(Material.STICK)
         item.editMeta { it.setCustomModelData(color.customModelData) }
 
-//        entity.interpolationDelay = 0
-//        entity.interpolationDuration = 5
-//        flipped.interpolationDelay = 0
-//        flipped.interpolationDuration = 5
-
         entity.setBrightness(Display.Brightness(15, 15))
         entity.setTransformation(Transformation(translation.copy(), AxisAngle4f(), scale.copy(), AxisAngle4f()))
         entity.setGlowing(true)
@@ -142,16 +131,12 @@ class BoundingBoxEntity(val initialLocation: Location, val initialSize: Vector) 
         flipped.setTransformation(Transformation(scale.copy().add(translation), AxisAngle4f(), scale.copy().mul(-1f), AxisAngle4f()))
         flipped.setItem(item)
         flipped.setTransform(ItemDisplay.ItemDisplayTransform.HEAD)
-
-//        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
-//        flipped.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
-        nametag.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
     }
 
     fun dispose() {
         entity.despawn()
         flipped.despawn()
-        nametag.remove()
+        nametag.despawn()
     }
 }
 

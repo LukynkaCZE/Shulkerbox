@@ -265,7 +265,7 @@ class PropCommands {
                 activeMap.updateDrawables()
             })
 
-        if(ShulkerboxPaper.youkaiSupport) {
+        if(ShulkerboxPaper.youkaiIntegration) {
             cm.command(propCommandBase.literal("youkai")
                 .required("id", stringParser(), getYoukaiModelSuggestions())
                 .handler {ctx ->
@@ -292,7 +292,7 @@ class PropCommands {
                 })
         }
 
-        cm.command(propCommandBase.literal("drag")
+        cm.command(propCommandBase.literal("tool")
             .handler {ctx ->
                 val player = ctx.sender() as Player
                 player.inventory.addItem(PropManager.moveItem)

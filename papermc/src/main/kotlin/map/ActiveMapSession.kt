@@ -1,25 +1,61 @@
 package map
 
+import ShulkerboxPaper
+import config.ConfigManager
+import net.megavex.scoreboardlibrary.api.sidebar.Sidebar
 import org.bukkit.entity.Player
 import props.PropEntity
 import selection.BoundingBoxColor
 import selection.BoundingBoxEntity
 import selection.Selection
+import toMiniMessage
 
-class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
+class ActiveMapSession(var map: ShulkerboxMap) {
 
-    var mapBoundingBox = BoundingBoxEntity(map.origin!!, map.size.toBukkitVector())
-    val drawableBounds = mutableMapOf<String, BoundingBoxEntity>()
-    val drawablePoints = mutableListOf<MarkerPointEntity>()
+    private val sidebar = ShulkerboxPaper.sidebarLibrary.createSidebar()
+
+    private var mapBoundingBox = BoundingBoxEntity(map.origin!!, map.size.toBukkitVector())
+    private val drawableBounds = mutableMapOf<String, BoundingBoxEntity>()
+    private val drawablePoints = mutableListOf<MarkerPointEntity>()
     val drawableProps = mutableListOf<PropEntity>()
+    private val sidebarEnabled get() = ConfigManager.currentConfig.general.sidebar
 
     val viewers: MutableList<Player> = mutableListOf()
+
+    init {
+        updateDrawables()
+        updateSidebar()
+    }
+
+    private fun updateSidebar() {
+        sidebar.clearLines()
+        sidebar.title("<#884dff><bold>Shulkerbox".toMiniMessage())
+        sidebar.line(0, "")
+        sidebar.line(1, "Editing: <green>${map.name}")
+        sidebar.line(2, "Editors:")
+        var lastIndex = 2
+        this.viewers.take(5).forEachIndexed { index, player ->
+            sidebar.line(2 + index + 1, "<gray>- <#c175ff>${player.name}")
+            lastIndex = index + 1
+        }
+        sidebar.line(3 + lastIndex, "")
+        sidebar.line(4 + lastIndex, "Objects:")
+        sidebar.line(5 + lastIndex, "<gray>- <yellow> ${drawableBounds.size} bounds")
+        sidebar.line(6 + lastIndex, "<gray>- <yellow> ${drawablePoints.size} points")
+        sidebar.line(7 + lastIndex, "<gray>- <yellow> ${drawableProps.size} props")
+        sidebar.line(8 + lastIndex, " ")
+    }
 
     fun addViewer(player: Player) {
         viewers.add(player)
         mapBoundingBox.addViewer(player)
         drawableBounds.forEach { it.value.addViewer(player) }
         drawablePoints.forEach { it.addViewer(player) }
+        drawableProps.forEach { it.addViewer(player) }
+        if(sidebarEnabled) {
+            sidebar.addPlayer(player)
+            updateSidebar()
+        }
     }
 
     fun removeViewer(player: Player) {
@@ -27,10 +63,11 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
         mapBoundingBox.removeViewer(player)
         drawableBounds.forEach { it.value.removeViewer(player) }
         drawablePoints.forEach { it.removeViewer(player) }
-    }
-
-    init {
-        updateDrawables()
+        drawableProps.forEach { it.removeViewer(player) }
+        if(sidebarEnabled) {
+            sidebar.removePlayer(player)
+            updateSidebar()
+        }
     }
 
     fun dispose() {
@@ -41,6 +78,7 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
         drawablePoints.clear()
         drawableProps.forEach { it.dispose() }
         drawableProps.clear()
+        sidebar.close()
     }
 
     fun addBound(id: String, selection: Selection) {
@@ -119,6 +157,12 @@ class ActiveMapSession(var player: Player, var map: ShulkerboxMap) {
 
             val entity = PropEntity(location, it.value)
             drawableProps.add(entity)
+            viewers.forEach { viewer -> entity.addViewer(viewer) }
         }
+        updateSidebar()
     }
+}
+
+fun Sidebar.line(line: Int, text: String) {
+    this.line(line, text.toMiniMessage())
 }

@@ -1,26 +1,18 @@
 package fakes
 
-import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket
 import net.minecraft.util.Brightness
 import net.minecraft.world.entity.Display
-import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
-import net.minecraft.world.item.ItemDisplayContext
-import net.minecraft.world.level.Level
 import org.bukkit.Color
 import org.bukkit.Location
-import org.bukkit.World
-import org.bukkit.craftbukkit.CraftWorld
-import org.bukkit.craftbukkit.entity.CraftPlayer
-import org.bukkit.craftbukkit.inventory.CraftItemStack
+import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.ItemDisplay.ItemDisplayTransform
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Transformation
+import util.*
 
 class FakeItemDisplay(override var location: Location) : FakeEntity {
     override val viewerPlayers: MutableSet<Player> = mutableSetOf()
@@ -30,7 +22,9 @@ class FakeItemDisplay(override var location: Location) : FakeEntity {
         entity.setLocation(location)
 
         entity.transformationInterpolationDelay = 0
-        entity.transformationInterpolationDuration = 5
+        entity.transformationInterpolationDuration = 2
+        (entity.bukkitEntity as ItemDisplay).interpolationDuration = 2
+        (entity.bukkitEntity as ItemDisplay).teleportDuration = 2
     }
 
     fun setGlowColor(color: Color) {
@@ -49,7 +43,7 @@ class FakeItemDisplay(override var location: Location) : FakeEntity {
     }
 
     fun getTransformation(): Transformation {
-        return entity.renderState()!!.transformation.get(1f).toBukkit()
+        return (entity.bukkitEntity as ItemDisplay).transformation
     }
 
     fun setRotation(newYaw: Float, newPitch: Float) {
@@ -62,24 +56,24 @@ class FakeItemDisplay(override var location: Location) : FakeEntity {
     }
 
     fun setItem(itemStack: ItemStack) {
-        entity.itemStack = itemStack.vanilla
+        entity.itemStack = itemStack.getVanilla()
         sendMetadata()
     }
 
     override fun addViewer(player: Player) {
         viewerPlayers.add(player)
-        player.send(spawnEntityPacket(entity))
+        player.send(entity.getSpawnPacket())
         sendMetadata(player)
         teleport(location)
     }
 
     override fun removeViewer(player: Player) {
-        player.send(despawnEntityPacket(entity))
+        player.send(entity.getDespawnPacket())
         viewerPlayers.remove(player)
     }
 
     override fun despawn() {
-        viewerPlayers.forEach(::removeViewer)
+        viewerPlayers.toList().forEach(::removeViewer)
         viewerPlayers.clear()
     }
 
@@ -89,7 +83,7 @@ class FakeItemDisplay(override var location: Location) : FakeEntity {
         viewerPlayers.forEach { it.send(ClientboundTeleportEntityPacket(entity)) }
     }
 
-    fun sendMetadata(player: Player? = null) {
+    private fun sendMetadata(player: Player? = null) {
         val players: List<Player> = if(player == null) viewerPlayers.toList() else listOf(player)
         val entityMetadataPacket = ClientboundSetEntityDataPacket(this.entity.id, this.entity.entityData.packAll()!!)
         players.forEach { it.send(entityMetadataPacket) }
@@ -99,61 +93,4 @@ class FakeItemDisplay(override var location: Location) : FakeEntity {
         this.entity.setGlowingTag(boolean)
         sendMetadata()
     }
-}
-
-fun Entity.setLocation(location: Location) {
-    this.moveTo(location.x, location.y, location.z, location.yaw, location.pitch)
-    this.yHeadRot = location.yaw
-    this.setLevel(location.world.getMinecraftLevel())
-}
-
-fun World.getMinecraftLevel(): Level {
-    return (this as CraftWorld).handle
-}
-
-fun spawnEntityPacket(entity: Entity): ClientboundAddEntityPacket {
-    return ClientboundAddEntityPacket(
-        entity,
-        entity.id,
-        entity.blockPosition()
-    )
-}
-
-fun despawnEntityPacket(entity: Entity): ClientboundRemoveEntitiesPacket {
-    return ClientboundRemoveEntitiesPacket(entity.id)
-}
-
-fun Player.send(vararg packets: Packet<*>) {
-    val craftPlayer = (this as CraftPlayer)
-    packets.forEach { craftPlayer.handle.connection.send(it) }
-}
-
-val ItemStack.vanilla: net.minecraft.world.item.ItemStack get() = CraftItemStack.asCraftCopy(this).handle
-
-fun ItemDisplayTransform.getVanilla(): ItemDisplayContext {
-    val vanillaTransform = when(this) {
-        ItemDisplayTransform.NONE -> ItemDisplayContext.NONE
-        ItemDisplayTransform.THIRDPERSON_LEFTHAND -> ItemDisplayContext.THIRD_PERSON_LEFT_HAND
-        ItemDisplayTransform.THIRDPERSON_RIGHTHAND -> ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
-        ItemDisplayTransform.FIRSTPERSON_LEFTHAND -> ItemDisplayContext.FIRST_PERSON_LEFT_HAND
-        ItemDisplayTransform.FIRSTPERSON_RIGHTHAND -> ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
-        ItemDisplayTransform.HEAD -> ItemDisplayContext.HEAD
-        ItemDisplayTransform.GUI -> ItemDisplayContext.GUI
-        ItemDisplayTransform.GROUND -> ItemDisplayContext.GROUND
-        ItemDisplayTransform.FIXED -> ItemDisplayContext.FIXED
-    }
-    return vanillaTransform
-}
-
-fun Transformation.getMojangTransformation(): com.mojang.math.Transformation {
-    return com.mojang.math.Transformation(this.translation, this.leftRotation, this.scale, this.rightRotation)
-}
-
-fun com.mojang.math.Transformation.toBukkit(): Transformation {
-    return Transformation(
-        this.translation,
-        this.leftRotation,
-        this.scale,
-        this.rightRotation
-    )
 }

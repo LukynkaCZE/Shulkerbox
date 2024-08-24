@@ -31,7 +31,7 @@ class PropEntity(var location: Location, var prop: Prop) {
 
     fun update() {
         entity.setItem(prop.itemStack.toBukkitItemStack())
-        if(prop.youkaiModelId != null && ShulkerboxPaper.youkaiSupport) {
+        if(prop.youkaiModelId != null && ShulkerboxPaper.youkaiIntegration) {
             entity.setItem(YoukaiIntegration.getModel(prop.youkaiModelId!!))
         }
         if(prop.brightness != null) {
@@ -39,8 +39,6 @@ class PropEntity(var location: Location, var prop: Prop) {
         }
         entity.setTransformation(prop.transformation.toTransformation())
         entity.setTransform(ItemDisplay.ItemDisplayTransform.HEAD)
-//        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxBoundingBoxEntityTag, PersistentDataType.BOOLEAN, true)
-//        entity.persistentDataContainer.set(ShulkerboxPaper.shulkerboxPropEntityTag, PersistentDataType.STRING, prop.uid)
     }
 
     fun dispose() {

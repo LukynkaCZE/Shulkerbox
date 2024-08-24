@@ -2,12 +2,10 @@ package props
 
 import map.ActiveMapSession
 import map.Prop
-import map.ShulkerboxMap
 import map.commands.successSound
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
 import toMiniMessage
 import util.error
 
@@ -32,7 +30,6 @@ object PropManager {
             ))
             it.setEnchantmentGlintOverride(true)
             it.setMaxStackSize(1)
-            it.persistentDataContainer.set(ShulkerboxPaper.namespacedKey, PersistentDataType.BOOLEAN, true)
         }
     }
 

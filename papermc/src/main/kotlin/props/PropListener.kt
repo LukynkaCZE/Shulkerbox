@@ -49,12 +49,11 @@ class PropListener: Listener {
         val direction = player.location.direction
         location.add(direction.multiply(2).apply { y = 0.0 })
         location.apply { pitch = 0f; yaw = 0f; y = location.y }
-//        propEntity.entity.teleportDuration = 2
         propEntity.entity.teleport(location)
         prop.location = location.toShulkerboxOffset(map.map).toShulkerboxVector()
     }
-//
-    val dontRunPlayers = mutableListOf<Player>()
+
+    private val cooldown = mutableListOf<Player>()
     @EventHandler
     fun click(event: PlayerInteractEvent) {
         val player = event.player
@@ -63,8 +62,8 @@ class PropListener: Listener {
         val map = MapManager.mapSelections[player] ?: return
         val propEntity = PropManager.getPropEntityFromProp(prop, map) ?: return
         event.isCancelled = true
-        if(dontRunPlayers.contains(player)) {
-            dontRunPlayers.remove(player)
+        if(cooldown.contains(player)) {
+            cooldown.remove(player)
             return
         }
 
@@ -89,13 +88,12 @@ class PropListener: Listener {
 
         propEntity.dragOperation = cyclePropDragOperation(propEntity.dragOperation)
         player.successSound()
-        dontRunPlayers.add(player)
+        cooldown.add(player)
         val delay: Long = if(propEntity.dragOperation == PropDragOperation.FREE_MOVE) 10 else 2
-        runLater(delay) { dontRunPlayers.remove(player) }
+        runLater(delay) { cooldown.remove(player) }
     }
-    fun translateProp(prop: PropEntity, action: Action, player: Player, dir: VectorDir) {
-//        prop.entity.interpolationDelay = 0
-//        prop.entity.interpolationDuration = 2
+
+    private fun translateProp(prop: PropEntity, action: Action, player: Player, dir: VectorDir) {
         val current = prop.entity.getTransformation()
         val realValue = if(player.isSneaking) 0.05f else 0.3f
         val value = if(action.isLeftClick) realValue else realValue * -1
@@ -111,9 +109,7 @@ class PropListener: Listener {
         return
     }
 
-    fun rotateProp(prop: PropEntity, action: Action, player: Player, dir: VectorDir) {
-//        prop.entity.interpolationDelay = 0
-//        prop.entity.interpolationDuration = 2
+    private fun rotateProp(prop: PropEntity, action: Action, player: Player, dir: VectorDir) {
         val current = prop.entity.getTransformation()
         val realValue = if(player.isSneaking) 0.05f else 0.25f
         val value = if(action.isLeftClick) realValue else realValue * -1
@@ -126,8 +122,6 @@ class PropListener: Listener {
         val newRotation = rotationDelta.mul(current.rightRotation)
 
         player.valueChangeSound()
-//        prop.entity.interpolationDelay = 0
-//        prop.entity.interpolationDuration = 2
         val transform = Transformation(current.translation, current.leftRotation, current.scale, newRotation)
         prop.entity.setTransformation(transform)
         prop.prop.transformation = transform.toShulkerboxTranform()

@@ -1,5 +1,7 @@
 package map.commands
 
+import config.ConfigManager
+import git.GitIntegration
 import map.MapManager
 import map.ShulkerboxMap
 import map.toShulkerboxVector
@@ -21,7 +23,7 @@ class MapCommand {
 
 
     private fun getMapIdSuggestions(): BlockingSuggestionProvider.Strings<CommandSender> {
-        return BlockingSuggestionProvider.Strings { commandContext, input -> MapManager.maps.keys }
+        return BlockingSuggestionProvider.Strings { _, _ -> MapManager.maps.keys }
     }
 
     init {
@@ -206,12 +208,34 @@ class MapCommand {
                 MapManager.maps.remove(map.id)
             })
 
+        if(ConfigManager.currentConfig.git.gitIntegrationEnabled) {
+            cm.command(mapCommandBase.literal("push")
+                .required("commit", stringParser(), simpleSuggestion("<commit name>"))
+                .handler { ctx ->
+                    val player = (ctx.sender() as Player)
+                    val map = MapManager.selectedShulkerboxMap(player)
+                    val commit = ctx.get<String>("commit")
+
+                    if(map == null) {
+                        error(player, "You don't have any map selected!")
+                        return@handler
+                    }
+
+                    player.sendPrefixed("<yellow>Pushing map to git.. this could lag the server!")
+                    GitIntegration.commit(map, commit, player)
+                    player.sendPrefixed("<green>Pushed map <yellow>${map.id} to git!")
+                    player.playEditSound()
+                })
+        }
+
         cm.command(mapCommandBase.literal("save")
             .optional("push", stringParser(), simpleSuggestion("push"))
+            .optional("commit", stringParser(), simpleSuggestion("<commit name>"))
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
                 val map = MapManager.selectedShulkerboxMap(player)
                 val push = ctx.getOrDefault<String>("push", null)
+                val commit = ctx.getOrDefault<String>("commit", null)
 
                 if(map == null) {
                     error(player, "You don't have any map selected!")
@@ -221,6 +245,14 @@ class MapCommand {
                 player.sendPrefixed("<yellow>Saving map.. this could lag the server!")
                 try {
                     MapManager.save(map)
+
+                    if(push != null) {
+                        if(commit == null) {
+                            error(player, "commit message is required")
+                            return@handler
+                        }
+                        GitIntegration.commit(map, "", player)
+                    }
                 } catch (ex: Exception) {
                     error(player, "Map saving failed: $ex")
                     ex.printStackTrace()
@@ -253,7 +285,6 @@ fun Player.giveItemSound() {
 fun Player.valueChangeSound() {
     this.playSound(this.location, Sound.UI_BUTTON_CLICK, 1f, 2f)
 }
-
 
 fun Player.successSound(pitch: Float = 1f) {
     this.playSound(this.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, pitch)

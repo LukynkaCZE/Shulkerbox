@@ -22,8 +22,6 @@ class ShulkerboxMap(
     val points: MutableMap<String, Point> = mutableMapOf(),
     var props: MutableMap<String, Prop> = mutableMapOf(),
     @Transient
-    var loadedProps: MutableList<PropEntity> = mutableListOf(),
-    @Transient
     var origin: Location? = null,
     var size: ShulkerboxVector,
     var meta: MutableMap<String, String> = mutableMapOf(),

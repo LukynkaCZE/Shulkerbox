@@ -3,17 +3,18 @@ package selection
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.incendo.cloud.bukkit.parser.PlayerParser.playerParser
-import org.incendo.cloud.exception.ArgumentParseException
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import send
 import sendPrefixed
 
+@Suppress("UnstableApiUsage")
 class SelectionCommands {
 
     val cm = ShulkerboxPaper.instance.commandManager
 
     init {
         val commandBase = cm.commandBuilder("selection")
+        commandBase.permission("shulkerbox.use")
 
         cm.command(commandBase.literal("clear")
             .handler { ctx ->

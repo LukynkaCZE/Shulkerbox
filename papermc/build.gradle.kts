@@ -20,6 +20,7 @@ repositories {
 }
 
 dependencies {
+    val scoreboardLibraryVersion = "2.1.12"
     paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
     implementation("net.kyori:adventure-text-minimessage:4.14.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
@@ -30,6 +31,15 @@ dependencies {
     implementation("cz.lukynka:lkws:1.2")
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.9")
     compileOnly("com.sk89q.worldedit:worldedit-core:7.2.9")
+    implementation("net.megavex:scoreboard-library-api:$scoreboardLibraryVersion")
+    runtimeOnly("net.megavex:scoreboard-library-implementation:$scoreboardLibraryVersion")
+    implementation("net.megavex:scoreboard-library-extra-kotlin:$scoreboardLibraryVersion")
+    runtimeOnly("net.megavex:scoreboard-library-modern:$scoreboardLibraryVersion:mojmap")
+    implementation("com.akuleshov7:ktoml-core:0.5.1")
+    implementation("com.akuleshov7:ktoml-file:0.5.1")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.3.0.202209071007-r")
+
 }
 
 tasks {

@@ -1,12 +1,16 @@
+@file:Suppress("UnstableApiUsage")
+
 package files
 
+import org.bukkit.Bukkit
 import java.io.File
+import java.util.logging.Level
 import java.util.zip.ZipFile
 
 object MapFileReader {
 
     fun load(file: File): PacketShulkerboxMap {
-        println("Loading ${file.name}")
+        Bukkit.getLogger().log(Level.INFO, "Loading ${file.name}")
         require(file.name.contains(".shulker")) { "file is not in the .shulker format!" }
         val zip = ZipFile(file)
         var json: String? = null

@@ -12,11 +12,11 @@ import java.util.zip.ZipOutputStream
 object MapFileWriter {
 
     fun writeMap(map: ShulkerboxMap) {
-        val path = "Shulkerbox/maps/"
+        val path = "plugins/Shulkerbox/maps/"
         val outFile = File(path)
         outFile.mkdirs()
 
-        val filesToZip = mutableListOf("Shulkerbox/temp/${map.id}/map.json", "Shulkerbox/temp/${map.id}/map.schem")
+        val filesToZip = mutableListOf("plugins/Shulkerbox/temp/${map.id}/map.json", "plugins/Shulkerbox/temp/${map.id}/map.schem")
         FileOutputStream("$path${map.id}.shulker").use { fos ->
             ZipOutputStream(fos).use { zos ->
                 filesToZip.forEach { filePath ->
@@ -37,6 +37,6 @@ object MapFileWriter {
                 }
             }
         }
-        if(ShulkerboxPaper.youkaiSupport) YoukaiIntegration.saveCache()
+        if(ShulkerboxPaper.youkaiIntegration) YoukaiIntegration.saveCache()
     }
 }
