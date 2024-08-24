@@ -28,6 +28,7 @@ object GitIntegration {
                 .setCredentialsProvider(credentials)
                 .call()
         }
+        pull()
     }
 
     fun pull() {
@@ -44,7 +45,7 @@ object GitIntegration {
 
         git.add().addFilepattern(".").setUpdate(false).call()
         git.commit()
-//            .setAuthor(committee.name, "${committee.name}@shulker.box")
+            .setAuthor(committee.name, "${committee.name}@shulker.box")
             .setMessage(commitMessage)
             .call()
         git.push()
