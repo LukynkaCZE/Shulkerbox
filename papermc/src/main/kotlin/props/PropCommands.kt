@@ -2,6 +2,7 @@ package props
 
 import ShulkerboxPaper
 import map.*
+import map.commands.MapCommand
 import map.commands.giveItemSound
 import map.commands.playEditSound
 import org.bukkit.Color
@@ -298,6 +299,34 @@ class PropCommands {
                 player.inventory.addItem(PropManager.moveItem)
                 player.sendPrefixed("You have been given the <aqua>1x Prop Move Tool<gray>!")
                 player.giveItemSound()
+            })
+
+        cm.command(propCommandBase.literal("copy_from_map")
+            .required("map_id", stringParser(), MapCommand.getMapIdSuggestions())
+            .handler {ctx ->
+                val player = ctx.sender() as Player
+                val mapId = ctx.get<String>("map_id")
+                val map = MapManager.maps[mapId]
+                if(map == null) {
+                    error(player, "Map with the id <dark_red>$mapId <red>does not exist!")
+                    return@handler
+                }
+
+                val currentMap = MapManager.mapSelections[player]
+                if(currentMap == null) {
+                    error(player, "You don't have any map selected!")
+                    return@handler
+                }
+
+                map.props.forEach {
+                    val newUid = generateUid(currentMap.map)
+                    val newProp = it.value.copy().apply { uid = newUid }
+                    currentMap.map.props[newUid] = newProp
+                }
+                currentMap.updateDrawables()
+
+                player.playEditSound()
+                player.sendPrefixed("<lime>Successfully copied <yellow>${map.props.size} props<gray> to your current selected map!")
             })
 
         cm.command(propCommandBase.literal("tp")

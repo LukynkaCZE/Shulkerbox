@@ -52,7 +52,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
         drawableBounds.forEach { it.value.addViewer(player) }
         drawablePoints.forEach { it.addViewer(player) }
         drawableProps.forEach { it.addViewer(player) }
-        if(sidebarEnabled) {
+        if(sidebarEnabled && !sidebar.closed()) {
             sidebar.addPlayer(player)
             updateSidebar()
         }
@@ -64,7 +64,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
         drawableBounds.forEach { it.value.removeViewer(player) }
         drawablePoints.forEach { it.removeViewer(player) }
         drawableProps.forEach { it.removeViewer(player) }
-        if(sidebarEnabled) {
+        if(sidebarEnabled && !sidebar.closed()) {
             sidebar.removePlayer(player)
             updateSidebar()
         }

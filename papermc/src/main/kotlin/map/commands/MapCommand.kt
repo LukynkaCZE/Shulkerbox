@@ -21,9 +21,10 @@ import util.simpleSuggestion
 
 class MapCommand {
 
-
-    private fun getMapIdSuggestions(): BlockingSuggestionProvider.Strings<CommandSender> {
-        return BlockingSuggestionProvider.Strings { _, _ -> MapManager.maps.keys }
+    companion object {
+        fun getMapIdSuggestions(): BlockingSuggestionProvider.Strings<CommandSender> {
+            return BlockingSuggestionProvider.Strings { _, _ -> MapManager.maps.keys }
+        }
     }
 
     init {
@@ -229,13 +230,9 @@ class MapCommand {
         }
 
         cm.command(mapCommandBase.literal("save")
-            .optional("push", stringParser(), simpleSuggestion("push"))
-            .optional("commit", stringParser(), simpleSuggestion("<commit name>"))
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
                 val map = MapManager.selectedShulkerboxMap(player)
-                val push = ctx.getOrDefault<String>("push", null)
-                val commit = ctx.getOrDefault<String>("commit", null)
 
                 if(map == null) {
                     error(player, "You don't have any map selected!")
@@ -245,14 +242,6 @@ class MapCommand {
                 player.sendPrefixed("<yellow>Saving map.. this could lag the server!")
                 try {
                     MapManager.save(map)
-
-                    if(push != null) {
-                        if(commit == null) {
-                            error(player, "commit message is required")
-                            return@handler
-                        }
-                        GitIntegration.commit(map, "", player)
-                    }
                 } catch (ex: Exception) {
                     error(player, "Map saving failed: $ex")
                     ex.printStackTrace()

@@ -22,7 +22,7 @@ object GitIntegration {
             Git.open(folder)
         } else {
             Git.cloneRepository()
-                .setBranch("master")
+                .setBranch("main")
                 .setDirectory(folder)
                 .setURI(config.gitUrl)
                 .setCredentialsProvider(credentials)
@@ -32,7 +32,12 @@ object GitIntegration {
     }
 
     fun pull() {
-        git.pull().call()
+        val config = ConfigManager.currentConfig.git
+        val credentials = UsernamePasswordCredentialsProvider(config.gitUser, config.gitPassword)
+        git.pull()
+            .setCredentialsProvider(credentials)
+            .setRemoteBranchName("main")
+            .call()
     }
 
     fun commit(map: ShulkerboxMap, commitMessage: String, committee: Player) {

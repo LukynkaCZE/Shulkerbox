@@ -90,6 +90,7 @@ class BoundCommands {
                 activeMap.updateDrawables()
                 player.sendPrefixed("<green>Successfully redefined the size of bound with id <yellow>$id<green>!")
                 player.playEditSound()
+                SelectionManager.remove(player)
             }
         )
 
