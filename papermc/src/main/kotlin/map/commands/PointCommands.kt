@@ -1,5 +1,7 @@
 package map.commands
 
+import Point
+import PointType
 import map.*
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player

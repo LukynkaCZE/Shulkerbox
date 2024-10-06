@@ -1,6 +1,6 @@
 package util
 
-import map.ShulkerboxMap
+import ShulkerboxMap
 import org.bukkit.Location
 import org.bukkit.command.CommandSender
 import org.incendo.cloud.suggestion.Suggestion

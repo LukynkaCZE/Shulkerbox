@@ -1,7 +1,7 @@
 package git
 
+import ShulkerboxMap
 import config.ConfigManager
-import map.ShulkerboxMap
 import org.bukkit.entity.Player
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider

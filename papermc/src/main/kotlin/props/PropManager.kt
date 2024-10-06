@@ -1,7 +1,7 @@
 package props
 
+import Prop
 import map.ActiveMapSession
-import map.Prop
 import map.commands.successSound
 import org.bukkit.Material
 import org.bukkit.entity.Player

@@ -7,6 +7,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import map.MapManager
+import map.toPropItemStack
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
@@ -29,7 +30,7 @@ object YoukaiIntegration {
     }
 
     fun saveCache() {
-        if(cache == null) return
+        if (cache == null) return
         val path = "plugins/Shulkerbox/youkai.json"
         val outFile = File(path)
         outFile.mkdirs()
@@ -44,7 +45,7 @@ object YoukaiIntegration {
     fun loadCache() {
         val path = "plugins/Shulkerbox/youkai.json"
         val outFile = File(path)
-        if(!outFile.exists()) return
+        if (!outFile.exists()) return
         val json = Json { ignoreUnknownKeys = true }
         val content = json.decodeFromString<YoukaiSync>(outFile.readText())
         cache = content
@@ -55,7 +56,7 @@ object YoukaiIntegration {
 
     fun getModel(id: String): ItemStack {
         val model = models[id]
-        if(model == null) {
+        if (model == null) {
             val item = ItemStack(Material.BARRIER)
             item.editMeta { it.displayName("<red><bold>No Youkai Model </bold>:: <yellow>$id".toMiniMessage()) }
             return item
@@ -90,6 +91,11 @@ object YoukaiIntegration {
                     map.updateDrawables()
                     map.drawableProps.filter { prop -> prop.prop.youkaiModelId != null }.forEach { prop ->
                         Bukkit.broadcast("$prefix <gold>Updating prop <yellow>${prop.prop.uid}<gray> with youkai id <aqua>${prop.prop.youkaiModelId!!}..".toMiniMessage())
+                    }
+                }
+                MapManager.maps.forEach { map ->
+                    map.value.props.filter { prop -> prop.value.youkaiModelId != null }.forEach { prop ->
+                        prop.value.itemStack = getModel(prop.value.youkaiModelId!!).toPropItemStack()
                     }
                 }
             }

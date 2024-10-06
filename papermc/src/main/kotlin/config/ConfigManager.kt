@@ -30,6 +30,11 @@ object ConfigManager {
         Bukkit.getLogger().log(Level.CONFIG, "Loaded Shulkerbox config!")
     }
 
+    fun save() {
+        val file = File("plugins/Shulkerbox/config.toml")
+        file.writeText(toml.encodeToString<Config>(currentConfig))
+    }
+
     @Serializable
     data class Config(
         @SerialName("General")
@@ -44,6 +49,7 @@ object ConfigManager {
     data class General(
         val sidebar: Boolean = true,
         val autoReselectMapAfterJoining: Boolean = true,
+        var packUrl: String? = null
     )
 
     @Serializable

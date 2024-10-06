@@ -1,7 +1,7 @@
 package files
 
+import ShulkerboxMap
 import ShulkerboxPaper
-import map.ShulkerboxMap
 import youkai.YoukaiIntegration
 import java.io.File
 import java.io.FileInputStream

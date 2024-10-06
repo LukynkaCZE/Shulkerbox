@@ -1,6 +1,8 @@
 package props
 
+import Prop
 import ShulkerboxPaper
+import ShulkerboxTranform
 import map.*
 import map.commands.MapCommand
 import map.commands.giveItemSound

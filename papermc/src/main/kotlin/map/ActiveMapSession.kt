@@ -1,5 +1,9 @@
 package map
 
+import BoundingBox
+import Point
+import Prop
+import ShulkerboxMap
 import ShulkerboxPaper
 import config.ConfigManager
 import net.megavex.scoreboardlibrary.api.sidebar.Sidebar
@@ -14,7 +18,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
 
     private val sidebar = ShulkerboxPaper.sidebarLibrary.createSidebar()
 
-    private var mapBoundingBox = BoundingBoxEntity(map.origin!!, map.size.toBukkitVector())
+    private var mapBoundingBox = BoundingBoxEntity(map.origin!!.toBukkitLocation(), map.size.toBukkitVector())
     private val drawableBounds = mutableMapOf<String, BoundingBoxEntity>()
     private val drawablePoints = mutableListOf<MarkerPointEntity>()
     val drawableProps = mutableListOf<PropEntity>()
@@ -28,6 +32,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
     }
 
     private fun updateSidebar() {
+        if(sidebar.closed()) return
         sidebar.clearLines()
         sidebar.title("<#884dff><bold>Shulkerbox".toMiniMessage())
         sidebar.line(0, "")
@@ -104,7 +109,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
     fun updateDrawables() {
 
         mapBoundingBox.dispose()
-        mapBoundingBox = BoundingBoxEntity(map.origin!!, map.size.toBukkitVector())
+        mapBoundingBox = BoundingBoxEntity(map.origin!!.toBukkitLocation(), map.size.toBukkitVector())
         viewers.forEach { viewer -> mapBoundingBox.addViewer(viewer) }
         val name = buildString {
             append("${map.name} (${map.id})")
@@ -118,7 +123,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
         drawableBounds.clear()
         map.bounds.forEach {
             if(drawableBounds.containsKey(it.value.id)) return@forEach
-            val boundingBoxEntity = BoundingBoxEntity(it.value.origin.fromShulkerboxOffset(map.origin!!), it.value.size.toBukkitVector())
+            val boundingBoxEntity = BoundingBoxEntity(it.value.origin.fromShulkerboxOffset(map.origin!!.toBukkitLocation()), it.value.size.toBukkitVector())
             val color = BoundingBoxColor.YELLOW
             boundingBoxEntity.setColor(color)
             val boundName = buildString {
@@ -139,7 +144,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
                 PointType.MARKER -> BoundingBoxColor.WHITE
                 PointType.SPAWN -> BoundingBoxColor.PINK
             }
-            val location = it.value.location.fromShulkerboxOffset(map.origin!!)
+            val location = it.value.location.fromShulkerboxOffset(map.origin!!.toBukkitLocation())
             location.yaw = it.value.yaw
             location.pitch = it.value.pitch
             val markerEntity = MarkerPointEntity(location, color, it.value)
@@ -151,7 +156,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
         drawableProps.forEach { it.dispose() }
         drawableProps.clear()
         map.props.forEach {
-            val location = it.value.location.fromShulkerboxOffset(map.origin!!)
+            val location = it.value.location.fromShulkerboxOffset(map.origin!!.toBukkitLocation())
             location.yaw = it.value.yaw
             location.pitch = it.value.pitch
 

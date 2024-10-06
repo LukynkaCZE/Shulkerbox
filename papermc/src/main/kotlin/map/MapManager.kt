@@ -2,6 +2,7 @@
 
 package map
 
+import ShulkerboxMap
 import ShulkerboxPaper
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.bukkit.BukkitWorld
@@ -116,7 +117,7 @@ object MapManager: Listener {
     private fun generateRegistryFileJson(): String {
         val entries = mutableListOf<ShulkerboxBuildServerRegistryEntry>()
         maps.forEach { map ->
-            entries.add(ShulkerboxBuildServerRegistryEntry(map.key, map.value.origin!!.toShulkerboxLocation()))
+            entries.add(ShulkerboxBuildServerRegistryEntry(map.key, map.value.origin!!))
         }
         val registry = ShulkerboxBuildServerRegistry(entries)
         val json = Json { ignoreUnknownKeys = true; prettyPrint = true }
@@ -141,10 +142,10 @@ object MapManager: Listener {
         }
 
         val pos1 = BlockVector3.at(map.origin!!.x, map.origin!!.y, map.origin!!.z)
-        val origin2 = map.origin!!.clone().add(map.size.toBukkitVector())
+        val origin2 = map.origin!!.toBukkitLocation().clone().add(map.size.toBukkitVector())
         val pos2 = BlockVector3.at(origin2.x, origin2.y, origin2.z)
         val region = CuboidRegion(pos1, pos2)
-        region.world = BukkitAdapter.asBukkitWorld(BukkitWorld(map.origin!!.world))
+        region.world = BukkitAdapter.asBukkitWorld(BukkitWorld(map.origin!!.toBukkitLocation().world))
 
         val clipboard = BlockArrayClipboard(region)
 
@@ -170,6 +171,7 @@ object MapManager: Listener {
             registryFile.createNewFile()
             registryFile.writeText(generateRegistryFileJson())
         }
+
         val registry = Json.decodeFromString<ShulkerboxBuildServerRegistry>(registryFile.readText())
         registry.entries.forEach { entry ->
             val file = File("plugins/Shulkerbox/maps/${entry.mapId}.shulker")
@@ -179,8 +181,8 @@ object MapManager: Listener {
             }
             val mapJson = MapFileReader.load(file)
             val map = fromJson(mapJson.json)
-            map.origin = entry.location.toBukkitLocation()
-            if(map.origin!!.world == null) {
+            map.origin = entry.location
+            if(map.origin!!.toBukkitLocation().world == null) {
                 throw Exception("uhh this should not be null: ${map.id} (${entry.location.world} | ${Bukkit.getWorlds().map { it.name }})")
             }
             maps[map.id] = map

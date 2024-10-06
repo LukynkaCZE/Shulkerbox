@@ -1,8 +1,8 @@
 package props
 
+import Prop
 import ShulkerboxPaper
 import fakes.FakeItemDisplay
-import map.Prop
 import map.toBukkitItemStack
 import map.toTransformation
 import org.bukkit.Location

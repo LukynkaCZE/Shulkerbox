@@ -1,7 +1,12 @@
 package map
 
+import PropItemStack
+import ShulkerboxLocation
+import ShulkerboxMap
+import ShulkerboxQuaternionf
+import ShulkerboxTranform
+import ShulkerboxVector
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.bukkit.Bukkit
@@ -12,41 +17,6 @@ import org.bukkit.util.Transformation
 import org.bukkit.util.Vector
 import org.joml.Quaternionf
 import org.joml.Vector3f
-import props.PropEntity
-
-@Serializable
-class ShulkerboxMap(
-    val id: String,
-    var name: String = id,
-    val bounds: MutableMap<String, BoundingBox> = mutableMapOf(),
-    val points: MutableMap<String, Point> = mutableMapOf(),
-    var props: MutableMap<String, Prop> = mutableMapOf(),
-    @Transient
-    var origin: Location? = null,
-    var size: ShulkerboxVector,
-    var meta: MutableMap<String, String> = mutableMapOf(),
-)
-
-@Serializable
-data class BoundingBox(
-    var id: String,
-    var origin: ShulkerboxVector,
-    var size: ShulkerboxVector,
-    var meta: MutableMap<String, String> = mutableMapOf(),
-)
-
-@Serializable
-data class Prop(
-    var uid: String,
-    var location: ShulkerboxVector,
-    var yaw: Float,
-    var pitch: Float,
-    var meta: MutableMap<String, String> = mutableMapOf(),
-    var transformation: ShulkerboxTranform,
-    var brightness: Int?,
-    var itemStack: PropItemStack,
-    var youkaiModelId: String? = null
-)
 
 fun PropItemStack.toBukkitItemStack(): ItemStack {
     val stack = ItemStack(Material.valueOf(this.material), 1)
@@ -65,21 +35,6 @@ fun ItemStack.toPropItemStack(): PropItemStack {
     )
 }
 
-@Serializable
-data class PropItemStack(
-    val material: String,
-    val customModelData: Int,
-    val enchanted: Boolean,
-)
-
-@Serializable
-data class ShulkerboxTranform(
-    val translation: ShulkerboxVector = ShulkerboxVector(0.0, 0.0, 0.0),
-    val leftRotation: ShulkerboxQuaternionf = ShulkerboxQuaternionf(),
-    val scale: ShulkerboxVector = ShulkerboxVector(1.0, 1.0, 1.0),
-    val rightRotation: ShulkerboxQuaternionf = ShulkerboxQuaternionf(),
-)
-
 fun ShulkerboxTranform.toTransformation(): Transformation {
     return Transformation(
         this.translation.toBukkitVector().toVector3f(),
@@ -97,13 +52,6 @@ fun Transformation.toShulkerboxTranform(): ShulkerboxTranform {
         this.rightRotation.toShulkerboxQuaternionf()
     )
 }
-@Serializable
-data class ShulkerboxQuaternionf(
-    var x: Float = 0f,
-    var y: Float = 0f,
-    var z: Float = 0f,
-    var w: Float = 1f,
-)
 
 fun Quaternionf.toShulkerboxQuaternionf(): ShulkerboxQuaternionf {
     return ShulkerboxQuaternionf(this.x, this.y, this.z, this.w)
@@ -113,33 +61,8 @@ fun ShulkerboxQuaternionf.toQuaternionf(): Quaternionf {
     return Quaternionf(this.x, this.y, this.z, this.w)
 }
 
-@Serializable
-data class Point(
-    var id: String,
-    var location: ShulkerboxVector,
-    var yaw: Float,
-    var pitch: Float,
-    var type: PointType,
-    var meta: MutableMap<String, String> = mutableMapOf(),
-    var uid: String,
-)
-
-@Serializable
-enum class PointType {
-    UNIQUE,
-    MARKER,
-    SPAWN
-}
-
-@Serializable
-data class ShulkerboxVector(
-    val x: Double,
-    val y: Double,
-    val z: Double,
-) {
-    fun toBukkitVector(): Vector {
-        return Vector(x, y, z)
-    }
+fun ShulkerboxVector.toBukkitVector(): Vector {
+    return Vector(x, y, z)
 }
 
 fun ShulkerboxMap.toJson(): String {
@@ -186,15 +109,7 @@ data class ShulkerboxBuildServerRegistryEntry(
     val location: ShulkerboxLocation,
 )
 
-@Serializable
-data class ShulkerboxLocation(
-    val world: String,
-    val x: Double,
-    val y: Double,
-    val z: Double,
-    val yaw: Float,
-    val pitch: Float,
-)
+
 
 fun Location.toShulkerboxLocation(): ShulkerboxLocation {
     return ShulkerboxLocation(

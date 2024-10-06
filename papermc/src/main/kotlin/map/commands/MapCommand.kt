@@ -1,9 +1,10 @@
 package map.commands
 
+import ShulkerboxMap
 import config.ConfigManager
 import git.GitIntegration
 import map.MapManager
-import map.ShulkerboxMap
+import map.toShulkerboxLocation
 import map.toShulkerboxVector
 import org.bukkit.Sound
 import org.bukkit.command.CommandSender
@@ -61,7 +62,7 @@ class MapCommand {
                     return@handler
                 }
 
-                val map = ShulkerboxMap(mapId, origin = selection.basePoint, size = selection.getBoundingBoxSize().toShulkerboxVector())
+                val map = ShulkerboxMap(mapId, origin = selection.basePoint.toShulkerboxLocation(), size = selection.getBoundingBoxSize().toShulkerboxVector())
                 MapManager.maps[mapId] = map
                 MapManager.select(player, map)
 
@@ -97,7 +98,7 @@ class MapCommand {
                 }
 
                 val activeMap = MapManager.mapSelections[player]!!
-                map.origin = selection.basePoint
+                map.origin = selection.basePoint.toShulkerboxLocation()
                 map.size = selection.getBoundingBoxSize().toShulkerboxVector()
                 activeMap.updateDrawables()
 

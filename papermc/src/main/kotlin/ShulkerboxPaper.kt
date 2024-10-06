@@ -60,6 +60,7 @@ class ShulkerboxPaper: JavaPlugin() {
         SelectionCommands()
 
         MapManager
+        ResourcepackManager
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(this) {
             if (isBuildServer) {
