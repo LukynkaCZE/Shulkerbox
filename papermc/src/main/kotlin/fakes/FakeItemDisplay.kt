@@ -25,6 +25,8 @@ class FakeItemDisplay(override var location: Location) : FakeEntity {
         entity.transformationInterpolationDuration = 2
         (entity.bukkitEntity as ItemDisplay).interpolationDuration = 2
         (entity.bukkitEntity as ItemDisplay).teleportDuration = 2
+        entity.viewRange = 999999f
+
     }
 
     fun setGlowColor(color: Color) {

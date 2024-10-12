@@ -1,7 +1,10 @@
 import kotlinx.serialization.Serializable
 
+const val CURRENT_SHULKERBOX_VERSION = 2
+
 @Serializable
 data class ShulkerboxMap(
+    var version: Int,
     val id: String,
     var name: String = id,
     val bounds: MutableMap<String, BoundingBox> = mutableMapOf(),
@@ -9,6 +12,7 @@ data class ShulkerboxMap(
     var props: MutableMap<String, Prop> = mutableMapOf(),
     var size: ShulkerboxVector,
     var meta: MutableMap<String, String> = mutableMapOf(),
+    var schematicToOriginOffset: ShulkerboxVector,
     var origin: ShulkerboxLocation? = null
 )
 
@@ -89,4 +93,14 @@ data class ShulkerboxVector(
     val x: Double,
     val y: Double,
     val z: Double,
-)
+) {
+    constructor(x: Int, y: Int, z: Int): this(x.toDouble(), y.toDouble(), z.toDouble())
+
+    fun offsetTo(vector: ShulkerboxVector): ShulkerboxVector {
+        return ShulkerboxVector(
+            vector.x - this.x,
+            vector.y - this.y,
+            vector.z - this.z
+        )
+    }
+}

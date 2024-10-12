@@ -2,16 +2,23 @@
 
 package map
 
+import CURRENT_SHULKERBOX_VERSION
 import ShulkerboxMap
 import ShulkerboxPaper
+import ShulkerboxVector
+import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.bukkit.BukkitWorld
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard
+import com.sk89q.worldedit.extent.clipboard.Clipboard
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy
 import com.sk89q.worldedit.function.operation.Operations
+import com.sk89q.worldedit.internal.util.AbstractAdapter
 import com.sk89q.worldedit.math.BlockVector3
 import com.sk89q.worldedit.regions.CuboidRegion
+import com.sk89q.worldedit.world.AbstractWorld
+import com.sk89q.worldedit.world.World
 import config.ConfigManager
 import files.MapFileReader
 import files.MapFileWriter
@@ -19,12 +26,14 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.util.Vector
 import props.PropManager
 import sendPrefixed
 import java.io.File
@@ -125,6 +134,27 @@ object MapManager: Listener {
         return out
     }
 
+    fun getWorldEditClipboardAndFEC(origin: Location, size: Vector): Pair<BlockArrayClipboard, ForwardExtentCopy> {
+
+        val pos1 = BlockVector3.at(origin.x, origin.y, origin.z) // the map origin
+        val origin2 = origin.clone().add(size)
+        val pos2 = BlockVector3.at(origin2.x, origin2.y, origin2.z)
+        val region = CuboidRegion(pos1, pos2)
+        region.world = BukkitAdapter.asBukkitWorld(BukkitWorld(origin.world))
+
+        val clipboard = BlockArrayClipboard(region)
+
+        val forwardExtentCopy = ForwardExtentCopy(
+            region.world, region, clipboard, clipboard.minimumPoint
+        )
+        forwardExtentCopy.isCopyingEntities = false
+        return clipboard to forwardExtentCopy
+    }
+
+    fun getWorldEditClipboardAndFEC(map: ShulkerboxMap): Pair<Clipboard, ForwardExtentCopy> {
+        return getWorldEditClipboardAndFEC(map.origin!!.toBukkitLocation(), map.size.toBukkitVector())
+    }
+
     fun save(map: ShulkerboxMap) {
         val folder = File("plugins/Shulkerbox/temp/${map.id}/")
         folder.mkdirs()
@@ -132,6 +162,9 @@ object MapManager: Listener {
         file.delete()
         file.createNewFile()
         file.writeText(map.toJson())
+        map.version = CURRENT_SHULKERBOX_VERSION
+        val minPoint = getWorldEditClipboardAndFEC(map).first.minimumPoint
+        map.schematicToOriginOffset = ShulkerboxVector(minPoint.x, minPoint.y, minPoint.z).offsetTo(map.origin!!.toBukkitLocation().toVector().toShulkerboxVector())
         if(ShulkerboxPaper.isBuildServer) {
             val registryFolder = File("plugins/Shulkerbox/")
             registryFolder.mkdirs()
@@ -141,23 +174,12 @@ object MapManager: Listener {
             registryFile.writeText(generateRegistryFileJson())
         }
 
-        val pos1 = BlockVector3.at(map.origin!!.x, map.origin!!.y, map.origin!!.z)
-        val origin2 = map.origin!!.toBukkitLocation().clone().add(map.size.toBukkitVector())
-        val pos2 = BlockVector3.at(origin2.x, origin2.y, origin2.z)
-        val region = CuboidRegion(pos1, pos2)
-        region.world = BukkitAdapter.asBukkitWorld(BukkitWorld(map.origin!!.toBukkitLocation().world))
-
-        val clipboard = BlockArrayClipboard(region)
-
-        val forwardExtentCopy = ForwardExtentCopy(
-            region.world, region, clipboard, region.minimumPoint
-        )
-        forwardExtentCopy.isCopyingEntities = false
-        Operations.complete(forwardExtentCopy)
+        val forwardExtentCopy = getWorldEditClipboardAndFEC(map)
+        Operations.complete(forwardExtentCopy.second)
 
         val schematicFile = File("plugins/Shulkerbox/temp/${map.id}/map.schem")
         BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(FileOutputStream(schematicFile)).use { writer ->
-            writer.write(clipboard)
+            writer.write(forwardExtentCopy.first)
         }
 
         MapFileWriter.writeMap(map)
@@ -180,6 +202,7 @@ object MapManager: Listener {
                 return@forEach
             }
             val mapJson = MapFileReader.load(file)
+//            val map = fromJson(File("plugins/Shulkerbox/temp/${entry.mapId}/map.json").readText())
             val map = fromJson(mapJson.json)
             map.origin = entry.location
             if(map.origin!!.toBukkitLocation().world == null) {

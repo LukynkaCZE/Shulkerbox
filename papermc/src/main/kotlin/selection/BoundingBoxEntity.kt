@@ -25,6 +25,10 @@ class BoundingBoxEntity(initialLocation: Location, initialSize: Vector) {
     private var name = "Selection"
     private var size = initialSize
 
+    private val entity: FakeItemDisplay = FakeItemDisplay(location)
+    private val flipped: FakeItemDisplay = FakeItemDisplay(location)
+    private val nametag: FakeTextDisplay = FakeTextDisplay(location)
+
     val viewerPlayers: MutableSet<Player> = mutableSetOf()
 
     fun addViewer(player: Player) {
@@ -77,15 +81,13 @@ class BoundingBoxEntity(initialLocation: Location, initialSize: Vector) {
         return size
     }
 
-    private val entity: FakeItemDisplay = FakeItemDisplay(location)
-    private val flipped: FakeItemDisplay = FakeItemDisplay(location)
-    private val nametag: FakeTextDisplay = FakeTextDisplay(location)
 
     fun update() {
 
         nametag.setText(name.toMiniMessage().style { it.color(color.textColor) })
         nametag.setBillboard(Display.Billboard.CENTER)
         nametag.setSeeThrough(true)
+        nametag
 
         val centerOffset = size.clone().divide(Vector(2f, 2f, 2f))
         val textLocation = location.clone().add(centerOffset)

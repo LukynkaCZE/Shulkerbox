@@ -1,11 +1,16 @@
 package map.commands
 
+import CURRENT_SHULKERBOX_VERSION
 import ShulkerboxMap
+import ShulkerboxVector
 import config.ConfigManager
 import git.GitIntegration
 import map.MapManager
+import map.toBukkitLocation
 import map.toShulkerboxLocation
 import map.toShulkerboxVector
+import org.bukkit.GameMode
+import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -18,7 +23,9 @@ import selection.SelectionManager
 import send
 import sendPrefixed
 import util.error
+import util.runLater
 import util.simpleSuggestion
+import kotlin.math.min
 
 class MapCommand {
 
@@ -62,7 +69,16 @@ class MapCommand {
                     return@handler
                 }
 
-                val map = ShulkerboxMap(mapId, origin = selection.basePoint.toShulkerboxLocation(), size = selection.getBoundingBoxSize().toShulkerboxVector())
+                val origin = selection.basePoint
+                val size = selection.getBoundingBoxSize()
+                val minPoint = MapManager.getWorldEditClipboardAndFEC(origin, size).first.minimumPoint
+                val map = ShulkerboxMap(
+                    version = CURRENT_SHULKERBOX_VERSION,
+                    id = mapId,
+                    origin = origin.toShulkerboxLocation(),
+                    size = size.toShulkerboxVector(),
+                    schematicToOriginOffset = ShulkerboxVector(minPoint.x, minPoint.y, minPoint.z).offsetTo(origin.toShulkerboxLocation().toBukkitLocation().toVector().toShulkerboxVector())
+                )
                 MapManager.maps[mapId] = map
                 MapManager.select(player, map)
 
@@ -128,6 +144,53 @@ class MapCommand {
                 activeMap.updateDrawables()
             })
 
+        cm.command(mapCommandBase.literal("tp")
+            .optional("map_id", stringParser(), getMapIdSuggestions())
+            .handler { ctx ->
+                val player = (ctx.sender() as Player)
+                val mapId = ctx.getOrDefault<String>("map_id", null)
+                val location: Location
+                if(mapId == null) {
+                    val map = MapManager.selectedShulkerboxMap(player)
+                    if(map == null) {
+                        error(player, "You don't have any map selected!")
+                        return@handler
+                    }
+
+                    location = map.origin!!.toBukkitLocation()
+                } else {
+                    val map = MapManager.maps[mapId]
+                    if(map == null) {
+                        error(player, "Map with the id <dark_red>$mapId <red>does not exist!")
+                        return@handler
+                    }
+                    location = map.origin!!.toBukkitLocation()
+                }
+                player.teleport(location)
+            }
+        )
+
+        cm.command(mapCommandBase.literal("dev_resave_all")
+            .handler { ctx ->
+                val player = (ctx.sender() as Player)
+                var loop = 0L
+                MapManager.maps.forEach { mapLoop ->
+                    runLater(loop * 40L) {
+                        val map = mapLoop.value
+                        player.gameMode = GameMode.SPECTATOR
+                        player.teleport(map.origin!!.toBukkitLocation())
+                        player.gameMode = GameMode.SPECTATOR
+                        player.gameMode = GameMode.SPECTATOR
+                        player.gameMode = GameMode.SPECTATOR
+
+                        player.performCommand("map select ${mapLoop.key}")
+                        player.performCommand("map save")
+                    }
+                    loop++
+                }
+            }
+        )
+
         cm.command(mapCommandBase.literal("meta")
             .required("action", enumParser(ShulkerboxMetaAction::class.java))
             .optional("key", stringParser(), SuggestionProvider.suggesting(Suggestion.suggestion("<key>")))
@@ -191,7 +254,6 @@ class MapCommand {
                 val activeMap = MapManager.mapSelections[player]!!
                 activeMap.updateDrawables()
             })
-
 
         cm.command(mapCommandBase.literal("remove")
             .handler { ctx ->

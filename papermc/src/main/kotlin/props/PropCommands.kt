@@ -48,7 +48,7 @@ class PropCommands {
                 val location = player.location.apply { pitch = 0f; yaw = 0f }.add(0.0, 0.5, 0.0)
                 val prop = Prop(
                     uid = generateUid(map),
-                    location = location.toShulkerboxOffset(map,).toShulkerboxVector(),
+                    location = location.toShulkerboxOffset(map).toShulkerboxVector(),
                     yaw = 0f,
                     pitch = 0f,
                     meta = mutableMapOf(),

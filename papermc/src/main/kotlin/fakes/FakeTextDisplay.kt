@@ -19,6 +19,7 @@ class FakeTextDisplay(override var location: Location) : FakeEntity {
 
     init {
         entity.setLocation(location)
+        entity.viewRange = 999999f
     }
 
     fun setText(text: String) {
