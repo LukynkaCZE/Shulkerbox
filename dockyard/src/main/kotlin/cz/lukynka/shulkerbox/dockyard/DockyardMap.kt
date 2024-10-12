@@ -25,6 +25,14 @@ data class DockyardMap(
 ) {
     val spawnedProps = mutableMapOf<DockyardProp, ItemDisplay>()
 
+    fun getPoint(id: String): DockyardPoint {
+        return points.first { it.id == id }
+    }
+
+    fun getPointOrNull(id: String): DockyardPoint? {
+        return points.firstOrNull { it.id == id }
+    }
+
     fun getPointsByType(type: PointType): Collection<DockyardPoint> {
         return points.filter { it.type == type }
     }
@@ -64,7 +72,7 @@ data class DockyardMap(
         spawnedProps.forEach { it.value.world.despawnEntity(it.value) }
     }
 
-    fun placeSchematic(thenRun: (() -> Unit)) {
+    fun placeSchematic(thenRun: (() -> Unit)? = null) {
         origin.world.placeSchematic(schematic, origin)
         origin.world.placeSchematic {
             schematic = this@DockyardMap.schematic

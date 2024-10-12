@@ -51,7 +51,7 @@ object GitIntegration {
         git.add().addFilepattern(".").setUpdate(false).call()
         git.commit()
             .setAuthor(committee.name, "${committee.name}@shulker.box")
-            .setMessage(commitMessage)
+            .setMessage("(${map.id}) $commitMessage")
             .call()
         git.push()
             .setCredentialsProvider(credentials)

@@ -11,6 +11,10 @@ import java.util.zip.ZipFile
 
 object MapFileReader {
 
+    init {
+        ShulkerboxConfigManager.load()
+    }
+
     fun read(file: File): DockyardShulkerboxMap {
         val zip = ZipFile(file)
         var json: String? = null

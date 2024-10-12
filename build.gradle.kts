@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "cz.lukynka"
-version = "1.0-SNAPSHOT"
+version = "0.9-SNAPSHOT"
 
 repositories {
     mavenCentral()

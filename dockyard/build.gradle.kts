@@ -1,10 +1,11 @@
 plugins {
     kotlin("jvm")
+    `maven-publish`
     kotlin("plugin.serialization") version "1.9.22"
 }
 
 group = "cz.lukynka"
-version = "1.0-SNAPSHOT"
+version = parent!!.version
 
 repositories {
     mavenCentral()
@@ -13,13 +14,12 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.dockyardmc:dockyard:0.6.4-SNAPSHOT")
-    implementation("org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r")
+    implementation("io.github.dockyardmc:dockyard:0.6.1.1-SNAPSHOT")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r")
     implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.3.0.202209071007-r")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-    implementation("cz.lukynka:kotlin-bindables:1.1")
-    implementation("cz.lukynka:pretty-log:1.4")
-    implementation("io.github.dockyardmc:scroll:1.8")
+    implementation("com.akuleshov7:ktoml-core:0.5.1")
+    implementation("com.akuleshov7:ktoml-file:0.5.1")
 
     implementation(project(":common"))
     testImplementation(kotlin("test"))
@@ -30,4 +30,28 @@ tasks.test {
 }
 kotlin {
     jvmToolchain(21)
+}
+
+publishing {
+    repositories {
+        maven {
+            url = if(version.toString().contains("-SNAPSHOT")) {
+                uri("https://mvn.devos.one/snapshots")
+            } else {
+                uri("https://mvn.devos.one/releases")
+            }
+            credentials {
+                username = System.getenv()["MAVEN_USER"]
+                password = System.getenv()["MAVEN_PASS"]
+            }
+        }
+    }
+    publications {
+        register<MavenPublication>("maven") {
+            groupId = "cz.lukynka.shulkerbox"
+            artifactId = "dockyard"
+            version = version
+            from(components["java"])
+        }
+    }
 }

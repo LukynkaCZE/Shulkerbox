@@ -5,6 +5,7 @@ import io.github.dockyardmc.DockyardServer
 import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
+import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.GameMode
 import io.github.dockyardmc.registry.PotionEffects
 import java.io.File
@@ -25,29 +26,26 @@ fun main() {
         it.player.addPotionEffect(PotionEffects.NIGHT_VISION, 99999, 1)
     }
 
-    var map: DockyardMap? = null
-
     Commands.add("/load") {
         execute {
             val player = it.getPlayerOrThrow()
-            val shulkerboxMap = MapFileReader.read(File("dockyard/maps/emberseeker_hub.shulker"))
-            map = shulkerboxMap.toDockyardMap(player.location.getBlockLocation())
-            map!!.placeSchematic()
-            map!!.spawnProps()
-        }
-    }
+            val map = MapFileReader.read(File("shulkerbox/maps/emberseeker_hub.shulker"))
+                .toDockyardMap(player.location.getBlockLocation())
+            val spawn = map.getPoint("spawn")
 
-    Commands.add("/move") {
-        execute {
-            val player = it.getPlayerOrThrow()
-            map!!.spawnedProps.forEach { prop ->
-                prop.value.teleport(prop.key.location.clone().add(player.location))
+            map.placeSchematic {
+                DockyardServer.broadcastMessage("<lime>Map loaded!!")
+                player.teleport(spawn.location)
+                map.spawnProps()
             }
-            val first = map!!.spawnedProps.keys.first()
-            val off = first.location.clone().subtract(player.location)
-            player.sendMessage("<pink>$off")
         }
     }
-
     server.start()
+    ShulkerboxIntegration.load()
+}
+
+fun <T> MutableList<T>.consumeRandom(): T {
+    val random = this.random()
+    this.remove(random)
+    return random
 }

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "cz.lukynka.shulkerbox.papermc"
-version = "1.1"
+version = parent!!.version
 
 repositories {
     mavenCentral()
@@ -37,7 +37,7 @@ dependencies {
     runtimeOnly("net.megavex:scoreboard-library-modern:$scoreboardLibraryVersion:mojmap")
     implementation("com.akuleshov7:ktoml-core:0.5.1")
     implementation("com.akuleshov7:ktoml-file:0.5.1")
-    implementation("org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r")
     implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.3.0.202209071007-r")
     implementation(project(":common"))
 }

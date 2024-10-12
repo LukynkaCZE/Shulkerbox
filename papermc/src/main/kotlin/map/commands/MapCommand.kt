@@ -15,6 +15,7 @@ import org.bukkit.Sound
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
+import org.incendo.cloud.parser.standard.StringParser.greedyStringParser
 import org.incendo.cloud.parser.standard.StringParser.stringParser
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 import org.incendo.cloud.suggestion.Suggestion
@@ -274,7 +275,7 @@ class MapCommand {
 
         if(ConfigManager.currentConfig.git.gitIntegrationEnabled) {
             cm.command(mapCommandBase.literal("push")
-                .required("commit", stringParser(), simpleSuggestion("<commit name>"))
+                .required("commit", greedyStringParser(), simpleSuggestion("<commit name>"))
                 .handler { ctx ->
                     val player = (ctx.sender() as Player)
                     val map = MapManager.selectedShulkerboxMap(player)
