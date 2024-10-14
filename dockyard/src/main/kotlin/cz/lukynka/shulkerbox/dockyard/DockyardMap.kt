@@ -73,7 +73,6 @@ data class DockyardMap(
     }
 
     fun placeSchematic(thenRun: (() -> Unit)? = null) {
-        origin.world.placeSchematic(schematic, origin)
         origin.world.placeSchematic {
             schematic = this@DockyardMap.schematic
             location = origin

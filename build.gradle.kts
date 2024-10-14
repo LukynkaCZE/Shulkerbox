@@ -3,7 +3,11 @@ plugins {
 }
 
 group = "cz.lukynka"
-version = "0.9-SNAPSHOT"
+version = "0.14-SNAPSHOT"
+
+subprojects {
+    plugins.apply("java-library")
+}
 
 repositories {
     mavenCentral()
@@ -11,6 +15,12 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+}
+
+tasks.register("publish-all") {
+    dependsOn(tasks.getByName("build"))
+    dependsOn(project(":common").tasks.getByName("publish"))
+    dependsOn(project(":dockyard").tasks.getByName("publish"))
 }
 
 tasks.test {

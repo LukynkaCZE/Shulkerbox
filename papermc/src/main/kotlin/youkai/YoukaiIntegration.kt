@@ -1,5 +1,6 @@
 package youkai
 
+import ResourcepackManager
 import cz.lukynka.lkws.LightweightWebServer
 import cz.lukynka.lkws.responses.Response
 import kotlinx.serialization.Serializable
@@ -98,6 +99,7 @@ object YoukaiIntegration {
                         prop.value.itemStack = getModel(prop.value.youkaiModelId!!).toPropItemStack()
                     }
                 }
+                ResourcepackManager.resend()
             }
         }
     }

@@ -14,6 +14,10 @@ object ResourcepackManager: Listener {
     fun set(url: String) {
         ConfigManager.currentConfig.general.packUrl = url
         ConfigManager.save()
+        resend()
+    }
+
+    fun resend() {
         Bukkit.getOnlinePlayers().forEach { it.setResourcePack(getFromConfig()!!) }
     }
 

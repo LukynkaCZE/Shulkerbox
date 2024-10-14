@@ -6,7 +6,7 @@ import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.registry.registries.ItemRegistry
 
 fun PropItemStack.toItemStack(): ItemStack {
-    val baseItem = io.github.dockyardmc.registry.registries.ItemRegistry["minecraft:${material.lowercase()}"]
+    val baseItem = ItemRegistry["minecraft:${material.lowercase()}"]
     val item = ItemStack(baseItem)
     if(enchanted) item.components.add(EnchantmentGlintOverrideItemComponent(true))
     item.customModelData.value = customModelData
