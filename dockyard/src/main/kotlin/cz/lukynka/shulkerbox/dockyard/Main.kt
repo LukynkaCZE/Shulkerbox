@@ -6,8 +6,9 @@ import io.github.dockyardmc.commands.Commands
 import io.github.dockyardmc.events.Events
 import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.extentions.broadcastMessage
-import io.github.dockyardmc.player.GameMode
+import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.PotionEffects
+import io.github.emberseeker.youkai.YoukaiPack
 import java.io.File
 
 fun main() {
@@ -19,6 +20,9 @@ fun main() {
             dockyardCommands = true
         }
     }
+
+    YoukaiPack.load("https://cdn.lukynka.cloud/ember-seeker-pack.json")
+    YoukaiPack.update()
 
     Events.on<PlayerJoinEvent> {
         it.player.permissions.add("dockyard.*")

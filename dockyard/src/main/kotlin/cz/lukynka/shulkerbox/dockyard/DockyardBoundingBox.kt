@@ -1,5 +1,6 @@
 package cz.lukynka.shulkerbox.dockyard
 
+import io.github.dockyardmc.bounds.Bound
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
@@ -33,4 +34,9 @@ data class DockyardBoundingBox(
         }
     }
 
+    fun toBound(): Bound {
+        val firstPoint = origin
+        val secondPoint = origin.clone().add(size)
+        return Bound(firstPoint, secondPoint)
+    }
 }

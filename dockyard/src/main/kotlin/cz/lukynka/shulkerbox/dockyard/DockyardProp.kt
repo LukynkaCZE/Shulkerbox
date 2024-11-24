@@ -1,13 +1,14 @@
 package cz.lukynka.shulkerbox.dockyard
 
-import io.github.dockyardmc.entities.*
-import io.github.dockyardmc.entities.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.*
+import io.github.dockyardmc.entity.EntityManager.spawnEntity
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Quaternion
 import io.github.dockyardmc.utils.vectors.Vector3d
+import io.github.emberseeker.youkai.YoukaiPack
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 
@@ -26,12 +27,16 @@ data class DockyardProp(
     var youkaiModelId: String? = null,
 ) {
 
+    fun getItem(): ItemStack {
+        return if(youkaiModelId != null) YoukaiPack.getItem(youkaiModelId!!) else itemStack
+    }
+
     fun spawn(): ItemDisplay {
         val display = location.world.spawnEntity(ItemDisplay(location, location.world)) as ItemDisplay
         display.autoViewable = true
         display.renderDistanceBlocks = 999
 
-        display.item.value = itemStack
+        display.item.value = getItem()
         display.scale.value = scale.toVector3f()
         display.renderType.value = ItemDisplayRenderType.HEAD
 

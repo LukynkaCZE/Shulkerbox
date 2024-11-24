@@ -15,6 +15,18 @@ fun generateRandomString(length: Int = 3): String {
         .joinToString("")
 }
 
+fun getBoundPositionRelative(first: Location, second: Location): Location {
+    var finalX = first.x
+    var finalY = first.y
+    var finalZ = first.z
+
+    if (first.x > second.x) finalX = first.x + 0.99999
+    if (first.y > second.y) finalY = first.y + 0.99999
+    if (first.z > second.z) finalZ = first.z + 0.99999
+
+    return Location(first.world, finalX, finalY, finalZ)
+}
+
 fun generateUid(map: ShulkerboxMap): String {
     while (true) {
         val id = generateRandomString(3)

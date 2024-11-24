@@ -70,7 +70,7 @@ class MapCommand {
                     return@handler
                 }
 
-                val origin = selection.basePoint
+                val origin = selection.getFirstPoint()
                 val size = selection.getBoundingBoxSize()
                 val minPoint = MapManager.getWorldEditClipboardAndFEC(origin, size).first.minimumPoint
                 val map = ShulkerboxMap(
@@ -115,7 +115,7 @@ class MapCommand {
                 }
 
                 val activeMap = MapManager.mapSelections[player]!!
-                map.origin = selection.basePoint.toShulkerboxLocation()
+                map.origin = selection.getFirstPoint().toShulkerboxLocation()
                 map.size = selection.getBoundingBoxSize().toShulkerboxVector()
                 activeMap.updateDrawables()
 

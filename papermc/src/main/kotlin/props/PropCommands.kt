@@ -13,6 +13,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Transformation
+import org.bukkit.util.Vector
 import org.incendo.cloud.parser.standard.DoubleParser.doubleParser
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import org.incendo.cloud.parser.standard.FloatParser.floatParser
@@ -100,6 +101,59 @@ class PropCommands {
                         player.sendPrefixed("Reset brightness of prop!")
                         player.playEditSound()
                     }
+                }
+                activeMap.updateDrawables()
+            }
+        )
+
+        cm.command(propCommandBase.literal("shift")
+            .required("x", floatParser())
+            .required("y", floatParser())
+            .required("z", floatParser())
+            .handler { ctx ->
+                val player = ctx.sender() as Player
+
+                val x = ctx.get<Float>("x")
+                val y = ctx.get<Float>("y")
+                val z = ctx.get<Float>("z")
+
+                val map = MapManager.selectedShulkerboxMap(player)
+                val prop = PropManager.propSelections[player]
+                if(prop == null) {
+                    error(player, "You do not have any prop selected")
+                    return@handler
+                }
+                if(map == null) {
+                    error(player, "You don't have any map selected!")
+                    return@handler
+                }
+                val activeMap = MapManager.mapSelections[player]!!
+
+                prop.location = prop.location.toBukkitVector().add(Vector(x, y, z)).toShulkerboxVector()
+                activeMap.updateDrawables()
+            }
+        )
+
+        cm.command(propCommandBase.literal("shift_all")
+            .required("x", floatParser())
+            .required("y", floatParser())
+            .required("z", floatParser())
+            .handler { ctx ->
+                val player = ctx.sender() as Player
+
+                val x = ctx.get<Float>("x")
+                val y = ctx.get<Float>("y")
+                val z = ctx.get<Float>("z")
+
+                val map = MapManager.selectedShulkerboxMap(player)
+                if(map == null) {
+                    error(player, "You don't have any map selected!")
+                    return@handler
+                }
+                val activeMap = MapManager.mapSelections[player]!!
+
+                map.props.forEach { prop ->
+                    prop.value.location = prop.value.location.toBukkitVector().add(Vector(x, y, z)).toShulkerboxVector()
                 }
                 activeMap.updateDrawables()
             }

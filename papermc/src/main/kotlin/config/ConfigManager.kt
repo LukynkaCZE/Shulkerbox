@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import org.bukkit.Bukkit
+import selection.SelectionManager
 import java.io.File
 import java.util.logging.Level
 
@@ -49,7 +50,9 @@ object ConfigManager {
     data class General(
         val sidebar: Boolean = true,
         val autoReselectMapAfterJoining: Boolean = true,
-        var packUrl: String? = null
+        var packUrl: String? = null,
+        var motd: Boolean = true,
+        var customMotd: String = "${SelectionManager.prefix} <gray>Shulkerbox Building Server"
     )
 
     @Serializable

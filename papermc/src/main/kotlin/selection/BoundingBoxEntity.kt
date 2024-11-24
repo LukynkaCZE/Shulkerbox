@@ -87,7 +87,9 @@ class BoundingBoxEntity(initialLocation: Location, initialSize: Vector) {
         nametag.setText(name.toMiniMessage().style { it.color(color.textColor) })
         nametag.setBillboard(Display.Billboard.CENTER)
         nametag.setSeeThrough(true)
-        nametag
+
+        entity.teleport(location)
+        flipped.teleport(location)
 
         val centerOffset = size.clone().divide(Vector(2f, 2f, 2f))
         val textLocation = location.clone().add(centerOffset)

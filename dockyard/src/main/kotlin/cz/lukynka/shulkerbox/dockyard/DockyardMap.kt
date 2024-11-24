@@ -1,16 +1,18 @@
 package cz.lukynka.shulkerbox.dockyard
 
 import PointType
-import io.github.dockyardmc.entities.*
-import io.github.dockyardmc.entities.EntityManager.despawnEntity
+import io.github.dockyardmc.entity.EntityManager.despawnEntity
+import io.github.dockyardmc.entity.ItemDisplay
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.schematics.Schematic
 import io.github.dockyardmc.schematics.placeSchematic
+import io.github.dockyardmc.schematics.placeSchematicAsync
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.vectors.Vector3d
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
+import java.util.concurrent.CompletableFuture
 
 data class DockyardMap(
     val id: String,
@@ -27,6 +29,10 @@ data class DockyardMap(
 
     fun getPoint(id: String): DockyardPoint {
         return points.first { it.id == id }
+    }
+
+    fun getBound(id: String): DockyardBoundingBox {
+        return bounds.first { it.id == id }
     }
 
     fun getPointOrNull(id: String): DockyardPoint? {
@@ -72,11 +78,11 @@ data class DockyardMap(
         spawnedProps.forEach { it.value.world.despawnEntity(it.value) }
     }
 
-    fun placeSchematic(thenRun: (() -> Unit)? = null) {
-        origin.world.placeSchematic {
-            schematic = this@DockyardMap.schematic
-            location = origin
-            then = thenRun
-        }
+    fun placeSchematic() {
+        origin.world.placeSchematic(this@DockyardMap.schematic, origin)
+    }
+
+    fun placeSchematicAsync(): CompletableFuture<Unit> {
+        return origin.world.placeSchematicAsync(this@DockyardMap.schematic, origin)
     }
 }

@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket
 import net.minecraft.world.entity.Display.TextDisplay
+import net.minecraft.world.entity.Display.TextDisplay.DATA_BACKGROUND_COLOR_ID
 import net.minecraft.world.entity.EntityType
 import org.bukkit.Color
 import org.bukkit.Location
@@ -32,6 +33,17 @@ class FakeTextDisplay(override var location: Location) : FakeEntity {
 
     fun setBillboard(billboard: Billboard) {
         entity.billboardConstraints = billboard.toVanilla()
+    }
+
+    fun setBackground(background: Int) {
+        entity.entityData.set(DATA_BACKGROUND_COLOR_ID, background)
+    }
+
+    fun setShadow(shadow: Boolean) {
+        val nbt = CompoundTag()
+        entity.save(nbt)
+        nbt.putBoolean("shadow", shadow)
+        entity.load(nbt)
     }
 
     fun setSeeThrough(seeThrough: Boolean) {

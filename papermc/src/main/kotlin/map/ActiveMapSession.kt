@@ -3,6 +3,7 @@ package map
 import BoundingBox
 import Point
 import Prop
+import ShulkerboxAnnotation
 import ShulkerboxMap
 import ShulkerboxPaper
 import config.ConfigManager
@@ -21,6 +22,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
     private var mapBoundingBox = BoundingBoxEntity(map.origin!!.toBukkitLocation(), map.size.toBukkitVector())
     private val drawableBounds = mutableMapOf<String, BoundingBoxEntity>()
     private val drawablePoints = mutableListOf<MarkerPointEntity>()
+    private val drawableAnnotations = mutableMapOf<String, AnnotationEntity>()
     val drawableProps = mutableListOf<PropEntity>()
     private val sidebarEnabled get() = ConfigManager.currentConfig.general.sidebar
 
@@ -57,6 +59,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
         drawableBounds.forEach { it.value.addViewer(player) }
         drawablePoints.forEach { it.addViewer(player) }
         drawableProps.forEach { it.addViewer(player) }
+        drawableAnnotations.forEach { it.value.addViewer(player) }
         if(sidebarEnabled && !sidebar.closed()) {
             sidebar.addPlayer(player)
             updateSidebar()
@@ -69,6 +72,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
         drawableBounds.forEach { it.value.removeViewer(player) }
         drawablePoints.forEach { it.removeViewer(player) }
         drawableProps.forEach { it.removeViewer(player) }
+        drawableAnnotations.forEach { it.value.removeViewer(player) }
         if(sidebarEnabled && !sidebar.closed()) {
             sidebar.removePlayer(player)
             updateSidebar()
@@ -84,10 +88,12 @@ class ActiveMapSession(var map: ShulkerboxMap) {
         drawableProps.forEach { it.dispose() }
         drawableProps.clear()
         sidebar.close()
+        drawableAnnotations.forEach { it.value.dispose() }
+        drawableAnnotations.clear()
     }
 
     fun addBound(id: String, selection: Selection) {
-        map.bounds[id] = BoundingBox(id, selection.basePoint.toShulkerboxOffset(map).toShulkerboxVector(), selection.getBoundingBoxSize().toShulkerboxVector())
+        map.bounds[id] = BoundingBox(id, selection.getFirstPoint().toShulkerboxOffset(map).toShulkerboxVector(), selection.getBoundingBoxSize().toShulkerboxVector())
         updateDrawables()
     }
 
@@ -106,6 +112,12 @@ class ActiveMapSession(var map: ShulkerboxMap) {
         updateDrawables()
     }
 
+    fun addAnnotation(annotation: ShulkerboxAnnotation) {
+        if(map.annotations == null) map.annotations = mutableMapOf()
+        map.annotations!![annotation.uid] = annotation
+        updateDrawables()
+    }
+
     fun updateDrawables() {
 
         mapBoundingBox.dispose()
@@ -118,6 +130,14 @@ class ActiveMapSession(var map: ShulkerboxMap) {
 
         mapBoundingBox.setName(name)
         mapBoundingBox.setColor(BoundingBoxColor.WHITE)
+
+        drawableAnnotations.forEach { it.value.dispose() }
+        drawableAnnotations.clear()
+        map.annotations?.forEach {
+            val entity = AnnotationEntity(it.value.location.fromShulkerboxOffset(map.origin!!.toBukkitLocation()), it.value, map)
+            viewers.forEach { viewer -> entity.addViewer(viewer) }
+            drawableAnnotations[it.key] = entity
+        }
 
         drawableBounds.forEach { it.value.dispose() }
         drawableBounds.clear()

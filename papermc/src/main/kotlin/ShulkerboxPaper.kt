@@ -1,6 +1,7 @@
 import config.ConfigManager
 import git.GitIntegration
 import map.MapManager
+import map.commands.AnnotationCommands
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
@@ -11,13 +12,16 @@ import map.commands.MapCommand
 import map.commands.BoundCommands
 import map.commands.PointCommands
 import net.megavex.scoreboardlibrary.api.ScoreboardLibrary
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.server.ServerListPingEvent
 import props.PropCommands
 import props.PropListener
 import selection.SelectionCommands
 import selection.SelectionListener
 import youkai.YoukaiIntegration
 
-class ShulkerboxPaper: JavaPlugin() {
+class ShulkerboxPaper: JavaPlugin(), Listener {
 
     lateinit var commandManager: LegacyPaperCommandManager<CommandSender>
     companion object {
@@ -59,6 +63,8 @@ class ShulkerboxPaper: JavaPlugin() {
         PropCommands()
         SelectionCommands()
 
+        AnnotationCommands()
+
         MapManager
         ResourcepackManager
 
@@ -77,6 +83,15 @@ class ShulkerboxPaper: JavaPlugin() {
         if(gitIntegration) {
             GitIntegration.load()
         }
+
+        @EventHandler
+        fun motdEvent(event: ServerListPingEvent) {
+            if(!ConfigManager.currentConfig.general.motd) return
+
+            event.motd(ConfigManager.currentConfig.general.customMotd.toMiniMessage())
+        }
+
+        Bukkit.getPluginManager().registerEvents(this, this)
     }
 
     override fun onDisable() {

@@ -13,7 +13,8 @@ data class ShulkerboxMap(
     var size: ShulkerboxVector,
     var meta: MutableMap<String, String> = mutableMapOf(),
     var schematicToOriginOffset: ShulkerboxVector,
-    var origin: ShulkerboxLocation? = null
+    var origin: ShulkerboxLocation? = null,
+    var annotations: MutableMap<String, ShulkerboxAnnotation>? = null
 )
 
 @Serializable
@@ -45,6 +46,13 @@ data class Prop(
     var brightness: Int?,
     var itemStack: PropItemStack,
     var youkaiModelId: String? = null
+)
+
+@Serializable
+data class ShulkerboxAnnotation(
+    var uid: String,
+    var location: ShulkerboxVector,
+    val text: String
 )
 
 @Serializable

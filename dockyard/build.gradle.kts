@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.dockyardmc:dockyard:0.6.1.2-SNAPSHOT")
+    implementation("io.github.dockyardmc:dockyard:0.7.0")
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r")
     implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.3.0.202209071007-r")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
@@ -32,6 +32,28 @@ tasks.test {
 kotlin {
     jvmToolchain(21)
 }
+
+sourceSets["main"].resources.srcDir("${buildDir}/generated/resources/")
+
+sourceSets["main"].java.srcDir("src/main/kotlin")
+
+tasks {
+    val sourcesJar by creating(Jar::class) {
+        dependsOn(JavaPlugin.CLASSES_TASK_NAME)
+        archiveClassifier = "sources"
+        from(sourceSets["main"].allSource)
+    }
+
+    artifacts {
+        add("archives", sourcesJar)
+    }
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 
 publishing {
     repositories {
