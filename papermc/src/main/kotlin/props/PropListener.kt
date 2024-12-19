@@ -3,7 +3,7 @@ package props
 import ShulkerboxPaper
 import com.destroystokyo.paper.event.server.ServerTickStartEvent
 import map.*
-import map.commands.successSound
+import map.commands.playSuccessSound
 import map.commands.valueChangeSound
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -28,7 +28,7 @@ class PropListener: Listener {
 
     @EventHandler
     fun tick(event: ServerTickStartEvent) {
-        Bukkit.getOnlinePlayers().filter { it.inventory.itemInMainHand == PropManager.moveItem }.forEach {
+        Bukkit.getOnlinePlayers().filter { it.inventory.itemInMainHand == PropManager.propMoveToolItem }.forEach {
             val prop = PropManager.propSelections[it] ?: return@forEach
             val map = MapManager.mapSelections[it] ?: return@forEach
             val propEntity = PropManager.getPropEntityFromProp(prop, map) ?: return@forEach
@@ -38,7 +38,7 @@ class PropListener: Listener {
     @EventHandler
     fun move(event: PlayerMoveEvent) {
         val player = event.player
-        if(player.inventory.itemInMainHand != PropManager.moveItem) return
+        if(player.inventory.itemInMainHand != PropManager.propMoveToolItem) return
         val prop = PropManager.propSelections[player] ?: return
         val map = MapManager.mapSelections[player] ?: return
         val propEntity = PropManager.getPropEntityFromProp(prop, map) ?: return
@@ -57,7 +57,7 @@ class PropListener: Listener {
     @EventHandler
     fun click(event: PlayerInteractEvent) {
         val player = event.player
-        if(player.inventory.itemInMainHand != PropManager.moveItem) return
+        if(player.inventory.itemInMainHand != PropManager.propMoveToolItem) return
         val prop = PropManager.propSelections[player] ?: return
         val map = MapManager.mapSelections[player] ?: return
         val propEntity = PropManager.getPropEntityFromProp(prop, map) ?: return
@@ -80,14 +80,14 @@ class PropListener: Listener {
     @EventHandler
     fun onItemDrop(event: PlayerDropItemEvent) {
         val player = event.player
-        if(event.itemDrop.itemStack != PropManager.moveItem) return
+        if(event.itemDrop.itemStack != PropManager.propMoveToolItem) return
         val prop = PropManager.propSelections[player] ?: return
         val map = MapManager.mapSelections[player] ?: return
         val propEntity = PropManager.getPropEntityFromProp(prop, map) ?: return
         event.isCancelled = true
 
-        propEntity.dragOperation = cyclePropDragOperation(propEntity.dragOperation)
-        player.successSound()
+        propEntity.dragOperation = nextEntry(propEntity.dragOperation)
+        player.playSuccessSound()
         cooldown.add(player)
         val delay: Long = if(propEntity.dragOperation == PropDragOperation.FREE_MOVE) 10 else 2
         runLater(delay) { cooldown.remove(player) }

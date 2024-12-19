@@ -10,7 +10,6 @@ import config.ConfigManager
 import net.megavex.scoreboardlibrary.api.sidebar.Sidebar
 import org.bukkit.entity.Player
 import props.PropEntity
-import selection.BoundingBoxColor
 import selection.BoundingBoxEntity
 import selection.Selection
 import toMiniMessage
@@ -19,10 +18,10 @@ class ActiveMapSession(var map: ShulkerboxMap) {
 
     private val sidebar = ShulkerboxPaper.sidebarLibrary.createSidebar()
 
-    private var mapBoundingBox = BoundingBoxEntity(map.origin!!.toBukkitLocation(), map.size.toBukkitVector())
-    private val drawableBounds = mutableMapOf<String, BoundingBoxEntity>()
-    private val drawablePoints = mutableListOf<MarkerPointEntity>()
-    private val drawableAnnotations = mutableMapOf<String, AnnotationEntity>()
+    var mapBoundingBox = BoundingBoxEntity(map.origin!!.toBukkitLocation(), map.size.toBukkitVector())
+    val drawableBounds = mutableMapOf<String, BoundingBoxEntity>()
+    val drawablePoints = mutableListOf<MarkerPointEntity>()
+    val drawableAnnotations = mutableMapOf<String, AnnotationEntity>()
     val drawableProps = mutableListOf<PropEntity>()
     private val sidebarEnabled get() = ConfigManager.currentConfig.general.sidebar
 
@@ -31,6 +30,8 @@ class ActiveMapSession(var map: ShulkerboxMap) {
     init {
         updateDrawables()
         updateSidebar()
+
+
     }
 
     private fun updateSidebar() {
@@ -163,6 +164,7 @@ class ActiveMapSession(var map: ShulkerboxMap) {
                 PointType.UNIQUE -> BoundingBoxColor.AQUA
                 PointType.MARKER -> BoundingBoxColor.WHITE
                 PointType.SPAWN -> BoundingBoxColor.PINK
+                PointType.PARTICLE_SPEWER -> BoundingBoxColor.LIME
             }
             val location = it.value.location.fromShulkerboxOffset(map.origin!!.toBukkitLocation())
             location.yaw = it.value.yaw

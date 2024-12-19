@@ -4,9 +4,7 @@ import Prop
 import ShulkerboxPaper
 import ShulkerboxTranform
 import map.*
-import map.commands.MapCommand
-import map.commands.giveItemSound
-import map.commands.playEditSound
+import map.commands.*
 import org.bukkit.Color
 import org.bukkit.Material
 import org.bukkit.command.CommandSender
@@ -32,9 +30,80 @@ class PropCommands {
         return BlockingSuggestionProvider.Strings { commandContext, input -> YoukaiIntegration.models.keys }
     }
 
+    enum class AnchorFlipDirection {
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST,
+        UP,
+        DOWN
+    }
+
     init {
         val cm = ShulkerboxPaper.instance.commandManager
         val propCommandBase = cm.commandBuilder("prop")
+
+        val propAxisCommandBase = propCommandBase.literal("anchor")
+
+        cm.command(propAxisCommandBase.literal("flip")
+            .required("direction", enumParser(AnchorFlipDirection::class.java))
+            .handler { ctx ->
+                val player = ctx.getPlayerOrThrow()
+                val direction = ctx.get<AnchorFlipDirection>("direction")
+                val map = MapManager.selectedShulkerboxMap(player)
+                val prop = PropManager.propSelections[player]
+
+                val anchorLocation = PropAxisTool.anchors[player]
+
+                if(anchorLocation == null) {
+                    error(player, "You do not have anchor placed")
+                    return@handler
+                }
+
+                if(prop == null) {
+                    error(player, "You do not have any prop selected")
+                    return@handler
+                }
+                if(map == null) {
+                    error(player, "You don't have any map selected!")
+                    return@handler
+                }
+                val activeMap = MapManager.mapSelections[player]!!
+
+                val bukkitLocation = map.origin!!.toBukkitLocation().add(prop.location.toBukkitVector())
+
+                val newLocation = when (direction) {
+                    AnchorFlipDirection.NORTH -> {
+                        val offset = bukkitLocation.subtract(anchorLocation) // Get vector from prop to anchor
+                        anchorLocation.add(offset.x, offset.y, -offset.z) // Flip offset on Z and add to anchor
+                    }
+                    AnchorFlipDirection.EAST -> {
+                        val offset = bukkitLocation.subtract(anchorLocation)
+                        anchorLocation.add(-offset.z, offset.y, offset.x) // Flip offset on X and Z and add to anchor
+                    }
+                    AnchorFlipDirection.SOUTH -> {
+                        val offset = bukkitLocation.subtract(anchorLocation)
+                        anchorLocation.add(offset.x, offset.y, offset.z) // Flip offset on Z and add to anchor (no actual change)
+                    }
+                    AnchorFlipDirection.WEST -> {
+                        val offset = bukkitLocation.subtract(anchorLocation)
+                        anchorLocation.add(offset.z, offset.y, -offset.x) // Flip offset on X and Z and add to anchor
+                    }
+                    AnchorFlipDirection.UP -> {
+                        val offset = bukkitLocation.subtract(anchorLocation)
+                        anchorLocation.add(offset.x, -offset.y, offset.z) // Flip offset on Y and add to anchor
+                    }
+                    AnchorFlipDirection.DOWN -> {
+                        val offset = bukkitLocation.subtract(anchorLocation)
+                        anchorLocation.add(offset.x, offset.y, -offset.z) // Flip offset on Y and add to anchor
+                    }
+                }
+                prop.location = newLocation.toShulkerboxOffset(map).toShulkerboxVector()
+                activeMap.updateDrawables()
+                player.playEditSound()
+                player.sendPrefixed("Flipped prop on ${direction.name.toProperCase()} axis!")
+            }
+        )
 
         cm.command(propCommandBase.literal("create")
             .handler { ctx ->
@@ -352,7 +421,7 @@ class PropCommands {
         cm.command(propCommandBase.literal("tool")
             .handler {ctx ->
                 val player = ctx.sender() as Player
-                player.inventory.addItem(PropManager.moveItem)
+                player.inventory.addItem(PropManager.propMoveToolItem)
                 player.sendPrefixed("You have been given the <aqua>1x Prop Move Tool<gray>!")
                 player.giveItemSound()
             })

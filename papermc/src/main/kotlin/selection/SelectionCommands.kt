@@ -1,5 +1,6 @@
 package selection
 
+import BoundingBoxColor
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.incendo.cloud.bukkit.parser.PlayerParser.playerParser
@@ -36,7 +37,7 @@ class SelectionCommands {
                 }
 
                 selection.boundingBoxEntity.setColor(color)
-                player.send("${SelectionManager.prefix} set the color of your selection to <${color.textColor.asHexString()}>${color.name}")
+                player.send("${SelectionManager.prefix} set the color of your selection to <${getBoundingBoxColorData(color).textColor.asHexString()}>${color.name}")
                 player.playSound(player.location, Sound.ITEM_BUCKET_FILL, 0.5f, 1.5f)
             })
 
@@ -45,7 +46,7 @@ class SelectionCommands {
             .handler { ctx ->
                 val senderPlayer = (ctx.sender() as Player)
                 val player = ctx.getOrDefault<Player>("player", ctx.sender() as Player)
-                player.inventory.addItem(SelectionManager.selectionItem)
+                player.inventory.addItem(SelectionManager.selectionToolItem)
                 val message = if(player == senderPlayer) "You have been given the <green>Selection tool" else "You have been given the <green>Selection tool <gray>by <aqua>${senderPlayer.name}<gray>!"
                 player.sendPrefixed(message)
                 player.playSound(player.location, Sound.ENTITY_ITEM_PICKUP, 1.3f, 2f)

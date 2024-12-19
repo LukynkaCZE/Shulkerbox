@@ -18,6 +18,8 @@ class Selection(var basePoint: Location, val player: Player): Listener {
     private var secondPoint: Location? = null
     var boundingBoxEntity = BoundingBoxEntity(basePoint, Vector(1, 1, 1))
 
+    var selectedSecondPositionProper = false
+
     init {
         boundingBoxEntity.addViewer(player)
         Bukkit.getPluginManager().registerEvents(this, ShulkerboxPaper.instance)

@@ -14,7 +14,11 @@ import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.level.Level
 import org.bukkit.Location
 import org.bukkit.World
+import org.bukkit.block.Block
+import org.bukkit.block.BlockState
 import org.bukkit.craftbukkit.CraftWorld
+import org.bukkit.craftbukkit.block.CraftBlock
+import org.bukkit.craftbukkit.block.CraftBlockState
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.craftbukkit.inventory.CraftItemStack
 import org.bukkit.entity.Display.Billboard
@@ -54,6 +58,8 @@ fun Player.send(vararg packets: Packet<*>) {
 }
 
 fun ItemStack.getVanilla(): net.minecraft.world.item.ItemStack = CraftItemStack.asCraftCopy(this).handle
+
+fun BlockState.getVanilla(): net.minecraft.world.level.block.state.BlockState = (this as CraftBlockState).handle
 
 fun ItemDisplayTransform.getVanilla(): ItemDisplayContext {
     val vanillaTransform = when(this) {

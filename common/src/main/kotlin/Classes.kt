@@ -1,6 +1,6 @@
 import kotlinx.serialization.Serializable
 
-const val CURRENT_SHULKERBOX_VERSION = 2
+const val CURRENT_SHULKERBOX_VERSION = 3
 
 @Serializable
 data class ShulkerboxMap(
@@ -33,6 +33,7 @@ data class BoundingBox(
     var origin: ShulkerboxVector,
     var size: ShulkerboxVector,
     var meta: MutableMap<String, String> = mutableMapOf(),
+    var buildServerColor: BoundingBoxColor? = BoundingBoxColor.YELLOW
 )
 
 @Serializable
@@ -93,7 +94,8 @@ data class Point(
 enum class PointType {
     UNIQUE,
     MARKER,
-    SPAWN
+    SPAWN,
+    PARTICLE_SPEWER
 }
 
 @Serializable
@@ -111,4 +113,16 @@ data class ShulkerboxVector(
             vector.z - this.z
         )
     }
+}
+
+@Serializable
+enum class BoundingBoxColor(val customModelData: Int) {
+    RED(1),
+    ORANGE(2),
+    YELLOW(3),
+    LIME(4),
+    AQUA(5),
+    PINK(7),
+    PURPLE(6),
+    WHITE(8),
 }

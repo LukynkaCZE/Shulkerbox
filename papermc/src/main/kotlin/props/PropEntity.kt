@@ -61,3 +61,11 @@ fun cyclePropDragOperation(current: PropDragOperation): PropDragOperation {
     val nextIndex = (current.ordinal + 1) % values.size
     return values[nextIndex]
 }
+
+@Suppress("UNCHECKED_CAST")
+fun <T : Enum<T>> nextEntry(currentEntry: T): T {
+    val values = currentEntry::class.java.enumConstants as Array<T>
+    val currentIndex = values.indexOf(currentEntry)
+    val nextIndex = (currentIndex + 1) % values.size
+    return values[nextIndex]
+}

@@ -1,24 +1,24 @@
+import com.mattmx.ktgui.GuiManager
 import config.ConfigManager
 import git.GitIntegration
 import map.MapManager
-import map.commands.AnnotationCommands
+import map.commands.*
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import org.incendo.cloud.SenderMapper
 import org.incendo.cloud.execution.ExecutionCoordinator
 import org.incendo.cloud.paper.LegacyPaperCommandManager
-import map.commands.MapCommand
-import map.commands.BoundCommands
-import map.commands.PointCommands
 import net.megavex.scoreboardlibrary.api.ScoreboardLibrary
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.ServerListPingEvent
+import props.PropAxisTool
 import props.PropCommands
 import props.PropListener
 import selection.SelectionCommands
 import selection.SelectionListener
+import tools.SuperBarrierTool
 import youkai.YoukaiIntegration
 
 class ShulkerboxPaper: JavaPlugin(), Listener {
@@ -62,11 +62,17 @@ class ShulkerboxPaper: JavaPlugin(), Listener {
         PointCommands()
         PropCommands()
         SelectionCommands()
+        GamemodeCommands()
+        ToolsCommand()
 
         AnnotationCommands()
 
+        GuiManager.init(this)
+
         MapManager
         ResourcepackManager
+        SuperBarrierTool
+        PropAxisTool
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(this) {
             if (isBuildServer) {

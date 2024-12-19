@@ -6,7 +6,6 @@ import CURRENT_SHULKERBOX_VERSION
 import ShulkerboxMap
 import ShulkerboxPaper
 import ShulkerboxVector
-import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.bukkit.BukkitWorld
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard
@@ -14,11 +13,8 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy
 import com.sk89q.worldedit.function.operation.Operations
-import com.sk89q.worldedit.internal.util.AbstractAdapter
 import com.sk89q.worldedit.math.BlockVector3
 import com.sk89q.worldedit.regions.CuboidRegion
-import com.sk89q.worldedit.world.AbstractWorld
-import com.sk89q.worldedit.world.World
 import config.ConfigManager
 import files.MapFileReader
 import files.MapFileWriter
@@ -38,10 +34,10 @@ import props.PropManager
 import sendPrefixed
 import java.io.File
 import java.io.FileOutputStream
-import java.util.UUID
+import java.util.*
 import java.util.logging.Level
 
-object MapManager: Listener {
+object MapManager : Listener {
     val maps = mutableMapOf<String, ShulkerboxMap>()
     val mapSessions = mutableMapOf<String, ActiveMapSession>()
     val mapSelections = mutableMapOf<Player, ActiveMapSession>()
@@ -56,7 +52,7 @@ object MapManager: Listener {
     @EventHandler
     fun onPlayerLeave(event: PlayerQuitEvent) {
         val map = mapSelections[event.player]
-        if(map != null) {
+        if (map != null) {
             selectionCache[event.player.uniqueId] = map.map.id
             unselect(event.player, true)
         }
@@ -64,7 +60,7 @@ object MapManager: Listener {
 
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        if(!ConfigManager.currentConfig.general.autoReselectMapAfterJoining) return
+        if (!ConfigManager.currentConfig.general.autoReselectMapAfterJoining) return
         val cachedMap = selectionCache[event.player.uniqueId] ?: return
         val map = maps[cachedMap] ?: return
         select(event.player, map, true)
@@ -72,7 +68,7 @@ object MapManager: Listener {
 
     private fun getOrCreateMapSession(map: ShulkerboxMap): ActiveMapSession {
         val existingSession = mapSessions[map.id]
-        if(existingSession != null) return existingSession
+        if (existingSession != null) return existingSession
 
         val newSession = ActiveMapSession(map)
         mapSessions[map.id] = newSession
@@ -80,7 +76,7 @@ object MapManager: Listener {
     }
 
     fun select(player: Player, map: ShulkerboxMap, wasAutomatic: Boolean = false) {
-        if(hasMapSelected(player)) unselect(player, true)
+        if (hasMapSelected(player)) unselect(player, true)
 
         player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, 1.5f)
         val activeSession = getOrCreateMapSession(map)
@@ -88,24 +84,24 @@ object MapManager: Listener {
         mapSelections[player] = activeSession
         activeSession.addViewer(player)
 
-        val message = if(wasAutomatic) "Automatically selected your selected map (<yellow>${map.name}<gray>)" else "<gray>Selected map <yellow>${map.name}<gray>!"
+        val message = if (wasAutomatic) "Automatically selected your selected map (<yellow>${map.name}<gray>)" else "<gray>Selected map <yellow>${map.name}<gray>!"
         player.sendPrefixed(message)
     }
 
     fun unselect(player: Player, silent: Boolean = false) {
         val activeMap = mapSelections[player]!!
 
-        if(PropManager.propSelections[player] != null) PropManager.unselect(player, false)
+        if (PropManager.propSelections[player] != null) PropManager.unselect(player, false)
 
         activeMap.removeViewer(player)
         mapSelections.remove(player)
 
-        if(activeMap.viewers.isEmpty()) {
+        if (activeMap.viewers.isEmpty()) {
             activeMap.dispose()
             mapSessions.remove(activeMap.map.id)
         }
 
-        if(!silent) player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, 0.5f)
+        if (!silent) player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, 0.5f)
         player.sendPrefixed("<gray>Unselected map <red>${activeMap.map.name}<gray>!")
     }
 
@@ -165,7 +161,7 @@ object MapManager: Listener {
         map.version = CURRENT_SHULKERBOX_VERSION
         val minPoint = getWorldEditClipboardAndFEC(map).first.minimumPoint
         map.schematicToOriginOffset = ShulkerboxVector(minPoint.x, minPoint.y, minPoint.z).offsetTo(map.origin!!.toBukkitLocation().toVector().toShulkerboxVector())
-        if(ShulkerboxPaper.isBuildServer) {
+        if (ShulkerboxPaper.isBuildServer) {
             val registryFolder = File("plugins/Shulkerbox/")
             registryFolder.mkdirs()
             val registryFile = File("plugins/Shulkerbox/build_server_registry.json")
@@ -188,7 +184,7 @@ object MapManager: Listener {
     @Suppress("UnstableApiUsage")
     fun loadMapsFromBuildServerRegistry() {
         val registryFile = File("plugins/Shulkerbox/build_server_registry.json")
-        if(!registryFile.exists()) {
+        if (!registryFile.exists()) {
             File("plugins/Shulkerbox").mkdirs()
             registryFile.createNewFile()
             registryFile.writeText(generateRegistryFileJson())
@@ -197,15 +193,21 @@ object MapManager: Listener {
         val registry = Json.decodeFromString<ShulkerboxBuildServerRegistry>(registryFile.readText())
         registry.entries.forEach { entry ->
             val file = File("plugins/Shulkerbox/maps/${entry.mapId}.shulker")
-            if(!file.exists()) {
+            if (!file.exists()) {
                 println("Error while loading ${entry.mapId}: Map file is not present in maps folder!")
                 return@forEach
             }
             val mapJson = MapFileReader.load(file)
 //            val map = fromJson(File("plugins/Shulkerbox/temp/${entry.mapId}/map.json").readText())
             val map = fromJson(mapJson.json)
+
+            map.props.forEach propFixLoop@{ id, prop ->
+                val propId = prop.youkaiModelId ?: return@propFixLoop
+                prop.youkaiModelId = propId
+            }
+
             map.origin = entry.location
-            if(map.origin!!.toBukkitLocation().world == null) {
+            if (map.origin!!.toBukkitLocation().world == null) {
                 throw Exception("uhh this should not be null: ${map.id} (${entry.location.world} | ${Bukkit.getWorlds().map { it.name }})")
             }
             maps[map.id] = map

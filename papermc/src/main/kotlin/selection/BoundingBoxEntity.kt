@@ -1,9 +1,11 @@
 package selection
 
+import BoundingBoxColor
 import fakes.FakeItemDisplay
 import fakes.FakeTextDisplay
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
+import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
@@ -84,7 +86,7 @@ class BoundingBoxEntity(initialLocation: Location, initialSize: Vector) {
 
     fun update() {
 
-        nametag.setText(name.toMiniMessage().style { it.color(color.textColor) })
+        nametag.setText("<${getBoundingBoxColorData(color).textColor.asHexString()}> $name")
         nametag.setBillboard(Display.Billboard.CENTER)
         nametag.setSeeThrough(true)
 
@@ -129,7 +131,7 @@ class BoundingBoxEntity(initialLocation: Location, initialSize: Vector) {
         entity.setGlowing(true)
         entity.setItem(item)
         entity.setTransform(ItemDisplay.ItemDisplayTransform.HEAD)
-        entity.setGlowColor(color.color)
+        entity.setGlowColor(getBoundingBoxColorData(color).color)
 
         flipped.setBrightness(Display.Brightness(15, 15))
         flipped.setTransformation(Transformation(scale.copy().add(translation), AxisAngle4f(), scale.copy().mul(-1f), AxisAngle4f()))
@@ -144,15 +146,19 @@ class BoundingBoxEntity(initialLocation: Location, initialSize: Vector) {
     }
 }
 
-enum class BoundingBoxColor(val customModelData: Int, val color: Color, val textColor: TextColor, val banner: Material) {
-    RED(1, Color.RED, NamedTextColor.RED, Material.RED_BANNER),
-    ORANGE(2, Color.ORANGE, NamedTextColor.GOLD, Material.ORANGE_BANNER),
-    YELLOW(3, Color.YELLOW, NamedTextColor.YELLOW, Material.YELLOW_BANNER),
-    LIME(4, Color.LIME, NamedTextColor.GREEN, Material.LIME_BANNER),
-    AQUA(5, Color.AQUA, NamedTextColor.AQUA, Material.LIGHT_BLUE_BANNER),
-    PINK(7, Color.FUCHSIA, NamedTextColor.LIGHT_PURPLE, Material.PINK_BANNER),
-    PURPLE(6, Color.PURPLE, NamedTextColor.DARK_PURPLE, Material.PURPLE_BANNER),
-    WHITE(8, Color.WHITE, NamedTextColor.WHITE, Material.WHITE_BANNER),
+data class BoundingBoxColorData(val customModelData: Int, val color: Color, val textColor: TextColor, val banner: Material)
+
+fun getBoundingBoxColorData(boundingBoxColor: BoundingBoxColor): BoundingBoxColorData {
+    return when(boundingBoxColor) {
+        BoundingBoxColor.RED -> BoundingBoxColorData(1, Color.RED, NamedTextColor.RED, Material.RED_BANNER)
+        BoundingBoxColor.ORANGE -> BoundingBoxColorData(2, Color.ORANGE, NamedTextColor.GOLD, Material.ORANGE_BANNER)
+        BoundingBoxColor.YELLOW -> BoundingBoxColorData(3, Color.YELLOW, NamedTextColor.YELLOW, Material.YELLOW_BANNER)
+        BoundingBoxColor.LIME -> BoundingBoxColorData(4, Color.LIME, NamedTextColor.GREEN, Material.LIME_BANNER)
+        BoundingBoxColor.AQUA -> BoundingBoxColorData(5, Color.AQUA, NamedTextColor.AQUA, Material.LIGHT_BLUE_BANNER)
+        BoundingBoxColor.PINK -> BoundingBoxColorData(7, Color.FUCHSIA, NamedTextColor.LIGHT_PURPLE, Material.PINK_BANNER)
+        BoundingBoxColor.PURPLE -> BoundingBoxColorData(6, Color.PURPLE, NamedTextColor.DARK_PURPLE, Material.PURPLE_BANNER)
+        BoundingBoxColor.WHITE -> BoundingBoxColorData(8, Color.WHITE, NamedTextColor.WHITE, Material.WHITE_BANNER)
+    }
 }
 
 fun Vector3f.copy(): Vector3f {

@@ -5,10 +5,7 @@ import ShulkerboxMap
 import ShulkerboxVector
 import config.ConfigManager
 import git.GitIntegration
-import map.MapManager
-import map.toBukkitLocation
-import map.toShulkerboxLocation
-import map.toShulkerboxVector
+import map.*
 import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.Sound
@@ -26,7 +23,6 @@ import sendPrefixed
 import util.error
 import util.runLater
 import util.simpleSuggestion
-import kotlin.math.min
 
 class MapCommand {
 
@@ -150,7 +146,8 @@ class MapCommand {
             .handler { ctx ->
                 val player = (ctx.sender() as Player)
                 val mapId = ctx.getOrDefault<String>("map_id", null)
-                val location: Location
+                var location: Location
+                var wasSpawnPoint = false
                 if(mapId == null) {
                     val map = MapManager.selectedShulkerboxMap(player)
                     if(map == null) {
@@ -159,6 +156,11 @@ class MapCommand {
                     }
 
                     location = map.origin!!.toBukkitLocation()
+                    val spawnPoint = map.points.filter { it.value.type == PointType.SPAWN && it.value.id == "spawn" }.values.firstOrNull()
+                    if(spawnPoint != null) {
+                        location = map.origin!!.toBukkitLocation().add(spawnPoint.location.toBukkitVector()).apply { yaw = spawnPoint.yaw; pitch = spawnPoint.pitch }
+                        wasSpawnPoint = true
+                    }
                 } else {
                     val map = MapManager.maps[mapId]
                     if(map == null) {
@@ -166,8 +168,17 @@ class MapCommand {
                         return@handler
                     }
                     location = map.origin!!.toBukkitLocation()
+                    val spawnPoint = map.points.values.filter { it.type == PointType.SPAWN && it.id == "spawn" }.firstOrNull()
+                    if(spawnPoint != null) {
+                        location = map.origin!!.toBukkitLocation().add(spawnPoint.location.toBukkitVector()).apply { yaw = spawnPoint.yaw; pitch = spawnPoint.pitch }
+                        wasSpawnPoint = true
+                    }
                 }
+
                 player.teleport(location)
+                player.playTeleportSound()
+                val word = if(wasSpawnPoint) "spawn point" else "map origin"
+                player.sendPrefixed("Telepored to $word location of map <yellow>$mapId")
             }
         )
 
@@ -331,6 +342,14 @@ fun Player.playEditSound() {
     this.playSound(this.location, Sound.UI_LOOM_TAKE_RESULT, 1f, 1f)
 }
 
+fun Player.playTeleportSound() {
+    this.playSound(this.location, Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 1f, 1f)
+}
+
+fun Player.playChangeSound() {
+    this.playSound(this.location, Sound.BLOCK_SCULK_SENSOR_CLICKING, 1f, 1f)
+}
+
 fun Player.giveItemSound() {
     this.playSound(this.location, Sound.ENTITY_ITEM_PICKUP, 1f, 1.5f)
 }
@@ -339,6 +358,11 @@ fun Player.valueChangeSound() {
     this.playSound(this.location, Sound.UI_BUTTON_CLICK, 1f, 2f)
 }
 
-fun Player.successSound(pitch: Float = 1f) {
+fun Player.playSuccessSound(pitch: Float = 1f) {
     this.playSound(this.location, Sound.BLOCK_NOTE_BLOCK_BIT, 1f, pitch)
 }
+
+fun Player.playDestroySound() {
+    this.playSound(this.location, Sound.ENTITY_BLAZE_HURT, 0.3f, 2f)
+}
+

@@ -1,60 +1,58 @@
 package fakes
 
-import net.kyori.adventure.text.Component
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket
-import net.minecraft.world.entity.Display.TextDisplay
-import net.minecraft.world.entity.Display.TextDisplay.DATA_BACKGROUND_COLOR_ID
+import net.minecraft.util.Brightness
+import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.EntityType
 import org.bukkit.Color
 import org.bukkit.Location
-import org.bukkit.entity.Display.Billboard
+import org.bukkit.block.BlockState
+import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Player
-import toMiniMessage
+import org.bukkit.util.Transformation
 import util.*
 
-class FakeTextDisplay(override var location: Location) : FakeEntity {
+class FakeBlockDisplay(override var location: Location) : FakeEntity {
     override val viewerPlayers: MutableSet<Player> = mutableSetOf()
-    override val entity: TextDisplay = TextDisplay(EntityType.TEXT_DISPLAY, location.world.getMinecraftLevel())
+    override val entity: Display.BlockDisplay = Display.BlockDisplay(EntityType.BLOCK_DISPLAY, location.world.getMinecraftLevel())
 
     init {
         entity.setLocation(location)
+
+        entity.transformationInterpolationDelay = 0
+        entity.transformationInterpolationDuration = 2
+        (entity.bukkitEntity as BlockDisplay).interpolationDuration = 2
+        (entity.bukkitEntity as BlockDisplay).teleportDuration = 2
         entity.viewRange = 999999f
+
     }
 
-    fun setText(text: String) {
-        setText(text.toMiniMessage())
-    }
-
-    fun setText(component: Component) {
-        entity.text = component.toVanilla()
+    fun setGlowColor(color: Color) {
+        entity.glowColorOverride = color.asRGB()
         sendMetadata()
     }
 
-    fun setBillboard(billboard: Billboard) {
-        entity.billboardConstraints = billboard.toVanilla()
+    fun setBrightness(brightness: org.bukkit.entity.Display.Brightness) {
+        entity.brightnessOverride = Brightness(brightness.blockLight, brightness.skyLight)
         sendMetadata()
     }
 
-    fun setBackground(background: Int) {
-        entity.entityData.set(DATA_BACKGROUND_COLOR_ID, background)
+    fun setTransformation(transform: Transformation) {
+        entity.setTransformation(transform.getMojangTransformation())
         sendMetadata()
     }
 
-    fun setShadow(shadow: Boolean) {
-        val nbt = CompoundTag()
-        entity.save(nbt)
-        nbt.putBoolean("shadow", shadow)
-        entity.load(nbt)
-        sendMetadata()
+    fun getTransformation(): Transformation {
+        return (entity.bukkitEntity as BlockDisplay).transformation
     }
 
-    fun setSeeThrough(seeThrough: Boolean) {
-        val nbt = CompoundTag()
-        entity.save(nbt)
-        nbt.putBoolean("see_through", seeThrough)
-        entity.load(nbt)
+    fun setRotation(newYaw: Float, newPitch: Float) {
+        teleport(location.clone().apply { yaw = newYaw; pitch = newPitch })
+    }
+
+    fun setBlock(block: BlockState) {
+        entity.blockState = block.getVanilla()
         sendMetadata()
     }
 
@@ -81,20 +79,14 @@ class FakeTextDisplay(override var location: Location) : FakeEntity {
         viewerPlayers.forEach { it.send(ClientboundTeleportEntityPacket(entity)) }
     }
 
-    override fun setGlowing(boolean: Boolean) {
-        this.entity.setGlowingTag(boolean)
-        sendMetadata()
-    }
-
-    fun setGlowColor(color: Color) {
-        entity.glowColorOverride = color.asRGB()
-        sendMetadata()
-    }
-
     private fun sendMetadata(player: Player? = null) {
         val players: List<Player> = if(player == null) viewerPlayers.toList() else listOf(player)
         val entityMetadataPacket = ClientboundSetEntityDataPacket(this.entity.id, this.entity.entityData.packAll()!!)
         players.forEach { it.send(entityMetadataPacket) }
     }
-}
 
+    override fun setGlowing(boolean: Boolean) {
+        this.entity.setGlowingTag(boolean)
+        sendMetadata()
+    }
+}

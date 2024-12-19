@@ -10,11 +10,11 @@ object SelectionManager {
 
     val selectionMap = mutableMapOf<Player, Selection>()
 
-    val selectionItem = ItemStack(Material.LEAD, 1)
-    val prefix = "<#884dff>Shulkerbox <dark_gray>|<gray>"
+    val selectionToolItem = ItemStack(Material.LEAD, 1)
+    val prefix = "<#884dff>♦<gray>"
 
     init {
-        selectionItem.editMeta {
+        selectionToolItem.editMeta {
             it.displayName("<green><underlined>Shulkerbox Selection Tool".toMiniMessage())
             it.lore(mutableListOf(
                 " ".toMiniMessage(),

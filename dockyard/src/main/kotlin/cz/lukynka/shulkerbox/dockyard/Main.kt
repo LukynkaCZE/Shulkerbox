@@ -37,7 +37,7 @@ fun main() {
                 .toDockyardMap(player.location.getBlockLocation())
             val spawn = map.getPoint("spawn")
 
-            map.placeSchematic {
+            map.placeSchematicAsync().thenAccept {
                 DockyardServer.broadcastMessage("<lime>Map loaded!!")
                 player.teleport(spawn.location)
                 map.spawnProps()

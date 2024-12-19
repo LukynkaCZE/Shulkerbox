@@ -1,9 +1,11 @@
 package map.commands
 
+import BoundingBoxColor
 import map.MapManager
 import map.toShulkerboxOffset
 import map.toShulkerboxVector
 import org.bukkit.Bukkit
+import org.bukkit.Sound
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
@@ -11,7 +13,9 @@ import org.incendo.cloud.parser.standard.StringParser.stringParser
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider
 import org.incendo.cloud.suggestion.Suggestion
 import org.incendo.cloud.suggestion.SuggestionProvider
+import selection.BoundingBoxColorData
 import selection.SelectionManager
+import selection.getBoundingBoxColorData
 import send
 import sendPrefixed
 import util.simpleSuggestion
@@ -119,6 +123,35 @@ class BoundCommands {
             }
         )
 
+        cm.command(boundCommandBase.literal("color")
+            .required("id", stringParser(), getBoundIdSuggestions())
+            .required("color", enumParser(BoundingBoxColor::class.java))
+            .handler { ctx ->
+                val player = (ctx.sender() as Player)
+                val map = MapManager.selectedShulkerboxMap(player)
+                val id = ctx.get<String>("id")
+                val color = ctx.get<BoundingBoxColor>("color")
+
+                if(map == null) {
+                    util.error(player, "You don't have any map selected!")
+                    return@handler
+                }
+
+                val bound = map.bounds[id]
+                if(bound == null) {
+                    util.error(player, "There is no bound with the id <dark_red>$id")
+                    return@handler
+                }
+
+                bound.buildServerColor = color
+                player.send("${SelectionManager.prefix} Set the color of bound with id <yellow>$id <gray>to <${getBoundingBoxColorData(color).textColor.asHexString()}>${color.name.toProperCase()}")
+                player.playSound(player.location, Sound.ITEM_BUCKET_FILL, 2f, 2f)
+
+                val activeMap = MapManager.mapSelections[player]!!
+                activeMap.drawableBounds[id]!!.setColor(color)
+            }
+        )
+
         cm.command(boundCommandBase.literal("meta")
             .required("id", stringParser(), getBoundIdSuggestions())
             .required("action", enumParser(ShulkerboxMetaAction::class.java))
@@ -140,7 +173,6 @@ class BoundCommands {
                 }
 
                 val bound = map.bounds[id]
-                Bukkit.broadcastMessage("${map.bounds}")
                 if(bound == null) {
                     util.error(player, "There is no bound with the id <dark_red>$id")
                     return@handler
