@@ -2,6 +2,7 @@ package selection
 
 import ShulkerboxPaper
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
+import cz.lukynka.shulkerbox.common.BoundingBoxColor
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Sound

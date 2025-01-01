@@ -2,10 +2,10 @@
 
 package map
 
-import CURRENT_SHULKERBOX_VERSION
-import ShulkerboxMap
+import cz.lukynka.shulkerbox.common.CURRENT_SHULKERBOX_VERSION
+import cz.lukynka.shulkerbox.common.ShulkerboxMap
 import ShulkerboxPaper
-import ShulkerboxVector
+import cz.lukynka.shulkerbox.common.ShulkerboxVector
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.bukkit.BukkitWorld
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard

@@ -1,7 +1,7 @@
 package map
 
-import BoundingBoxColor
-import Point
+import cz.lukynka.shulkerbox.common.BoundingBoxColor
+import cz.lukynka.shulkerbox.common.Point
 import fakes.FakeItemDisplay
 import fakes.FakeTextDisplay
 import org.bukkit.Location

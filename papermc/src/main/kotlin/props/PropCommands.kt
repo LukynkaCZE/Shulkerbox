@@ -1,8 +1,8 @@
 package props
 
-import Prop
+import cz.lukynka.shulkerbox.common.Prop
 import ShulkerboxPaper
-import ShulkerboxTranform
+import cz.lukynka.shulkerbox.common.ShulkerboxTranform
 import map.*
 import map.commands.*
 import org.bukkit.Color
@@ -70,32 +70,27 @@ class PropCommands {
                 }
                 val activeMap = MapManager.mapSelections[player]!!
 
-                val bukkitLocation = map.origin!!.toBukkitLocation().add(prop.location.toBukkitVector())
+                val bukkitLocation = map.origin!!.toBukkitLocation().clone().add(prop.location.toBukkitVector())
 
+                val offset = bukkitLocation.clone().subtract(anchorLocation) // Get vector from prop to anchor
                 val newLocation = when (direction) {
                     AnchorFlipDirection.NORTH -> {
-                        val offset = bukkitLocation.subtract(anchorLocation) // Get vector from prop to anchor
-                        anchorLocation.add(offset.x, offset.y, -offset.z) // Flip offset on Z and add to anchor
+                        anchorLocation.clone().add(offset.x, offset.y, -offset.z) // Flip offset on Z and add to anchor
                     }
                     AnchorFlipDirection.EAST -> {
-                        val offset = bukkitLocation.subtract(anchorLocation)
-                        anchorLocation.add(-offset.z, offset.y, offset.x) // Flip offset on X and Z and add to anchor
+                        anchorLocation.clone().add(-offset.z, offset.y, offset.x) // Flip offset on X and Z and add to anchor
                     }
                     AnchorFlipDirection.SOUTH -> {
-                        val offset = bukkitLocation.subtract(anchorLocation)
-                        anchorLocation.add(offset.x, offset.y, offset.z) // Flip offset on Z and add to anchor (no actual change)
+                        anchorLocation.clone().add(offset.x, offset.y, offset.z) // Flip offset on Z and add to anchor (no actual change)
                     }
                     AnchorFlipDirection.WEST -> {
-                        val offset = bukkitLocation.subtract(anchorLocation)
-                        anchorLocation.add(offset.z, offset.y, -offset.x) // Flip offset on X and Z and add to anchor
+                        anchorLocation.clone().add(offset.z, offset.y, -offset.x) // Flip offset on X and Z and add to anchor
                     }
                     AnchorFlipDirection.UP -> {
-                        val offset = bukkitLocation.subtract(anchorLocation)
-                        anchorLocation.add(offset.x, -offset.y, offset.z) // Flip offset on Y and add to anchor
+                        anchorLocation.clone().add(offset.x, -offset.y, offset.z) // Flip offset on Y and add to anchor
                     }
                     AnchorFlipDirection.DOWN -> {
-                        val offset = bukkitLocation.subtract(anchorLocation)
-                        anchorLocation.add(offset.x, offset.y, -offset.z) // Flip offset on Y and add to anchor
+                        anchorLocation.clone().add(offset.x, offset.y, -offset.z) // Flip offset on Y and add to anchor
                     }
                 }
                 prop.location = newLocation.toShulkerboxOffset(map).toShulkerboxVector()

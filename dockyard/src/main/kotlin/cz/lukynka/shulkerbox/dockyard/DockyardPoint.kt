@@ -1,6 +1,6 @@
 package cz.lukynka.shulkerbox.dockyard
 
-import PointType
+import cz.lukynka.shulkerbox.common.PointType
 import io.github.dockyardmc.location.Location
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent

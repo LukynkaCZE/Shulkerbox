@@ -1,7 +1,7 @@
 package map.commands
 
-import Point
-import PointType
+import cz.lukynka.shulkerbox.common.Point
+import cz.lukynka.shulkerbox.common.PointType
 import map.*
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player

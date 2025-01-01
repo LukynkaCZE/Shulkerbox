@@ -1,9 +1,10 @@
 package map.commands
 
-import CURRENT_SHULKERBOX_VERSION
-import ShulkerboxMap
-import ShulkerboxVector
+import cz.lukynka.shulkerbox.common.CURRENT_SHULKERBOX_VERSION
+import cz.lukynka.shulkerbox.common.ShulkerboxMap
+import cz.lukynka.shulkerbox.common.ShulkerboxVector
 import config.ConfigManager
+import cz.lukynka.shulkerbox.common.PointType
 import git.GitIntegration
 import map.*
 import org.bukkit.GameMode

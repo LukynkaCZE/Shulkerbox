@@ -1,6 +1,6 @@
 package props
 
-import BoundingBoxColor
+import cz.lukynka.shulkerbox.common.BoundingBoxColor
 import ShulkerboxPaper
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import fakes.FakeBlockDisplay

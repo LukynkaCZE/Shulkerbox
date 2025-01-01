@@ -1,7 +1,7 @@
 package map
 
-import ShulkerboxAnnotation
-import ShulkerboxMap
+import cz.lukynka.shulkerbox.common.ShulkerboxAnnotation
+import cz.lukynka.shulkerbox.common.ShulkerboxMap
 import fakes.FakeTextDisplay
 import org.bukkit.Location
 import org.bukkit.entity.Display

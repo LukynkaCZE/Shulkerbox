@@ -1,6 +1,6 @@
 package cz.lukynka.shulkerbox.dockyard
 
-import PointType
+import cz.lukynka.shulkerbox.common.PointType
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.ItemDisplay
 import io.github.dockyardmc.location.Location

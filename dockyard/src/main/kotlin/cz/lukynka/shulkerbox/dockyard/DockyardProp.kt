@@ -8,7 +8,7 @@ import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
 import io.github.dockyardmc.utils.Quaternion
 import io.github.dockyardmc.utils.vectors.Vector3d
-import io.github.emberseeker.youkai.YoukaiPack
+import cz.lukynka.shulkerbox.dockyard.youkai.YoukaiPack
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 

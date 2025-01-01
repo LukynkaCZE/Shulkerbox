@@ -1,6 +1,6 @@
 package props
 
-import Prop
+import cz.lukynka.shulkerbox.common.Prop
 import ShulkerboxPaper
 import fakes.FakeItemDisplay
 import map.toBukkitItemStack

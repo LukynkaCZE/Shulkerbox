@@ -1,6 +1,6 @@
 package map.commands
 
-import BoundingBoxColor
+import cz.lukynka.shulkerbox.common.BoundingBoxColor
 import map.MapManager
 import map.toShulkerboxOffset
 import map.toShulkerboxVector

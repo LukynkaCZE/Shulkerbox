@@ -1,6 +1,6 @@
 package props
 
-import Prop
+import cz.lukynka.shulkerbox.common.Prop
 import map.ActiveMapSession
 import map.commands.playSuccessSound
 import org.bukkit.Material

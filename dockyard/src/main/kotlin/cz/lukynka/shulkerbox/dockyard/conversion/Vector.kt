@@ -1,6 +1,6 @@
 package cz.lukynka.shulkerbox.dockyard.conversion
 
-import ShulkerboxVector
+import cz.lukynka.shulkerbox.common.ShulkerboxVector
 import io.github.dockyardmc.utils.vectors.Vector3d
 import io.github.dockyardmc.utils.vectors.Vector3f
 

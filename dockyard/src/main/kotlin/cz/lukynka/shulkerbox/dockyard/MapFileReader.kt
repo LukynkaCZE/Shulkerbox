@@ -1,6 +1,6 @@
 package cz.lukynka.shulkerbox.dockyard
 
-import ShulkerboxMap
+import cz.lukynka.shulkerbox.common.ShulkerboxMap
 import io.github.dockyardmc.schematics.Schematic
 import io.github.dockyardmc.schematics.SchematicReader
 import kotlinx.serialization.decodeFromString

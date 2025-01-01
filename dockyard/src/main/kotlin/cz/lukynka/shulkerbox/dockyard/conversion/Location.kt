@@ -1,6 +1,6 @@
 package cz.lukynka.shulkerbox.dockyard.conversion
 
-import ShulkerboxVector
+import cz.lukynka.shulkerbox.common.ShulkerboxVector
 import cz.lukynka.shulkerbox.dockyard.DockyardShulkerboxMap
 import io.github.dockyardmc.location.Location
 

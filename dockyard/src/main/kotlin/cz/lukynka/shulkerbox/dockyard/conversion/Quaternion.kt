@@ -1,6 +1,6 @@
 package cz.lukynka.shulkerbox.dockyard.conversion
 
-import ShulkerboxQuaternionf
+import cz.lukynka.shulkerbox.common.ShulkerboxQuaternionf
 import io.github.dockyardmc.utils.Quaternion
 
 fun ShulkerboxQuaternionf.toQuaternion(): Quaternion {

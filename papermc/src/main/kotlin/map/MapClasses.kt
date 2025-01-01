@@ -1,11 +1,11 @@
 package map
 
-import PropItemStack
-import ShulkerboxLocation
-import ShulkerboxMap
-import ShulkerboxQuaternionf
-import ShulkerboxTranform
-import ShulkerboxVector
+import cz.lukynka.shulkerbox.common.PropItemStack
+import cz.lukynka.shulkerbox.common.ShulkerboxLocation
+import cz.lukynka.shulkerbox.common.ShulkerboxMap
+import cz.lukynka.shulkerbox.common.ShulkerboxQuaternionf
+import cz.lukynka.shulkerbox.common.ShulkerboxTranform
+import cz.lukynka.shulkerbox.common.ShulkerboxVector
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -30,8 +30,8 @@ fun PropItemStack.toBukkitItemStack(): ItemStack {
 fun ItemStack.toPropItemStack(): PropItemStack {
     return PropItemStack(
         this.type.name,
-        if(this.itemMeta.hasCustomModelData()) this.itemMeta.customModelData else 0,
-        if(this.itemMeta.hasEnchantmentGlintOverride()) this.itemMeta.enchantmentGlintOverride else false,
+        if (this.itemMeta.hasCustomModelData()) this.itemMeta.customModelData else 0,
+        if (this.itemMeta.hasEnchantmentGlintOverride()) this.itemMeta.enchantmentGlintOverride else false,
     )
 }
 

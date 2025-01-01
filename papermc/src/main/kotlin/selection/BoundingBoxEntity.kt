@@ -1,6 +1,6 @@
 package selection
 
-import BoundingBoxColor
+import cz.lukynka.shulkerbox.common.BoundingBoxColor
 import fakes.FakeItemDisplay
 import fakes.FakeTextDisplay
 import net.kyori.adventure.text.format.NamedTextColor

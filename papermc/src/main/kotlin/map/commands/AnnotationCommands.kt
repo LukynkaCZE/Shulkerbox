@@ -1,6 +1,6 @@
 package map.commands
 
-import ShulkerboxAnnotation
+import cz.lukynka.shulkerbox.common.ShulkerboxAnnotation
 import ShulkerboxPaper
 import map.MapManager
 import map.toShulkerboxOffset

@@ -8,7 +8,7 @@ import io.github.dockyardmc.events.PlayerJoinEvent
 import io.github.dockyardmc.extentions.broadcastMessage
 import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.PotionEffects
-import io.github.emberseeker.youkai.YoukaiPack
+import cz.lukynka.shulkerbox.dockyard.youkai.YoukaiPack
 import java.io.File
 
 fun main() {

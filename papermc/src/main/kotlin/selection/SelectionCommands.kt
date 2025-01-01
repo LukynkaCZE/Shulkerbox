@@ -1,6 +1,6 @@
 package selection
 
-import BoundingBoxColor
+import cz.lukynka.shulkerbox.common.BoundingBoxColor
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.incendo.cloud.bukkit.parser.PlayerParser.playerParser

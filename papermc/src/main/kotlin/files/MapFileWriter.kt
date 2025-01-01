@@ -1,6 +1,6 @@
 package files
 
-import ShulkerboxMap
+import cz.lukynka.shulkerbox.common.ShulkerboxMap
 import ShulkerboxPaper
 import youkai.YoukaiIntegration
 import java.io.File

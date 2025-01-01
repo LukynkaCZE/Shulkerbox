@@ -1,6 +1,6 @@
 package git
 
-import ShulkerboxMap
+import cz.lukynka.shulkerbox.common.ShulkerboxMap
 import config.ConfigManager
 import org.bukkit.entity.Player
 import org.eclipse.jgit.api.Git

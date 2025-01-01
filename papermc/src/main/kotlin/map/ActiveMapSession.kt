@@ -1,12 +1,8 @@
 package map
 
-import BoundingBox
-import Point
-import Prop
-import ShulkerboxAnnotation
-import ShulkerboxMap
 import ShulkerboxPaper
 import config.ConfigManager
+import cz.lukynka.shulkerbox.common.*
 import net.megavex.scoreboardlibrary.api.sidebar.Sidebar
 import org.bukkit.entity.Player
 import props.PropEntity
