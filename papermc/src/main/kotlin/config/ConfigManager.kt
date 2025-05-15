@@ -59,7 +59,8 @@ object ConfigManager {
     data class YoukaiIntegration(
         val youkaiIntegrationEnabled: Boolean = false,
         val youkaiAuthToken: String = "",
-        val youkaiWebServerPort: Int = 6969
+        val youkaiWebServerPort: Int = 6969,
+        val youkaiSyncUrl: String = ""
     )
 
     @Serializable

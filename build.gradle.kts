@@ -1,9 +1,9 @@
 plugins {
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "2.1.10"
 }
 
 group = "cz.lukynka"
-version = "1.5"
+version = "2.7"
 
 subprojects {
     plugins.apply("java-library")

@@ -12,6 +12,7 @@ import net.minecraft.world.entity.Display.BillboardConstraints
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.level.Level
+import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.block.Block

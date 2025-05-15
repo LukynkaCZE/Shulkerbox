@@ -1,6 +1,6 @@
 package cz.lukynka.shulkerbox.dockyard
 
-import cz.lukynka.shulkerbox.dockyard.git.GitIntegration
+import cz.lukynka.shulkerbox.dockyard.versioncontrol.GitIntegration
 import io.github.dockyardmc.commands.Commands
 
 object ShulkerboxIntegration {

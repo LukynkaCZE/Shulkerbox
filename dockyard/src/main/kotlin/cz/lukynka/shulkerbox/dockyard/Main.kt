@@ -10,6 +10,7 @@ import io.github.dockyardmc.player.systems.GameMode
 import io.github.dockyardmc.registry.PotionEffects
 import cz.lukynka.shulkerbox.dockyard.youkai.YoukaiPack
 import java.io.File
+import kotlin.time.Duration
 
 fun main() {
     val server = DockyardServer {
@@ -17,7 +18,7 @@ fun main() {
         withPort(25565)
         useMojangAuth(true)
         withImplementations {
-            dockyardCommands = true
+            defaultCommands = true
         }
     }
 
@@ -27,7 +28,7 @@ fun main() {
     Events.on<PlayerJoinEvent> {
         it.player.permissions.add("dockyard.*")
         it.player.gameMode.value = GameMode.CREATIVE
-        it.player.addPotionEffect(PotionEffects.NIGHT_VISION, 99999, 1)
+        it.player.addPotionEffect(PotionEffects.NIGHT_VISION, Duration.INFINITE, 1)
     }
 
     Commands.add("/load") {

@@ -7,6 +7,7 @@ import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket
 import net.minecraft.world.entity.Display.TextDisplay
 import net.minecraft.world.entity.Display.TextDisplay.DATA_BACKGROUND_COLOR_ID
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.PositionMoveRotation
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.entity.Display.Billboard
@@ -78,7 +79,7 @@ class FakeTextDisplay(override var location: Location) : FakeEntity {
     override fun teleport(location: Location) {
         this.location = location
         entity.setLocation(location)
-        viewerPlayers.forEach { it.send(ClientboundTeleportEntityPacket(entity)) }
+        viewerPlayers.forEach { it.send(ClientboundTeleportEntityPacket(entity.id, PositionMoveRotation.of(entity), setOf(), entity.onGround)) }
     }
 
     override fun setGlowing(boolean: Boolean) {

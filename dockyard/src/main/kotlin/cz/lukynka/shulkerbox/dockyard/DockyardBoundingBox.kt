@@ -1,10 +1,10 @@
 package cz.lukynka.shulkerbox.dockyard
 
-import io.github.dockyardmc.bounds.Bound
+import io.github.dockyardmc.apis.bounds.Bound
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.utils.vectors.Vector3d
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 

@@ -7,11 +7,12 @@ import io.github.dockyardmc.commands.StringArgument
 import io.github.dockyardmc.inventory.give
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.item.clone
+import io.github.dockyardmc.maths.randomFloat
 import io.github.dockyardmc.player.Player
+import io.github.dockyardmc.registry.Items
 import io.github.dockyardmc.registry.Sounds
 import io.github.dockyardmc.registry.registries.ItemRegistry
 import io.github.dockyardmc.sounds.playSound
-import io.github.dockyardmc.utils.randomFloat
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -36,7 +37,7 @@ object YoukaiPack {
         val icon = items[id]?.clone()?.withMeta {
             lore.clear()
         }
-        return (icon?.clone() ?: throw IllegalArgumentException("Model with youkai id $id does not exist!")).clone()
+        return (icon?.clone() ?: ItemStack(Items.BARRIER).withDisplayName("<red>NoYoukaiModel<gray>::<red>$id").withLore("<#ff8a95>No youkai model with id:", "<dark_gray>- <#ffd08a>$id"))
     }
 
     fun getItemFont(id: String): String {
@@ -82,7 +83,7 @@ object YoukaiPack {
                 items.clear()
                 sync.models.forEach { model ->
                     var stack = ItemStack(ItemRegistry["minecraft:${model.baseMaterial}"])
-                    if(model.customModelId != null) stack = stack.withCustomModelData(model.customModelId!!)
+                    if(model.customModelId != null) stack = stack.withCustomModelData(model.customModelId!!.toFloat())
                     items[model.modelId] = stack
                     log("Fetched ${model.modelId}!", LogType.DEBUG)
                 }

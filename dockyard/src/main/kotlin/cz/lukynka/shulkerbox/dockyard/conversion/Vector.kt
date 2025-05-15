@@ -1,8 +1,8 @@
 package cz.lukynka.shulkerbox.dockyard.conversion
 
 import cz.lukynka.shulkerbox.common.ShulkerboxVector
-import io.github.dockyardmc.utils.vectors.Vector3d
-import io.github.dockyardmc.utils.vectors.Vector3f
+import io.github.dockyardmc.maths.vectors.Vector3d
+import io.github.dockyardmc.maths.vectors.Vector3f
 
 fun ShulkerboxVector.toVector3d(): Vector3d {
     return Vector3d(x, y, z)

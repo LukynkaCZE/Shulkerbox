@@ -84,7 +84,8 @@ class ShulkerboxPaper: JavaPlugin(), Listener {
             }
         }
         if(youkaiIntegration) {
-            YoukaiIntegration.loadCache()
+            YoukaiIntegration.load(ConfigManager.currentConfig.youkai.youkaiSyncUrl)
+            YoukaiIntegration.registerCommand()
         }
         if(gitIntegration) {
             GitIntegration.load()

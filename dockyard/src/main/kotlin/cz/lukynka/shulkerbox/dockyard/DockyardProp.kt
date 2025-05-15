@@ -1,16 +1,17 @@
 package cz.lukynka.shulkerbox.dockyard
 
+import cz.lukynka.shulkerbox.dockyard.youkai.YoukaiPack
 import io.github.dockyardmc.entity.*
 import io.github.dockyardmc.entity.EntityManager.spawnEntity
+import io.github.dockyardmc.entity.metadata.EntityMetaValue
+import io.github.dockyardmc.entity.metadata.EntityMetadata
+import io.github.dockyardmc.entity.metadata.EntityMetadataType
 import io.github.dockyardmc.item.ItemStack
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.maths.Quaternion
+import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.utils.Quaternion
-import io.github.dockyardmc.utils.vectors.Vector3d
-import cz.lukynka.shulkerbox.dockyard.youkai.YoukaiPack
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 
 data class DockyardProp(
     var uid: String,
@@ -28,13 +29,12 @@ data class DockyardProp(
 ) {
 
     fun getItem(): ItemStack {
-        return if(youkaiModelId != null) YoukaiPack.getItem(youkaiModelId!!) else itemStack
+        return if (youkaiModelId != null) YoukaiPack.getItem(youkaiModelId!!) else itemStack
     }
 
     fun spawn(): ItemDisplay {
         val display = location.world.spawnEntity(ItemDisplay(location, location.world)) as ItemDisplay
         display.autoViewable = true
-        display.renderDistanceBlocks = 999
 
         display.item.value = getItem()
         display.scale.value = scale.toVector3f()
@@ -62,7 +62,7 @@ data class DockyardProp(
 
     inline fun <reified T> getMetaOrNull(key: String): T? {
         val value = meta[key] ?: return null
-        return when(T::class) {
+        return when (T::class) {
             String::class -> value as T
             Boolean::class -> value.toBoolean() as T
             Int::class -> value.toInt() as T

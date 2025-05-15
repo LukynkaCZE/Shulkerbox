@@ -1,4 +1,4 @@
-package cz.lukynka.shulkerbox.dockyard.git
+package cz.lukynka.shulkerbox.dockyard.versioncontrol
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log

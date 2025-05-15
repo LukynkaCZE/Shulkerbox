@@ -1,9 +1,9 @@
 plugins {
-    kotlin("jvm") version "1.9.22"
-    id("io.papermc.paperweight.userdev") version "1.7.1"
-    id("xyz.jpenilla.run-paper") version "2.0.0"
+    kotlin("jvm") version "2.1.10"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.14"
+    id("xyz.jpenilla.run-paper") version "2.3.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("plugin.serialization") version "2.1.10"
 }
 
 group = "cz.lukynka.shulkerbox.papermc"
@@ -21,17 +21,17 @@ repositories {
 }
 
 dependencies {
-    val scoreboardLibraryVersion = "2.1.12"
-    paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
+    val scoreboardLibraryVersion = "2.2.2"
+    paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
     implementation("net.kyori:adventure-text-minimessage:4.14.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-    implementation("org.incendo:cloud-core:2.0.0-rc.2")
+    implementation("org.incendo:cloud-core:2.0.0-beta.10")
     implementation("org.incendo:cloud-kotlin-extensions:2.0.0-rc.2")
-    implementation("org.incendo:cloud-paper:2.0.0-beta.8")
-    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.8")
+    implementation("org.incendo:cloud-paper:2.0.0-beta.10")
+    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10")
     implementation("cz.lukynka:lkws:1.2")
-    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.9")
-    compileOnly("com.sk89q.worldedit:worldedit-core:7.2.9")
+    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.4.0-SNAPSHOT")
+    compileOnly("com.sk89q.worldedit:worldedit-core:7.4.0-SNAPSHOT")
     implementation("net.megavex:scoreboard-library-api:$scoreboardLibraryVersion")
     runtimeOnly("net.megavex:scoreboard-library-implementation:$scoreboardLibraryVersion")
     implementation("net.megavex:scoreboard-library-extra-kotlin:$scoreboardLibraryVersion")

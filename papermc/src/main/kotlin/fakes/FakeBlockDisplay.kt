@@ -5,6 +5,7 @@ import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket
 import net.minecraft.util.Brightness
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.PositionMoveRotation
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.block.BlockState
@@ -76,12 +77,12 @@ class FakeBlockDisplay(override var location: Location) : FakeEntity {
     override fun teleport(location: Location) {
         this.location = location
         entity.setLocation(location)
-        viewerPlayers.forEach { it.send(ClientboundTeleportEntityPacket(entity)) }
+        viewerPlayers.forEach { it.send(ClientboundTeleportEntityPacket(entity.id, PositionMoveRotation.of(entity), setOf(), entity.onGround)) }
     }
 
     private fun sendMetadata(player: Player? = null) {
         val players: List<Player> = if(player == null) viewerPlayers.toList() else listOf(player)
-        val entityMetadataPacket = ClientboundSetEntityDataPacket(this.entity.id, this.entity.entityData.packAll()!!)
+        val entityMetadataPacket = ClientboundSetEntityDataPacket(this.entity.id, this.entity.entityData.packAll())
         players.forEach { it.send(entityMetadataPacket) }
     }
 

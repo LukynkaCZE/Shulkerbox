@@ -4,12 +4,12 @@ import cz.lukynka.shulkerbox.common.PointType
 import io.github.dockyardmc.entity.EntityManager.despawnEntity
 import io.github.dockyardmc.entity.ItemDisplay
 import io.github.dockyardmc.location.Location
+import io.github.dockyardmc.maths.vectors.Vector3d
 import io.github.dockyardmc.schematics.Schematic
 import io.github.dockyardmc.schematics.placeSchematic
 import io.github.dockyardmc.schematics.placeSchematicAsync
 import io.github.dockyardmc.scroll.Component
 import io.github.dockyardmc.scroll.extensions.toComponent
-import io.github.dockyardmc.utils.vectors.Vector3d
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 import java.util.concurrent.CompletableFuture

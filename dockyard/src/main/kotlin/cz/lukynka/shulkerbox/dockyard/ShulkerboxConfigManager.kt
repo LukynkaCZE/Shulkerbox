@@ -27,7 +27,7 @@ object ShulkerboxConfigManager {
         }
 
         currentConfig = toml.decodeFromString<Config>(file.readText())
-        if(currentConfig.git.gitIntegrationEnabled) cz.lukynka.shulkerbox.dockyard.git.GitIntegration.load()
+        if(currentConfig.git.gitIntegrationEnabled) GitIntegration
         log("Loaded shulkerbox config!", LogType.SUCCESS)
     }
 
