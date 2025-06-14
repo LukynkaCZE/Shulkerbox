@@ -7,6 +7,6 @@ import io.github.dockyardmc.registry.registries.ItemRegistry
 fun PropItemStack.toItemStack(): ItemStack {
     val baseItem = ItemRegistry["minecraft:${material.lowercase()}"]
     var item = ItemStack(baseItem)
-    if(enchanted) item = item.withMeta { withEnchantmentGlint(true); withCustomModelData(customModelData) }
+    if(enchanted) item = item.withMeta { withEnchantmentGlint(true); withCustomModelData(customModelData.toFloat()) }
     return item
 }

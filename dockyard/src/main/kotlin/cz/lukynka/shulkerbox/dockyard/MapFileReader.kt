@@ -5,6 +5,7 @@ import io.github.dockyardmc.schematics.Schematic
 import io.github.dockyardmc.schematics.SchematicReader
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import net.kyori.adventure.nbt.BinaryTagIO
 import java.io.File
 import java.lang.IllegalStateException
 import java.util.zip.ZipFile
