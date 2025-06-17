@@ -37,7 +37,7 @@ object YoukaiPack {
         val icon = items[id]?.clone()?.withMeta {
             lore.clear()
         }
-        return (icon?.clone() ?: ItemStack(Items.BARRIER).withDisplayName("<red>NoYoukaiModel<gray>::<red>$id").withLore("<#ff8a95>No youkai model with id:", "<dark_gray>- <#ffd08a>$id"))
+        return (icon?.clone() ?: ItemStack(Items.BARRIER).withDisplayName("<red>NoYoukaiModel<gray>::<red>$id").withLore("<#ff8a95>No youkai model with id:", "<dark_gray>- <#ffd08a>$id")).clone()
     }
 
     fun getItemFont(id: String): String {
