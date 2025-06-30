@@ -8,6 +8,7 @@ import net.minecraft.network.chat.ComponentSerialization
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Display.BillboardConstraints
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemDisplayContext
@@ -78,7 +79,7 @@ fun ItemDisplayTransform.getVanilla(): ItemDisplayContext {
 }
 
 fun Entity.setLocation(location: Location) {
-    this.moveTo(location.x, location.y, location.z, location.yaw, location.pitch)
+    this.teleportTo(location.world.getMinecraftLevel() as ServerLevel, location.x, location.y, location.z, setOf(), location.yaw, location.pitch, true)
     this.yHeadRot = location.yaw
     this.setLevel(location.world.getMinecraftLevel())
 }

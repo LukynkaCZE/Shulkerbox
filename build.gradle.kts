@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "cz.lukynka"
-version = "2.9"
+version = "3.0"
 
 subprojects {
     plugins.apply("java-library")
@@ -21,6 +21,10 @@ tasks.register("publish-all") {
     dependsOn(tasks.getByName("build"))
     dependsOn(project(":common").tasks.getByName("publish"))
     dependsOn(project(":dockyard").tasks.getByName("publish"))
+}
+
+tasks.register("paper") {
+    dependsOn(project(":papermc").tasks.getByPath("runDevBundleServer"))
 }
 
 tasks.test {

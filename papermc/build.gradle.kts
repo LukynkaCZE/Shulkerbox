@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "2.1.10"
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.14"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
     id("xyz.jpenilla.run-paper") version "2.3.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     kotlin("plugin.serialization") version "2.1.10"
@@ -21,12 +21,12 @@ repositories {
 }
 
 dependencies {
-    val scoreboardLibraryVersion = "2.2.2"
-    paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
-    implementation("net.kyori:adventure-text-minimessage:4.14.0")
+    val scoreboardLibraryVersion = "2.3.2"
+    paperweight.paperDevBundle("1.21.6-R0.1-SNAPSHOT")
+    implementation("net.kyori:adventure-text-minimessage:4.22.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-    implementation("org.incendo:cloud-core:2.0.0-beta.10")
-    implementation("org.incendo:cloud-kotlin-extensions:2.0.0-rc.2")
+    implementation("org.incendo:cloud-core:2.0.0")
+    implementation("org.incendo:cloud-kotlin-extensions:2.0.0")
     implementation("org.incendo:cloud-paper:2.0.0-beta.10")
     implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10")
     implementation("cz.lukynka:lkws:1.2")

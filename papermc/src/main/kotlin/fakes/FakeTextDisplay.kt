@@ -1,13 +1,15 @@
 package fakes
 
 import net.kyori.adventure.text.Component
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket
+import net.minecraft.util.ProblemReporter
 import net.minecraft.world.entity.Display.TextDisplay
 import net.minecraft.world.entity.Display.TextDisplay.DATA_BACKGROUND_COLOR_ID
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.PositionMoveRotation
+import net.minecraft.world.level.storage.TagValueInput
+import net.minecraft.world.level.storage.TagValueOutput
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.entity.Display.Billboard
@@ -44,18 +46,18 @@ class FakeTextDisplay(override var location: Location) : FakeEntity {
     }
 
     fun setShadow(shadow: Boolean) {
-        val nbt = CompoundTag()
-        entity.save(nbt)
-        nbt.putBoolean("shadow", shadow)
-        entity.load(nbt)
+        val tag = TagValueOutput.createWithoutContext(ProblemReporter.DISCARDING)
+        entity.save(tag)
+        tag.putBoolean("shadow", shadow)
+        entity.load(TagValueInput.createGlobal(ProblemReporter.DISCARDING, tag.buildResult()))
         sendMetadata()
     }
 
     fun setSeeThrough(seeThrough: Boolean) {
-        val nbt = CompoundTag()
-        entity.save(nbt)
-        nbt.putBoolean("see_through", seeThrough)
-        entity.load(nbt)
+        val tag = TagValueOutput.createWithoutContext(ProblemReporter.DISCARDING)
+        entity.save(tag)
+        tag.putBoolean("see_through", seeThrough)
+        entity.load(TagValueInput.createGlobal(ProblemReporter.DISCARDING, tag.buildResult()))
         sendMetadata()
     }
 
@@ -93,7 +95,7 @@ class FakeTextDisplay(override var location: Location) : FakeEntity {
     }
 
     private fun sendMetadata(player: Player? = null) {
-        val players: List<Player> = if(player == null) viewerPlayers.toList() else listOf(player)
+        val players: List<Player> = if (player == null) viewerPlayers.toList() else listOf(player)
         val entityMetadataPacket = ClientboundSetEntityDataPacket(this.entity.id, this.entity.entityData.packAll()!!)
         players.forEach { it.send(entityMetadataPacket) }
     }
