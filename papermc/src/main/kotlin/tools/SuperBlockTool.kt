@@ -1,0 +1,4 @@
+package tools
+
+object SuperBlockTool {
+}

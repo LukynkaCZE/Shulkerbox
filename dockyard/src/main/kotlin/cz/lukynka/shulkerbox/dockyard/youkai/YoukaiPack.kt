@@ -21,6 +21,7 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
+import kotlin.random.Random
 
 object YoukaiPack {
 
@@ -114,7 +115,7 @@ object YoukaiPack {
                     val item = getItem(id)
                     player.give(item)
                     player.sendMessage("<yellow>You have been given item with youkai id <orange>$id<yellow>!")
-                    player.playSound(Sounds.ENTITY_ITEM_PICKUP, 1f, randomFloat(0.8f, 1.3f))
+                    player.playSound(Sounds.ENTITY_ITEM_PICKUP, 1f, Random.randomFloat(0.8f, 1.3f))
                 }
             }
 

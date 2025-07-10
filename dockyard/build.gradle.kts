@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.dockyardmc:dockyard:0.10.1")
+    implementation("io.github.dockyardmc:dockyard:0.10.4.1-SNAPSHOT")
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r")
     implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.3.0.202209071007-r")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
