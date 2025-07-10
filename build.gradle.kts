@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "cz.lukynka"
-version = "3.1"
+version = "3.2"
 
 subprojects {
     plugins.apply("java-library")
