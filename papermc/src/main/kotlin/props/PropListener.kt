@@ -49,7 +49,7 @@ class PropListener: Listener {
         val direction = player.location.direction
         location.add(direction.multiply(2).apply { y = 0.0 })
         location.apply { pitch = 0f; yaw = 0f; y = location.y }
-        propEntity.entity.teleport(location)
+        propEntity.teleport(location)
         prop.location = location.toShulkerboxOffset(map.map).toShulkerboxVector()
     }
 

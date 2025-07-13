@@ -14,6 +14,7 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://maven.enginehub.org/repo")
     maven("https://maven.pvphub.me/releases")
+    maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
     maven {
         name = "devOS"
         url = uri("https://mvn.devos.one/releases")
@@ -41,6 +42,7 @@ dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r")
     implementation("org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.3.0.202209071007-r")
     implementation("com.mattmx:ktgui:2.0")
+    implementation("com.github.retrooper:packetevents-spigot:2.9.1")
     api(project(":common"))
 }
 

@@ -17,7 +17,6 @@ data class ShulkerboxMap(
     var schematicToOriginOffset: ShulkerboxVector,
     var origin: ShulkerboxLocation? = null,
     var annotations: MutableMap<String, ShulkerboxAnnotation>? = null,
-//    var particleSpewers: MutableMap<String, ParticleSpewer> = mutableMapOf()
 )
 
 @Serializable
@@ -51,17 +50,6 @@ data class Prop(
     var itemStack: PropItemStack,
     var youkaiModelId: String? = null
 )
-
-//@Serializable
-//data class ParticleSpewer(
-//    val uid: String,
-//    var location: ShulkerboxVector,
-//    var particle: String,
-//    var amount: Int,
-//    val speed: Float,
-//    val offset: ShulkerboxVector,
-//    val intervalTicks: Int,
-//)
 
 @Serializable
 data class ShulkerboxAnnotation(

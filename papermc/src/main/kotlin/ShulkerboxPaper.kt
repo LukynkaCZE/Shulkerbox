@@ -1,6 +1,10 @@
+import com.github.retrooper.packetevents.PacketEvents
+import com.github.retrooper.packetevents.event.PacketListenerPriority
 import com.mattmx.ktgui.GuiManager
 import config.ConfigManager
+import fakes.FakeListener
 import git.GitIntegration
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import map.MapManager
 import map.commands.*
 import org.bukkit.Bukkit
@@ -19,6 +23,7 @@ import props.PropListener
 import selection.SelectionCommands
 import selection.SelectionListener
 import tools.SuperBarrierTool
+import util.PacketListener
 import youkai.YoukaiIntegration
 
 class ShulkerboxPaper: JavaPlugin(), Listener {
@@ -30,6 +35,12 @@ class ShulkerboxPaper: JavaPlugin(), Listener {
         var youkaiIntegration: Boolean = false
         var gitIntegration: Boolean = false
         lateinit var sidebarLibrary: ScoreboardLibrary
+    }
+
+    override fun onLoad() {
+        super.onLoad()
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this))
+        PacketEvents.getAPI().eventManager.registerListener(PacketListener(), PacketListenerPriority.HIGHEST)
     }
 
     override fun onEnable() {
@@ -56,6 +67,7 @@ class ShulkerboxPaper: JavaPlugin(), Listener {
 
         SelectionListener()
         PropListener()
+        FakeListener()
 
         MapCommand()
         BoundCommands()
@@ -99,6 +111,8 @@ class ShulkerboxPaper: JavaPlugin(), Listener {
         }
 
         Bukkit.getPluginManager().registerEvents(this, this)
+
+        PacketEvents.getAPI().init()
     }
 
     override fun onDisable() {

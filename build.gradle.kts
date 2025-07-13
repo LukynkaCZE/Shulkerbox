@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "cz.lukynka"
-version = "3.2"
+version = "3.3"
 
 subprojects {
     plugins.apply("java-library")
@@ -21,6 +21,7 @@ tasks.register("publish-all") {
     dependsOn(tasks.getByName("build"))
     dependsOn(project(":common").tasks.getByName("publish"))
     dependsOn(project(":dockyard").tasks.getByName("publish"))
+    dependsOn(project(":minestom").tasks.getByName("publish"))
 }
 
 tasks.register("paper") {

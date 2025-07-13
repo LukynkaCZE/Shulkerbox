@@ -3,11 +3,15 @@ package props
 import cz.lukynka.shulkerbox.common.Prop
 import map.ActiveMapSession
 import map.commands.playSuccessSound
+import org.bukkit.Color
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import sendPrefixed
 import toMiniMessage
 import util.error
+import util.runLaterAsync
 
 object PropManager {
 
@@ -33,10 +37,16 @@ object PropManager {
         }
     }
 
-    fun select(player: Player, prop: Prop) {
+    fun select(player: Player, prop: PropEntity) {
         if(propSelections[player] != null) unselect(player, false)
-        propSelections[player] = prop
-        player.playSuccessSound()
+        propSelections[player] = prop.prop
+        player.playSound(player.location, Sound.BLOCK_SCULK_SENSOR_CLICKING, 1f, 1.5f)
+        player.sendPrefixed("<green>Selected a prop <aqua>${prop.prop.uid}<green>!")
+        prop.entity.setGlowing(true)
+        prop.entity.setGlowColor(Color.LIME)
+        runLaterAsync(20) {
+            prop.entity.setGlowing(false)
+        }
     }
 
     fun unselect(player: Player, sound: Boolean = true) {

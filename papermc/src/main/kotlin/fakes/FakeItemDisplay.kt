@@ -23,9 +23,9 @@ class FakeItemDisplay(override var location: Location) : FakeEntity {
         entity.setLocation(location)
 
         entity.transformationInterpolationDelay = 0
-        entity.transformationInterpolationDuration = 2
-        (entity.bukkitEntity as ItemDisplay).interpolationDuration = 2
-        (entity.bukkitEntity as ItemDisplay).teleportDuration = 2
+        entity.transformationInterpolationDuration = 1
+        (entity.bukkitEntity as ItemDisplay).interpolationDuration = 1
+        (entity.bukkitEntity as ItemDisplay).teleportDuration = 1
         entity.viewRange = 999999f
 
     }
@@ -65,13 +65,13 @@ class FakeItemDisplay(override var location: Location) : FakeEntity {
 
     override fun addViewer(player: Player) {
         viewerPlayers.add(player)
-        player.send(entity.getSpawnPacket())
+        player.sendPacket(entity.getSpawnPacket())
         sendMetadata(player)
         teleport(location)
     }
 
     override fun removeViewer(player: Player) {
-        player.send(entity.getDespawnPacket())
+        player.sendPacket(entity.getDespawnPacket())
         viewerPlayers.remove(player)
     }
 
@@ -83,13 +83,7 @@ class FakeItemDisplay(override var location: Location) : FakeEntity {
     override fun teleport(location: Location) {
         this.location = location
         entity.setLocation(location)
-        viewerPlayers.forEach { it.send(ClientboundTeleportEntityPacket(entity.id, PositionMoveRotation.of(entity), setOf(), entity.onGround)) }
-    }
-
-    private fun sendMetadata(player: Player? = null) {
-        val players: List<Player> = if(player == null) viewerPlayers.toList() else listOf(player)
-        val entityMetadataPacket = ClientboundSetEntityDataPacket(this.entity.id, this.entity.entityData.packAll()!!)
-        players.forEach { it.send(entityMetadataPacket) }
+        viewerPlayers.forEach { it.sendPacket(ClientboundTeleportEntityPacket(entity.id, PositionMoveRotation.of(entity), setOf(), entity.onGround)) }
     }
 
     override fun setGlowing(boolean: Boolean) {

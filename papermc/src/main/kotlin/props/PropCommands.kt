@@ -5,7 +5,6 @@ import ShulkerboxPaper
 import cz.lukynka.shulkerbox.common.ShulkerboxTranform
 import map.*
 import map.commands.*
-import org.bukkit.Color
 import org.bukkit.Material
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -125,7 +124,8 @@ class PropCommands {
                 player.sendPrefixed("<green>Created new prop!")
                 activeMap.addProp(prop)
                 activeMap.updateDrawables()
-                PropManager.select(player, prop)
+                val propEntity = activeMap.drawableProps.first { it.prop == prop }
+                PropManager.select(player, propEntity)
             }
         )
 
@@ -265,7 +265,8 @@ class PropCommands {
                 activeMap.addProp(newProp)
                 activeMap.updateDrawables()
                 player.sendPrefixed("<yellow>Cloned a prop!")
-                PropManager.select(player, newProp)
+                val propEntity = activeMap.drawableProps.first { it.prop == newProp }
+                PropManager.select(player, propEntity)
             }
         )
 
@@ -295,13 +296,7 @@ class PropCommands {
                 val props = activeMap.drawableProps.sortedBy { it.location.distance(player.location) }
                 props.forEach { prop ->
                     if(PropManager.propSelections[player] != null && PropManager.propSelections[player]!!.uid == prop.prop.uid) return@forEach
-                    PropManager.select(player, prop.prop)
-                    player.sendPrefixed("<green>Selected a prop <aqua>${prop.prop.uid}<green>!")
-                    prop.entity.setGlowing(true)
-                    prop.entity.setGlowColor(Color.YELLOW)
-                    runLaterAsync(20) {
-                        prop.entity.setGlowing(false)
-                    }
+                    PropManager.select(player, prop)
                     return@handler
                 }
             }

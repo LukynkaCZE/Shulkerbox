@@ -13,13 +13,10 @@ import net.minecraft.world.entity.Display.BillboardConstraints
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.level.Level
-import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.World
-import org.bukkit.block.Block
 import org.bukkit.block.BlockState
 import org.bukkit.craftbukkit.CraftWorld
-import org.bukkit.craftbukkit.block.CraftBlock
 import org.bukkit.craftbukkit.block.CraftBlockState
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.craftbukkit.inventory.CraftItemStack
@@ -54,7 +51,7 @@ fun Entity.getDespawnPacket(): ClientboundRemoveEntitiesPacket {
     return ClientboundRemoveEntitiesPacket(this.id)
 }
 
-fun Player.send(vararg packets: Packet<*>) {
+fun Player.sendPacket(vararg packets: Packet<*>) {
     val craftPlayer = (this as CraftPlayer)
     packets.forEach { craftPlayer.handle.connection.send(it) }
 }
