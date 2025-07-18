@@ -20,7 +20,7 @@ object GitIntegration {
             Git.open(folder)
         } else {
             Git.cloneRepository()
-                .setBranch("main")
+                .setBranch("master")
                 .setDirectory(folder)
                 .setURI(config.gitUrl)
                 .setCredentialsProvider(credentials)
@@ -35,7 +35,7 @@ object GitIntegration {
         val credentials = UsernamePasswordCredentialsProvider(config.gitUser, config.gitPassword)
         git.pull()
             .setCredentialsProvider(credentials)
-            .setRemoteBranchName("main")
+            .setRemoteBranchName("master")
             .call()
     }
 }
