@@ -125,7 +125,7 @@ object YoukaiIntegration {
         if (model == null) {
             val item = ItemStack(Material.BARRIER)
             item.editMeta { it.displayName("<red><bold>No Youkai Model </bold>:: <yellow>$id".toMiniMessage()) }
-            Bukkit.broadcast("$prefix <red><bold>No Youkai Model </bold>:: <yellow>$id".toMiniMessage())
+            Bukkit.broadcast("$prefix <dark_red>Error while creating prop: <red>No model with youkai id <aqua>${id}<red> exists in resourcepack!".toMiniMessage())
             return item
         }
         val item = ItemStack(Material.valueOf(model.baseMaterial.uppercase()))

@@ -61,7 +61,7 @@ fun ItemStack.getVanilla(): net.minecraft.world.item.ItemStack = CraftItemStack.
 fun BlockState.getVanilla(): net.minecraft.world.level.block.state.BlockState = (this as CraftBlockState).handle
 
 fun ItemDisplayTransform.getVanilla(): ItemDisplayContext {
-    val vanillaTransform = when(this) {
+    val vanillaTransform = when (this) {
         ItemDisplayTransform.NONE -> ItemDisplayContext.NONE
         ItemDisplayTransform.THIRDPERSON_LEFTHAND -> ItemDisplayContext.THIRD_PERSON_LEFT_HAND
         ItemDisplayTransform.THIRDPERSON_RIGHTHAND -> ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
@@ -91,7 +91,7 @@ fun Component.toVanilla(): net.minecraft.network.chat.Component {
 }
 
 fun Billboard.toVanilla(): BillboardConstraints {
-    return when(this) {
+    return when (this) {
         Billboard.FIXED -> BillboardConstraints.FIXED
         Billboard.VERTICAL -> BillboardConstraints.VERTICAL
         Billboard.HORIZONTAL -> BillboardConstraints.HORIZONTAL
@@ -99,3 +99,6 @@ fun Billboard.toVanilla(): BillboardConstraints {
     }
 }
 
+fun Boolean.toColoredString(): String {
+    return if (this) "<green>true" else "<red>false"
+}

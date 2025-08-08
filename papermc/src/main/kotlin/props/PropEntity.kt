@@ -1,7 +1,7 @@
 package props
 
-import cz.lukynka.shulkerbox.common.Prop
 import ShulkerboxPaper
+import cz.lukynka.shulkerbox.common.Prop
 import fakes.FakeInteraction
 import fakes.FakeItemDisplay
 import map.toBukkitItemStack
@@ -10,7 +10,6 @@ import org.bukkit.Location
 import org.bukkit.entity.Display
 import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.Player
-import send
 import youkai.YoukaiIntegration
 
 class PropEntity(var location: Location, var prop: Prop) {
@@ -18,6 +17,7 @@ class PropEntity(var location: Location, var prop: Prop) {
     val entity: FakeItemDisplay = FakeItemDisplay(location)
     val interaction = FakeInteraction(location)
     val viewerPlayers: MutableSet<Player> = mutableSetOf()
+    var moveLocked: Boolean = true
 
     fun addViewer(player: Player) {
         viewerPlayers.add(player)
@@ -39,10 +39,10 @@ class PropEntity(var location: Location, var prop: Prop) {
 
     fun update() {
         entity.setItem(prop.itemStack.toBukkitItemStack())
-        if(prop.youkaiModelId != null && ShulkerboxPaper.youkaiIntegration) {
+        if (prop.youkaiModelId != null && ShulkerboxPaper.youkaiIntegration) {
             entity.setItem(YoukaiIntegration.getModel(prop.youkaiModelId!!))
         }
-        if(prop.brightness != null) {
+        if (prop.brightness != null) {
             entity.setBrightness(Display.Brightness(prop.brightness!!, prop.brightness!!))
         }
         entity.setTransformation(prop.transformation.toTransformation())
@@ -60,14 +60,14 @@ class PropEntity(var location: Location, var prop: Prop) {
     }
 }
 
-enum class PropDragOperation {
-    ROTATION_X,
-    ROTATION_Y,
-    ROTATION_Z,
-    POSITION_X,
-    POSITION_Y,
-    POSITION_Z,
-    FREE_MOVE
+enum class PropDragOperation(val displayName: String) {
+    ROTATION_X("Rotate X"),
+    ROTATION_Y("Rotate Y"),
+    ROTATION_Z("Rotate Z"),
+    POSITION_X("Translation X"),
+    POSITION_Y("Translation Y"),
+    POSITION_Z("Translation Z"),
+    FREE_MOVE("Free Move")
 }
 
 fun cyclePropDragOperation(current: PropDragOperation): PropDragOperation {

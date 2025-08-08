@@ -2,25 +2,28 @@ package props
 
 import ShulkerboxPaper
 import com.destroystokyo.paper.event.server.ServerTickStartEvent
-import map.*
+import map.MapManager
 import map.commands.playSuccessSound
 import map.commands.valueChangeSound
+import map.toShulkerboxOffset
+import map.toShulkerboxTranform
+import map.toShulkerboxVector
 import org.bukkit.Bukkit
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
-import org.bukkit.event.player.PlayerDropItemEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerMoveEvent
-import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.player.*
 import org.bukkit.util.Transformation
 import org.joml.Quaternionf
 import selection.SelectionManager.prefix
+import send
 import toMiniMessage
 import util.runLater
+import util.toColoredString
 
-class PropListener: Listener {
+class PropListener : Listener {
 
     init {
         Bukkit.getPluginManager().registerEvents(this, ShulkerboxPaper.instance)
@@ -28,22 +31,25 @@ class PropListener: Listener {
 
     @EventHandler
     fun tick(event: ServerTickStartEvent) {
-        Bukkit.getOnlinePlayers().filter { it.inventory.itemInMainHand == PropManager.propMoveToolItem }.forEach {
-            val prop = PropManager.propSelections[it] ?: return@forEach
-            val map = MapManager.mapSelections[it] ?: return@forEach
+        Bukkit.getOnlinePlayers().filter { it.inventory.itemInMainHand == PropManager.propMoveToolItem }.forEach { player ->
+            val prop = PropManager.propSelections[player] ?: return@forEach
+            val map = MapManager.mapSelections[player] ?: return@forEach
             val propEntity = PropManager.getPropEntityFromProp(prop, map) ?: return@forEach
-            it.sendActionBar("$prefix <yellow>Current Mode: <green><bold>${propEntity.dragOperation.name}</bold> <dark_gray>| <yellow>Change by <gold>Right/Left-Click (Sneak for precise), <yellow>Rotate mode by <gold>Dropping this Item".toMiniMessage())
+
+            player.sendActionBar("$prefix <yellow>Current Mode: <green><bold>${propEntity.dragOperation.displayName}</bold> <dark_gray>| <yellow>Change: <gold>Right/Left-Click, <yellow>Rotate mode: <gold>Drop <dark_gray>| <gray>(Move Locked: ${propEntity.moveLocked.toColoredString()}<gray>)".toMiniMessage())
         }
     }
+
     @EventHandler
     fun move(event: PlayerMoveEvent) {
         val player = event.player
-        if(player.inventory.itemInMainHand != PropManager.propMoveToolItem) return
+        if (player.inventory.itemInMainHand != PropManager.propMoveToolItem) return
         val prop = PropManager.propSelections[player] ?: return
         val map = MapManager.mapSelections[player] ?: return
         val propEntity = PropManager.getPropEntityFromProp(prop, map) ?: return
 
-        if(propEntity.dragOperation != PropDragOperation.FREE_MOVE) return
+        if (propEntity.dragOperation != PropDragOperation.FREE_MOVE) return
+        if (propEntity.moveLocked) return
 
         val location = player.location.add(0.0, 0.5, 0.0)
         val direction = player.location.direction
@@ -54,33 +60,49 @@ class PropListener: Listener {
     }
 
     private val cooldown = mutableListOf<Player>()
+
     @EventHandler
     fun click(event: PlayerInteractEvent) {
         val player = event.player
-        if(player.inventory.itemInMainHand != PropManager.propMoveToolItem) return
+        if (player.inventory.itemInMainHand != PropManager.propMoveToolItem) return
         val prop = PropManager.propSelections[player] ?: return
         val map = MapManager.mapSelections[player] ?: return
         val propEntity = PropManager.getPropEntityFromProp(prop, map) ?: return
         event.isCancelled = true
-        if(cooldown.contains(player)) {
+        if (cooldown.contains(player)) {
             cooldown.remove(player)
             return
         }
 
-        when(propEntity.dragOperation) {
+        when (propEntity.dragOperation) {
             PropDragOperation.ROTATION_X -> rotateProp(propEntity, event.action, player, VectorDir.X)
             PropDragOperation.ROTATION_Y -> rotateProp(propEntity, event.action, player, VectorDir.Y)
             PropDragOperation.ROTATION_Z -> rotateProp(propEntity, event.action, player, VectorDir.Z)
-            PropDragOperation.POSITION_X -> translateProp(propEntity,event.action, player, VectorDir.X)
-            PropDragOperation.POSITION_Y -> translateProp(propEntity,event.action, player, VectorDir.Y)
-            PropDragOperation.POSITION_Z -> translateProp(propEntity,event.action, player, VectorDir.Z)
+            PropDragOperation.POSITION_X -> translateProp(propEntity, event.action, player, VectorDir.X)
+            PropDragOperation.POSITION_Y -> translateProp(propEntity, event.action, player, VectorDir.Y)
+            PropDragOperation.POSITION_Z -> translateProp(propEntity, event.action, player, VectorDir.Z)
             PropDragOperation.FREE_MOVE -> return
         }
     }
+
+    @EventHandler
+    fun onItemSwapHand(event: PlayerSwapHandItemsEvent) {
+        val player = event.player
+        if (event.offHandItem != PropManager.propMoveToolItem) return
+        val prop = PropManager.propSelections[player] ?: return
+        val map = MapManager.mapSelections[player] ?: return
+        val propEntity = PropManager.getPropEntityFromProp(prop, map) ?: return
+
+        event.isCancelled = true
+        propEntity.moveLocked = !propEntity.moveLocked
+        val pitch = if (propEntity.moveLocked) 2f else 1f
+        player.playSound(player.location, Sound.ITEM_MACE_SMASH_AIR, 1f, pitch)
+    }
+
     @EventHandler
     fun onItemDrop(event: PlayerDropItemEvent) {
         val player = event.player
-        if(event.itemDrop.itemStack != PropManager.propMoveToolItem) return
+        if (event.itemDrop.itemStack != PropManager.propMoveToolItem) return
         val prop = PropManager.propSelections[player] ?: return
         val map = MapManager.mapSelections[player] ?: return
         val propEntity = PropManager.getPropEntityFromProp(prop, map) ?: return
@@ -89,15 +111,15 @@ class PropListener: Listener {
         propEntity.dragOperation = nextEntry(propEntity.dragOperation)
         player.playSuccessSound()
         cooldown.add(player)
-        val delay: Long = if(propEntity.dragOperation == PropDragOperation.FREE_MOVE) 10 else 2
+        val delay: Long = if (propEntity.dragOperation == PropDragOperation.FREE_MOVE) 10 else 2
         runLater(delay) { cooldown.remove(player) }
     }
 
     private fun translateProp(prop: PropEntity, action: Action, player: Player, dir: VectorDir) {
         val current = prop.entity.getTransformation()
-        val realValue = if(player.isSneaking) 0.05f else 0.3f
-        val value = if(action.isLeftClick) realValue else realValue * -1
-        val trans = when(dir) {
+        val realValue = if (player.isSneaking) 0.05f else 0.3f
+        val value = if (action.isLeftClick) realValue else realValue * -1
+        val trans = when (dir) {
             VectorDir.X -> current.translation.apply { x += value } // omg trans rights :3
             VectorDir.Y -> current.translation.apply { y += value } // omg trans rights :3
             VectorDir.Z -> current.translation.apply { z += value } // omg trans rights :3
@@ -111,10 +133,10 @@ class PropListener: Listener {
 
     private fun rotateProp(prop: PropEntity, action: Action, player: Player, dir: VectorDir) {
         val current = prop.entity.getTransformation()
-        val realValue = if(player.isSneaking) 0.05f else 0.25f
-        val value = if(action.isLeftClick) realValue else realValue * -1
+        val realValue = if (player.isSneaking) 0.05f else 0.25f
+        val value = if (action.isLeftClick) realValue else realValue * -1
 
-        val rotationDelta = when(dir) {
+        val rotationDelta = when (dir) {
             VectorDir.X -> Quaternionf().rotateLocalY(value)
             VectorDir.Y -> Quaternionf().rotateLocalX(value)
             VectorDir.Z -> Quaternionf().rotateLocalZ(value)
@@ -130,7 +152,7 @@ class PropListener: Listener {
 
     @EventHandler
     fun onPlayerLeave(event: PlayerQuitEvent) {
-        if(PropManager.propSelections[event.player] != null) {
+        if (PropManager.propSelections[event.player] != null) {
             PropManager.unselect(event.player, false)
         }
     }

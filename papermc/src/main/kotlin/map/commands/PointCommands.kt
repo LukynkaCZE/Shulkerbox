@@ -1,5 +1,6 @@
 package map.commands
 
+import ShulkerboxPaper
 import cz.lukynka.shulkerbox.common.Point
 import cz.lukynka.shulkerbox.common.PointType
 import map.*
@@ -8,6 +9,9 @@ import org.bukkit.entity.Player
 import org.incendo.cloud.parser.standard.EnumParser.enumParser
 import org.incendo.cloud.parser.standard.StringParser.stringParser
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider
+import org.incendo.cloud.suggestion.Suggestion
+import org.incendo.cloud.suggestion.SuggestionProvider
+import send
 import sendPrefixed
 import util.error
 import util.generateUid
@@ -22,110 +26,192 @@ class PointCommands {
     init {
         val cm = ShulkerboxPaper.instance.commandManager
         val pointCommandBase = cm.commandBuilder("point")
-        cm.command(pointCommandBase.literal("create")
-            .required("id", stringParser(), simpleSuggestion("<id>"))
-            .required("type", enumParser(PointType::class.java))
+        cm.command(
+            pointCommandBase.literal("create")
+                .required("id", stringParser(), simpleSuggestion("<id>"))
+                .required("type", enumParser(PointType::class.java))
 
-            .handler { ctx ->
-                val player = (ctx.sender() as Player)
-                val id = ctx.get<String>("id")
-                val type = ctx.get<PointType>("type")
-                val map = MapManager.selectedShulkerboxMap(player)
+                .handler { ctx ->
+                    val player = (ctx.sender() as Player)
+                    val id = ctx.get<String>("id")
+                    val type = ctx.get<PointType>("type")
+                    val map = MapManager.selectedShulkerboxMap(player)
 
-                if(map == null) {
-                    error(player, "You don't have any map selected!")
-                    return@handler
-                }
-
-                if(type == PointType.UNIQUE && map.points.values.firstOrNull { it.id == id } != null) {
-                    error(player, "A Unique point with id <dark_red>$id <red>already exists on this map!")
-                    return@handler
-                }
-
-                val activeMap = MapManager.mapSelections[player]!!
-                val uid: String = generateUid(map)
-                val point = Point(
-                    id = id,
-                    location = player.location.clone().apply { yaw = player.yaw; pitch = 0f }.toShulkerboxOffset(map).toShulkerboxVector(),
-                    yaw = player.location.yaw,
-                    pitch = 0f,
-                    type = type,
-                    meta = mutableMapOf(),
-                    uid = uid
-                )
-                activeMap.addPoint(point)
-            }
-        )
-
-        cm.command(pointCommandBase.literal("remove")
-            .required("uid", stringParser(), getPointUidSuggestions())
-
-            .handler { ctx ->
-                val player = (ctx.sender() as Player)
-                val uid = ctx.get<String>("uid")
-                val map = MapManager.selectedShulkerboxMap(player)
-
-                if(map == null) {
-                    error(player, "You don't have any map selected!")
-                    return@handler
-                }
-
-                val point = map.points[uid]
-                if(point == null) {
-                    error(player, "There are no points with the uid <dark_red>$uid")
-                    return@handler
-                }
-
-                map.points.remove(uid)
-
-                val activeMap = MapManager.mapSelections[player]!!
-                activeMap.updateDrawables()
-
-                player.sendPrefixed("Removed point <red>${point.id} <dark_red>(${point.uid}) <gray>from the map!")
-                player.playEditSound()
-            }
-        )
-
-        cm.command(pointCommandBase.literal("redefine")
-            .required("uid", stringParser(), getPointUidSuggestions())
-            .optional("type", enumParser(PointType::class.java))
-
-            .handler { ctx ->
-                val player = (ctx.sender() as Player)
-                val uid = ctx.get<String>("uid")
-                val type = ctx.getOrDefault<PointType>("type", null)
-                val map = MapManager.selectedShulkerboxMap(player)
-
-                if(map == null) {
-                    error(player, "You don't have any map selected!")
-                    return@handler
-                }
-
-                val point = map.points[uid]
-                if(point == null) {
-                    error(player, "There are no points with the uid <dark_red>$uid")
-                    return@handler
-                }
-
-                point.location = player.location.clone().apply { yaw = player.yaw; pitch = 0f }.toShulkerboxOffset(map).toShulkerboxVector()
-                point.pitch = player.pitch
-                point.yaw = 0f
-
-                if(type != null) {
-                    val existing = map.points.values.firstOrNull { it.type == type }
-                    if(existing != null && type == PointType.UNIQUE) {
-                        error(player, "A Unique point with id <dark_red>${point.id} <red>already exists on this map!")
+                    if (map == null) {
+                        error(player, "You don't have any map selected!")
                         return@handler
                     }
-                    point.type = type
+
+                    if (type == PointType.UNIQUE && map.points.values.firstOrNull { it.id == id } != null) {
+                        error(player, "A Unique point with id <dark_red>$id <red>already exists on this map!")
+                        return@handler
+                    }
+
+                    val activeMap = MapManager.mapSelections[player]!!
+                    val uid: String = generateUid(map)
+                    val point = Point(
+                        id = id,
+                        location = player.location.clone().apply { yaw = player.yaw; pitch = 0f }.toShulkerboxOffset(map).toShulkerboxVector(),
+                        yaw = player.location.yaw,
+                        pitch = 0f,
+                        type = type,
+                        meta = mutableMapOf(),
+                        uid = uid
+                    )
+                    activeMap.addPoint(point)
                 }
+        )
 
-                val activeMap = MapManager.mapSelections[player]!!
-                activeMap.updateDrawables()
+        cm.command(
+            pointCommandBase.literal("meta")
+                .required("id", stringParser(), getPointUidSuggestions())
+                .required("action", enumParser(ShulkerboxMetaAction::class.java))
+                .optional("key", stringParser(), SuggestionProvider.suggesting(Suggestion.suggestion("<key>")))
+                .optional("value", stringParser(), SuggestionProvider.suggesting(Suggestion.suggestion("<value>")))
 
-                player.sendPrefixed("Redefined point <yellow>${point.id} <gold>(${point.uid}) <gray>!")
-                player.playEditSound()
-            }
+                .handler { ctx ->
+                    val player = (ctx.sender() as Player)
+                    val map = MapManager.selectedShulkerboxMap(player)
+                    val id = ctx.get<String>("id")
+
+                    val action: ShulkerboxMetaAction = ctx.get<ShulkerboxMetaAction>("action")
+                    val key: String? = ctx.getOrDefault<String>("key", null)
+                    val value: String? = ctx.getOrDefault<String>("value", null)
+
+                    if (map == null) {
+                        error(player, "You don't have any map selected!")
+                        return@handler
+                    }
+
+                    val point = map.points[id]
+                    if (point == null) {
+                        error(player, "There is no bound with the id <dark_red>$id")
+                        return@handler
+                    }
+
+                    when (action) {
+                        ShulkerboxMetaAction.EDIT,
+                        ShulkerboxMetaAction.ADD -> {
+                            if (value == null || key == null) {
+                                error(player, "<key> and <value> arguments are required for this action!")
+                                return@handler
+                            }
+
+                            point.meta[key] = value
+                            player.sendPrefixed("Set metadata tag with key <yellow>$key <gray>to <aqua>$value")
+                            player.playEditSound()
+                        }
+
+                        ShulkerboxMetaAction.REMOVE -> {
+                            if (key == null) {
+                                error(player, "<key> argument is required for this action!")
+                                return@handler
+                            }
+                            if (point.meta[key] == null) {
+                                error(
+                                    player,
+                                    "Metadata tag with key <dark_red>$key <red>does not exist in bound <dark_red>${point.id}<red>!"
+                                )
+                                return@handler
+                            }
+
+                            point.meta.remove(key)
+                            player.sendPrefixed("Removed metadata tag with key <yellow>$key <gray>from bound metadata!")
+                            player.playEditSound()
+                        }
+
+                        ShulkerboxMetaAction.CLEAR_ALL -> {
+                            point.meta.clear()
+                            player.sendPrefixed("Cleared all metadata tags from the bound metadata!")
+                            player.playEditSound()
+                        }
+
+                        ShulkerboxMetaAction.GET -> {
+                            player.send(" ")
+                            player.sendPrefixed("Metadata tags of point <yellow>${point.id}<gray>:")
+                            point.meta.forEach {
+                                player.send("   <dark_gray>- <green>${it.key} <gray>= <aqua>${it.value}")
+                            }
+                            player.send(" ")
+                        }
+                    }
+
+                    val activeMap = MapManager.mapSelections[player]!!
+                    activeMap.updateDrawables()
+                }
+        )
+
+        cm.command(
+            pointCommandBase.literal("remove")
+                .required("uid", stringParser(), getPointUidSuggestions())
+
+                .handler { ctx ->
+                    val player = (ctx.sender() as Player)
+                    val uid = ctx.get<String>("uid")
+                    val map = MapManager.selectedShulkerboxMap(player)
+
+                    if (map == null) {
+                        error(player, "You don't have any map selected!")
+                        return@handler
+                    }
+
+                    val point = map.points[uid]
+                    if (point == null) {
+                        error(player, "There are no points with the uid <dark_red>$uid")
+                        return@handler
+                    }
+
+                    map.points.remove(uid)
+
+                    val activeMap = MapManager.mapSelections[player]!!
+                    activeMap.updateDrawables()
+
+                    player.sendPrefixed("Removed point <red>${point.id} <dark_red>(${point.uid}) <gray>from the map!")
+                    player.playEditSound()
+                }
+        )
+
+        cm.command(
+            pointCommandBase.literal("redefine")
+                .required("uid", stringParser(), getPointUidSuggestions())
+                .optional("type", enumParser(PointType::class.java))
+
+                .handler { ctx ->
+                    val player = (ctx.sender() as Player)
+                    val uid = ctx.get<String>("uid")
+                    val type = ctx.getOrDefault<PointType>("type", null)
+                    val map = MapManager.selectedShulkerboxMap(player)
+
+                    if (map == null) {
+                        error(player, "You don't have any map selected!")
+                        return@handler
+                    }
+
+                    val point = map.points[uid]
+                    if (point == null) {
+                        error(player, "There are no points with the uid <dark_red>$uid")
+                        return@handler
+                    }
+
+                    point.location = player.location.clone().apply { yaw = player.yaw; pitch = 0f }.toShulkerboxOffset(map).toShulkerboxVector()
+                    point.pitch = player.pitch
+                    point.yaw = 0f
+
+                    if (type != null) {
+                        val existing = map.points.values.firstOrNull { it.type == type }
+                        if (existing != null && type == PointType.UNIQUE) {
+                            error(player, "A Unique point with id <dark_red>${point.id} <red>already exists on this map!")
+                            return@handler
+                        }
+                        point.type = type
+                    }
+
+                    val activeMap = MapManager.mapSelections[player]!!
+                    activeMap.updateDrawables()
+
+                    player.sendPrefixed("Redefined point <yellow>${point.id} <gold>(${point.uid}) <gray>!")
+                    player.playEditSound()
+                }
         )
     }
 }

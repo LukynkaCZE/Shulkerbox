@@ -21,10 +21,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.util.Transformation
-import org.joml.Vector3f
 import selection.SelectionManager.prefix
-import selection.getBoundingBoxColorData
 import sendPrefixed
 import toMiniMessage
 
